@@ -25,6 +25,7 @@ interface ProductGroup {
 const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [openSubDropdown, setOpenSubDropdown] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [language, setLanguage] = useState("tr");
@@ -74,6 +75,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
         const res = await fetch(`http://localhost:5000/api/product-groups?lang=${language}`);
         const data: ProductGroup[] = await res.json();
 
+        /*
         const dynamicProductsMenu: MenuItem = {
           title: "Ürünler",
           submenu: data.map((group) => ({
@@ -87,6 +89,35 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
               : undefined,
           })),
         };
+        */
+
+        console.log("Navbar grubu:", data);
+/*
+        const dynamicProductsMenu: MenuItem = {
+          title: "Ürünler",
+          submenu: data.map((group) => ({
+            title: group.name,
+            path: `/urunler/${group.id}`,
+            submenu: group.subcategories?.map((sub) => ({
+              title: sub.title,
+              path: `/urunler/${group.id}/alt/${sub.id}`,
+            })),
+          })),
+        };
+        
+*/   
+const dynamicProductsMenu: MenuItem = {
+  title: "Ürünler",
+  submenu: data.map((group) => ({
+    title: group.name,
+    path: `/urunler/${group.id}`, // 💥 id yerine başka bir field varsa burası hata verir
+    submenu: group.subcategories?.map((sub) => ({
+      title: sub.title,
+      path: `/urunler/${group.id}/alt/${sub.id}`,
+    })),
+  })),
+};
+
 
         const staticMenus: MenuItem[] = [
           { title: "Home", path: "/" },
@@ -166,31 +197,36 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                     darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
                   }`}>
                     {item.submenu.map((sub) => (
-                      <div key={sub.title} className="relative group">
+                      <div
+                        key={sub.title}
+                        className="relative group"
+                        onMouseEnter={() => setOpenSubDropdown(sub.title)}
+                        onMouseLeave={() => setOpenSubDropdown(null)}
+                      >
                         {sub.path ? (
-                         <Link to={sub.path} className="block px-4 py-2 hover:bg-opacity-20">
-                        {sub.title}
-                        </Link>
-                          ) : (
+                          <Link to={sub.path} className="block px-4 py-2 hover:bg-opacity-20">
+                            {sub.title}
+                          </Link>
+                        ) : (
                           <span className="block px-4 py-2 text-gray-500">{sub.title}</span>
                         )}
 
-                        {sub.submenu && (
-                          <div className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-md shadow-md z-50 hidden group-hover:block ${
+                        {/* ALT ALT MENÜ */}
+                        {sub.submenu && openSubDropdown === sub.title && (
+                          <div className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-md shadow-md z-50 ${
                             darkMode ? "bg-gray-700 text-white" : "bg-white text-black"
                           }`}>
-                            {sub.submenu.map((subItem) => (
-  subItem.path ? (
-    <Link key={subItem.title} to={subItem.path} className="block px-4 py-2 hover:underline">
-      {subItem.title}
-    </Link>
-  ) : (
-    <span key={subItem.title} className="block px-4 py-2 text-gray-500">
-      {subItem.title}
-    </span>
-  )
-))}
-
+                            {sub.submenu.map((subItem) =>
+                              subItem.path ? (
+                                <Link key={subItem.title} to={subItem.path} className="block px-4 py-2 hover:underline">
+                                  {subItem.title}
+                                </Link>
+                              ) : (
+                                <span key={subItem.title} className="block px-4 py-2 text-gray-500">
+                                  {subItem.title}
+                                </span>
+                              )
+                            )}
                           </div>
                         )}
                       </div>
