@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 import AdminLayout from "./layouts/AdminLayout"; 
 import ProductGroupPage from "./pages/ProductGroupPage";
+import SubProductPage from "./pages/SubProductPage";
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -36,6 +37,8 @@ function AppContent() {
             <Route path="/hakkimizda" element={<About />} />
             <Route path="/urunler/:groupId" element={<ProductGroupPage />} />
             <Route path="/iletisim" element={<Contact />} />
+            <Route path="/urunler/:groupId/alt/:subId" element={<SubProductPage />} />
+
 
             {/* Admin Login */}
             <Route

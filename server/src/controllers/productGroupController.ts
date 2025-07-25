@@ -4,6 +4,8 @@ import AppDataSource from "../data-source";
 import { ProductGroup } from "../entity/ProductGroup";
 import { Product } from "../entity/Product";
 
+
+// fonksiyonu projende navbar menüsünü beslemek için tasarlanmış ana fonksiyondur. 
 export const getAllGroups = async (req: Request, res: Response) => {
   const lang = (req.query.lang as string) || "tr";
 
@@ -31,7 +33,7 @@ export const getAllGroups = async (req: Request, res: Response) => {
   }
 };
 
-// ✅ Belirli bir grubun ürünlerini çekmek (senin sorduğun)
+// 	 Belirli Grup altındaki tüm ürünleri çekmek için tasarlanmış fonksiyondur.
 export const getProductsByGroupId = async (req: Request, res: Response) => {
   const lang = (req.query.lang as string) || "tr";
   const groupId = parseInt(req.params.groupId);

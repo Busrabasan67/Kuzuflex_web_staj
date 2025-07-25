@@ -173,6 +173,7 @@ const dynamicProductsMenu: MenuItem = {
           <div className="hidden lg:flex space-x-3">
             {menuItems.map((item) => (
               <div key={item.title} className="relative group">
+                {/* Ana Menü */}
                 {item.path ? (
                   <Link
                     to={item.path}
