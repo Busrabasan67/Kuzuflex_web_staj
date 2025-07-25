@@ -1,21 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, Column,ManyToOne} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
 import { Product } from "./Product";
+import { CatalogTranslation } from "./CatalogTranslation";
 
-
-  // alt başlıkların 0 veya daha fazla katalogu olabilir
-  @Entity()
-  export class Catalog {  // 
+@Entity()
+export class Catalog {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()
-  name!: string; // Örn: Teknik Katalog
+  filePath!: string; // 📁 sunucu içindeki konum
 
   @Column()
-  fileUrl!: string; // Sunucudaki dosya yolu
+  fileUrl!: string;  // 🌐 kullanıcıya gösterilecek URL
 
-//PDF silinse bile ürün kalır ama ürün silinirse PDF’ler de silinir.
-
-  @ManyToOne(() => Product, (product: Product) => product.catalogs, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Product, product => product.catalogs, { onDelete: "CASCADE" })
   product!: Product;
+
+  @OneToMany(() => CatalogTranslation, translation => translation.catalog, { cascade: true })
+  translations!: CatalogTranslation[];
 }
