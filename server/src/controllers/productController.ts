@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import AppDataSource from "../data-source";
 import { Product } from "../entity/Product";
 
+
 // Belirli bir ürünün detayını çekmek için tasarlanmış fonksiyondur.
 export const getSubProduct = async (req: Request, res: Response) => {
   const groupId = parseInt(req.query.group as string);
@@ -41,6 +42,7 @@ export const getSubProduct = async (req: Request, res: Response) => {
       };
     }) || [];
 
+    /*
     return res.json({
       id: product.id,
       groupId: product.group?.id || null,
@@ -50,6 +52,16 @@ export const getSubProduct = async (req: Request, res: Response) => {
       standard: product.standard,
       catalogs: catalogs,
     });
+    */
+   return res.json({
+    id: product.id,
+    groupId: product.group?.id || null,
+    title: trTranslation?.title,
+    description: trTranslation?.description,
+    imageUrl: product.imageUrl,
+    standard: product.standard,
+    catalogs: catalogs, // varsa kataloglar
+  });
   } catch (err) {
     console.error("Alt ürün API hatası:", err);
     return res.status(500).json({ message: "Sunucu hatası" });

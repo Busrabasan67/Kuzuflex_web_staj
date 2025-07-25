@@ -9,6 +9,7 @@ interface MenuItem {
   title: string;
   path?: string;
   submenu?: MenuItem[]; // recursive tanım: submenu varsa o da bir MenuItem olabilir
+  key?: string;
 }
 
 interface SubCategory {
@@ -110,10 +111,12 @@ const dynamicProductsMenu: MenuItem = {
   title: "Ürünler",
   submenu: data.map((group) => ({
     title: group.name,
-    path: `/urunler/${group.id}`, // 💥 id yerine başka bir field varsa burası hata verir
+    path: `/urunler/${group.id}`,
+    key: `group-${group.id}`,
     submenu: group.subcategories?.map((sub) => ({
       title: sub.title,
       path: `/urunler/${group.id}/alt/${sub.id}`,
+      key: `sub-${group.id}-${sub.id}`,
     })),
   })),
 };
@@ -199,7 +202,7 @@ const dynamicProductsMenu: MenuItem = {
                   }`}>
                     {item.submenu.map((sub) => (
                       <div
-                        key={sub.title}
+                        key={sub.key || sub.title}
                         className="relative group"
                         onMouseEnter={() => setOpenSubDropdown(sub.title)}
                         onMouseLeave={() => setOpenSubDropdown(null)}
@@ -219,11 +222,11 @@ const dynamicProductsMenu: MenuItem = {
                           }`}>
                             {sub.submenu.map((subItem) =>
                               subItem.path ? (
-                                <Link key={subItem.title} to={subItem.path} className="block px-4 py-2 hover:underline">
+                                <Link key={subItem.key || subItem.title} to={subItem.path} className="block px-4 py-2 hover:underline">
                                   {subItem.title}
                                 </Link>
                               ) : (
-                                <span key={subItem.title} className="block px-4 py-2 text-gray-500">
+                                <span key={subItem.key || subItem.title} className="block px-4 py-2 text-gray-500">
                                   {subItem.title}
                                 </span>
                               )

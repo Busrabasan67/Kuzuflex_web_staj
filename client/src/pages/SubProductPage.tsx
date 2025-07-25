@@ -1,27 +1,77 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+const API_BASE = "http://localhost:5000";
+
+interface Catalog {
+  id: number;
+  name: string;
+  filePath: string;
+  fileUrl?: string;
+}
+
+interface ProductDetail {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string;
+  standard: string;
+  catalogs?: Catalog[];
+}
+
 const SubProductPage = () => {
   const { groupId, subId } = useParams();
-  const [subProduct, setSubProduct] = useState<any>(null);
+  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/product-groups/${groupId}/products?lang=tr`)
-      .then(res => res.json())
-      .then(data => {
-        const product = data.find((p: any) => p.id == subId); // subId’ye göre ürünü bul
-        setSubProduct(product);
+    const lang = "tr"; // çoklu dil varsa dinamik yapılabilir
+    fetch(
+      `${API_BASE}/api/products?group=${groupId}&sub=${subId}&lang=${lang}`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Ürün detay alınamadı:", err);
+        setLoading(false);
       });
   }, [groupId, subId]);
 
-  if (!subProduct) {
-    return <p>Yükleniyor...</p>;
-  }
+  if (loading) return <p>Yükleniyor...</p>;
+  if (!product) return <p>Ürün bulunamadı.</p>;
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">{subProduct.title}</h1>
-      <p className="text-lg mb-2">{subProduct.description}</p>
+    <div className="sub-product-page">
+      <img
+        src={`${API_BASE}/uploads${product.imageUrl}`}
+        alt={product.title}
+        style={{ width: "300px", height: "300px", objectFit: "cover" }}
+      />
+      <h2>{product.title}</h2>
+      <p>{product.description}</p>
+      <strong>Standard: {product.standard}</strong>
+      {product.catalogs && product.catalogs.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <h3>Kataloglar</h3>
+          <ul>
+            {product.catalogs.map((catalog) => (
+              <li key={catalog.id} style={{ marginBottom: 8 }}>
+                <a
+                  href={catalog.fileUrl ? `${API_BASE}/uploads/${catalog.fileUrl}` : `${API_BASE}/uploads/${catalog.filePath}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                >
+                  {catalog.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

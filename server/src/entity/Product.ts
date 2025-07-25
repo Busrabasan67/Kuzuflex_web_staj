@@ -10,12 +10,6 @@ export class Product {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
-  title!: string;
-
-  @Column({ nullable: true })
-  description?: string;
-
   @Column({ nullable: true })
   imageUrl?: string;
 
