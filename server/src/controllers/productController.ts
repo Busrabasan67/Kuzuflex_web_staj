@@ -38,7 +38,6 @@ export const getSubProduct = async (req: Request, res: Response) => {
         id: catalog.id,
         name: translation?.name || "Katalog",
         filePath: catalog.filePath,
-        fileUrl: catalog.fileUrl,
       };
     }) || [];
 

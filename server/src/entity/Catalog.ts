@@ -10,8 +10,6 @@ export class Catalog {
   @Column()
   filePath!: string; // 📁 sunucu içindeki konum
 
-  @Column()
-  fileUrl!: string;  // 🌐 kullanıcıya gösterilecek URL
 
   @ManyToOne(() => Product, product => product.catalogs, { onDelete: "CASCADE" })
   product!: Product;
