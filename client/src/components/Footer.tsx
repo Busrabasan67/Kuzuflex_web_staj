@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import kuzuflexLogo from "../assets/kuzuflex-logo.webp";
 import { Youtube, Linkedin, Instagram, ArrowRight } from "lucide-react";
 import { ThemeContext } from "../theme/ThemeContext"; // Context’i İçe Aktar
@@ -12,19 +12,27 @@ const quickLinks = [
   { key: "contact", label: "Contact", to: "/iletisim" },
 ];
 
-const products = [
-  { name: "Hoses", id: "Hoses" },
-  { name: "Hose Modules", id: "Hose Modules" },
-  { name: "Expansion Joints and Metal Bellows", id: "Expansion Joints and Metal Bellows" },
-  { name: "Automotive Products", id: "Automotive Products" },
-  { name: "Bended Pipes", id: "Bended Pipes" },
-  { name: "Ultra Clean Products", id: "Ultra Clean Products" },
-  { name: "Machined Parts", id: "Machined Parts" },
-];
+// Dinamik ürün grupları için tip
+interface ProductGroupFooter {
+  id: number;
+  name: string;
+}
 
 const Footer = () => {
-  const { darkMode } = useContext(ThemeContext); //ThemeProvider tarafından sağlanan darkMode ve setDarkMode'u çeker
-//Artık bu bileşende doğrudan kullanabilirsin.
+  const { darkMode } = useContext(ThemeContext);
+  const [productGroups, setProductGroups] = useState<ProductGroupFooter[]>([]);
+
+  useEffect(() => {
+    // API'den ürün gruplarını çek
+    fetch("http://localhost:5000/api/product-groups?lang=tr")
+      .then((res) => res.json())
+      .then((data) => {
+        // Sadece id ve name al
+        const groups = data.map((g: any) => ({ id: g.id, name: g.name }));
+        setProductGroups(groups);
+      })
+      .catch((err) => console.error("Footer ürün grupları alınamadı:", err));
+  }, []);
 
   return (
     <footer className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"} pt-12 pb-6 transition-colors duration-300`}>
@@ -82,19 +90,19 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-          {/* Products */}
+          {/* Products - Dinamik */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider mb-3">Our Products</h3>
             <ul className="space-y-2">
-              {products.map((item) => (
-                <li key={item.id}>
-                  <a 
-                    href={`#products?category=${encodeURIComponent(item.id)}`}
+              {productGroups.map((group) => (
+                <li key={group.id}>
+                  <Link 
+                    to={`/urunler/${group.id}`}
                     className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
                   >
                     <ArrowRight className="h-3 w-3 mr-1" />
-                    {item.name}
-                  </a>
+                    {group.name}
+                  </Link>
                 </li>
               ))}
             </ul>

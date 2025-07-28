@@ -22,6 +22,9 @@ export const getAllGroups = async (req: Request, res: Response) => {
     const result = groups.map((group) => ({
       id: group.id,
       name: group.translations?.[0]?.name || group.name,
+      description: group.translations?.[0]?.description || group.description,
+      imageUrl: group.imageUrl || null,
+      standard: group.standard || null,
       key: `group-${group.id}`,
       subcategories: (group.products || []).map((product) => {
         const translation = product.translations?.find(t => t.language === lang);
@@ -77,6 +80,8 @@ export const getProductsByGroupId = async (req: Request, res: Response) => {
   const products = await AppDataSource.getRepository(Product)
     .createQueryBuilder("product")
     .leftJoinAndSelect("product.translations", "translation", "translation.language = :lang", { lang })
+    .leftJoinAndSelect("product.catalogs", "catalog")
+    .leftJoinAndSelect("catalog.translations", "catalogTranslation", "catalogTranslation.language = :lang", { lang })
     .where("product.groupId = :groupId", { groupId })
     .getMany();
 
@@ -86,6 +91,11 @@ export const getProductsByGroupId = async (req: Request, res: Response) => {
     description: product.translations?.[0]?.description,
     imageUrl: product.imageUrl,
     standard: product.standard,
+    catalogs: (product.catalogs || []).map((catalog) => ({
+      id: catalog.id,
+      name: catalog.translations?.[0]?.name || "Katalog",
+      filePath: catalog.filePath,
+    })),
     key: `sub-${groupId}-${product.id}`,
   }));
 

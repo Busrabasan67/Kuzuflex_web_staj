@@ -1,21 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getCatalogUrl } from "../utils/catalogUtils";
 
 const API_BASE = "http://localhost:5000";
-
-const getCatalogUrl = (path: string) => {  // bu fonksiyon katalogların url'sini döndürüyor,Component Dışında (Global) ,Tek bir yerde tanımla, her yerde kullan,DRY (Don't Repeat Yourself) prensibi, URL mantığını değiştirmek istediğinde sadece bir yeri değiştir
-
-  // Eğer path zaten /uploads ile başlıyorsa, sadece API_BASE ile birleştir
-  if (path.startsWith('/uploads/')) {
-    return `${API_BASE}${path}`;
-  }
-  // Eğer path uploads ile başlıyorsa (başında / yoksa), / ekle
-  if (path.startsWith('uploads/')) {
-    return `${API_BASE}/${path}`;
-  }
-  // Diğer durumlar için /uploads/ ekle
-  return `${API_BASE}/uploads/${path}`;
-};
 
 interface Catalog {
   id: number;
@@ -36,6 +23,7 @@ const SubProductPage = () => {
   const { groupId, subId } = useParams();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(true);
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
 
@@ -150,6 +138,18 @@ const SubProductPage = () => {
       }}>
         {/* Product Image */}
         <div style={{ textAlign: 'center' }}>
+          {imageLoading && (
+            <div 
+              className="image-loading"
+              style={{
+                width: "100%", 
+                maxWidth: "400px", 
+                height: "300px",
+                borderRadius: '16px',
+                margin: '0 auto'
+              }}
+            ></div>
+          )}
           <img
             src={`${API_BASE}/${product.imageUrl.startsWith('/') ? product.imageUrl.slice(1) : product.imageUrl}`}
             alt={product.title}
@@ -159,9 +159,17 @@ const SubProductPage = () => {
               height: "auto", 
               objectFit: "cover",
               borderRadius: '16px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+              imageRendering: '-webkit-optimize-contrast',
+              opacity: imageLoading ? 0 : 1,
+              transition: 'opacity 0.3s ease'
             }}
-            onError={(e) => console.log("Resim yüklenemedi:", e)}
+            loading="eager"
+            onLoad={() => setImageLoading(false)}
+            onError={(e) => {
+              console.log("Resim yüklenemedi:", e);
+              setImageLoading(false);
+            }}
           />
         </div>
 
