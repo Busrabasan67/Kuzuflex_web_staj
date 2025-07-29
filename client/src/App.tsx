@@ -31,7 +31,7 @@ function AppContent() {
       {!isAdminRoute && <Navbar isAdminLoggedIn={isAuthenticated} />}
 
       <div className="min-h-screen flex flex-col">
-        <div className="pt-16 flex-grow">
+        <div className={`${!isAdminRoute ? 'pt-16' : ''} flex-grow`}>
           <Routes>
             {/* Normal Kullanıcı Sayfaları */}
             <Route path="/" element={<Home />} />

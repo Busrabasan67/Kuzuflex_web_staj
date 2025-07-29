@@ -69,3 +69,25 @@ export const getSolutionBySlug = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching solution detail", error: err });
   }
 };
+
+// Admin panel için tüm solution'ları getir
+export const getSolutionsForAdmin = async (req: Request, res: Response) => {
+  try {
+    const repo = AppDataSource.getRepository(SolutionTranslation);
+    const solutions = await repo.find({
+      where: { language: "tr" }, // Türkçe olanları getir
+      relations: ["solution"],
+    });
+
+    const response = solutions.map((item) => ({
+      id: item.solution.id,
+      slug: item.solution.slug,
+      title: item.title,
+      hasExtraContent: item.solution.hasExtraContent,
+    }));
+
+    res.status(200).json(response);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching solutions for admin", error: err });
+  }
+};

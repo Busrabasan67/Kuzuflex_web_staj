@@ -25,6 +25,15 @@ const SolutionPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Resim URL'lerini düzelt
+  const fixImageUrls = (htmlContent: string): string => {
+    // /uploads/ ile başlayan URL'leri tam URL'ye çevir
+    return htmlContent.replace(
+      /src="\/uploads\//g, 
+      'src="http://localhost:5000/uploads/'
+    );
+  };
+
   useEffect(() => {
     const fetchSolution = async () => {
       if (!slug) return;
@@ -125,7 +134,7 @@ const SolutionPage: React.FC = () => {
                   <div className="prose prose-sm max-w-none">
                     <div 
                       className="text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: content.content }}
+                      dangerouslySetInnerHTML={{ __html: fixImageUrls(content.content) }}
                     />
                   </div>
                 </div>

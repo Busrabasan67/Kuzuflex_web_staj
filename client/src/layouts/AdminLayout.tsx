@@ -1,11 +1,9 @@
 import React from "react";
-import Sidebar from "../components/AdminSidebar";
 import LogoutButton from "../components/LogoutButton";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
       <div className="flex-1 flex flex-col">
         {/* Top Bar */}
         <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">

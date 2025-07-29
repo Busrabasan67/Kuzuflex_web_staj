@@ -3,6 +3,8 @@ import cors from "cors";
 import productGroupRoutes from "./routes/ProductGroupRoutes";
 import productRoutes from "./routes/productRoutes";
 import solutionRoutes from "./routes/solutionRoutes";
+import solutionExtraContentRoutes from "./routes/solutionExtraContentRoutes";
+import uploadRoutes from "./routes/uploadRoutes";
 
 const app = express();
 
@@ -16,10 +18,10 @@ app.use(cors({
 app.use(express.json());
 
 // Route'lar
-app.use("/api/product-groups", productGroupRoutes);// route'un ana adresini tanımlar.
-
+app.use("/api/product-groups", productGroupRoutes);
 app.use("/api/products", productRoutes);
-
 app.use("/api/solutions", solutionRoutes);
+app.use("/api/solution-extra-content", solutionExtraContentRoutes);
+app.use("/api/upload", uploadRoutes);
 
 export default app;

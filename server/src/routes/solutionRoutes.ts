@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllSolutions, getSolutionBySlug } from "../controllers/solutionController";
+import { getAllSolutions, getSolutionBySlug, getSolutionsForAdmin } from "../controllers/solutionController";
 
 const router = express.Router();
 
@@ -20,6 +20,17 @@ const router = express.Router();
  *         description: "Çözüm listesi döner"
  */
 router.get("/", getAllSolutions);
+
+/**
+ * @openapi
+ * /api/solutions/admin:
+ *   get:
+ *     summary: Admin panel için çözümleri listeler
+ *     responses:
+ *       200:
+ *         description: "Admin için çözüm listesi döner"
+ */
+router.get("/admin", getSolutionsForAdmin);
 
 /**
  * @openapi
