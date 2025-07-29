@@ -23,6 +23,13 @@ interface ProductGroup {
   subcategories?: SubCategory[];
 }
 
+interface Solution {
+  id: number;
+  slug: string;
+  title: string;
+  imageUrl: string;
+}
+
 const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -69,58 +76,43 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
     setOpenDropdown(openDropdown === title ? null : title);
   };
 
-  // 🟢 Ürün gruplarını API'den al
+  // 🟢 Ürün gruplarını ve solution'ları API'den al
   useEffect(() => {
-    const fetchProductGroups = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/product-groups?lang=${language}`);
-        const data: ProductGroup[] = await res.json();
+        // Ürün gruplarını fetch et
+        const productRes = await fetch(`http://localhost:5000/api/product-groups?lang=${language}`);
+        const productData: ProductGroup[] = await productRes.json();
+        console.log("Navbar grubu:", productData);
 
-        /*
+        // Solution'ları fetch et
+        const solutionRes = await fetch(`http://localhost:5000/api/solutions?lang=${language}`);
+        const solutionData: Solution[] = await solutionRes.json();
+        console.log("Navbar solution:", solutionData);
+
         const dynamicProductsMenu: MenuItem = {
           title: "Ürünler",
-          submenu: data.map((group) => ({
+          submenu: productData.map((group) => ({
             title: group.name,
-            path: `/urunler/${group.id}`,
-            submenu: group.subcategories?.length
-              ? group.subcategories.map((sub) => ({
-                  title: sub.title,
-                  path: `/urunler/${group.id}/alt/${sub.id}`,
-                }))
-              : undefined,
-          })),
-        };
-        */
-
-        console.log("Navbar grubu:", data);
-/*
-        const dynamicProductsMenu: MenuItem = {
-          title: "Ürünler",
-          submenu: data.map((group) => ({
-            title: group.name,
-            path: `/urunler/${group.id}`,
+            path: `/Products/${group.id}`,
+            key: `group-${group.id}`,
             submenu: group.subcategories?.map((sub) => ({
               title: sub.title,
-              path: `/urunler/${group.id}/alt/${sub.id}`,
+              path: `/Products/${group.id}/alt/${sub.id}`,
+              key: `sub-${group.id}-${sub.id}`,
             })),
           })),
         };
-        
-*/   
-const dynamicProductsMenu: MenuItem = {
-  title: "Ürünler",
-  submenu: data.map((group) => ({
-    title: group.name,
-    path: `/urunler/${group.id}`,
-    key: `group-${group.id}`,
-    submenu: group.subcategories?.map((sub) => ({
-      title: sub.title,
-      path: `/urunler/${group.id}/alt/${sub.id}`,
-      key: `sub-${group.id}-${sub.id}`,
-    })),
-  })),
-};
 
+        // Solution menüsünü oluştur
+        const solutionsMenu: MenuItem = {
+          title: "Çözümler",
+          submenu: solutionData.map((solution) => ({
+            title: solution.title, // "Kaynak"
+            path: `/solutions/${solution.slug}`, // "/solutions/welding"
+            key: `solution-${solution.id}`, // "solution-8"
+          })),
+        };
 
         const staticMenus: MenuItem[] = [
           { title: "Home", path: "/" },
@@ -140,13 +132,13 @@ const dynamicProductsMenu: MenuItem = {
           },
         ];
 
-        setMenuItems([...staticMenus, dynamicProductsMenu]);
+        setMenuItems([...staticMenus, dynamicProductsMenu, solutionsMenu]);
       } catch (err) {
-        console.error("❌ Ürün grupları alınamadı:", err);
+        console.error("❌ Veriler alınamadı:", err);
       }
     };
 
-    fetchProductGroups();
+    fetchData();
   }, [language]);
 
   return (

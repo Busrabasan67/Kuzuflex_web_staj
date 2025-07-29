@@ -158,7 +158,7 @@ const ProductGroupPage = () => {
                 <div 
                   key={product.id} 
                   className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
-                  onClick={() => navigate(`/urunler/${groupId}/alt/${product.id}`)}
+                  onClick={() => navigate(`/Products/${groupId}/alt/${product.id}`)}
                 >
                   {/* Product Image */}
                   {product.imageUrl && (

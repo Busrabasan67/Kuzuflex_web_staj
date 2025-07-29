@@ -7,6 +7,9 @@ import { ProductGroup } from "./entity/ProductGroup";
 import { ProductTranslation } from "./entity/ProductTranslation";
 import { ProductGroupTranslation } from "./entity/ProductGroupTranslation";
 import { CatalogTranslation } from "./entity/CatalogTranslation";
+import { Solution } from "./entity/Solution";
+import { SolutionTranslation } from "./entity/SolutionTranslation";
+import { SolutionExtraContent } from "./entity/SolutionExtraContent";
 
 const AppDataSource = new DataSource({
   type: "mssql",
@@ -17,7 +20,7 @@ const AppDataSource = new DataSource({
   database: "KuzuflexDB",
   synchronize: false,
   logging: false,
-  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation],  
+  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation, Solution, SolutionTranslation, SolutionExtraContent],  
   migrations: [__dirname + "/migrations/*.ts"],
   options: {
     encrypt: true,

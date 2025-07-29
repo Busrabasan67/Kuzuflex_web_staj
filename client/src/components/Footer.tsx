@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const quickLinks = [
   { key: "home", label: "Home", to: "/" },
-  { key: "products", label: "Products", to: "/urunler" },
+  { key: "products", label: "Products", to: "/Products" },
   { key: "aboutus", label: "About Us", to: "/hakkimizda" },
   { key: "industries", label: "Industries", to: "/endustriler" },
   { key: "contact", label: "Contact", to: "/iletisim" },
@@ -97,7 +97,7 @@ const Footer = () => {
               {productGroups.map((group) => (
                 <li key={group.id}>
                   <Link 
-                    to={`/urunler/${group.id}`}
+                    to={`/Products/${group.id}`}
                     className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
                   >
                     <ArrowRight className="h-3 w-3 mr-1" />

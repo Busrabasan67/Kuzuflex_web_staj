@@ -17,6 +17,7 @@ import { useAuth } from "./context/AuthContext";
 import AdminLayout from "./layouts/AdminLayout"; 
 import ProductGroupPage from "./pages/ProductGroupPage";
 import SubProductPage from "./pages/SubProductPage";
+import SolutionPage from "./pages/SolutionPage";
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -35,9 +36,10 @@ function AppContent() {
             {/* Normal Kullanıcı Sayfaları */}
             <Route path="/" element={<Home />} />
             <Route path="/hakkimizda" element={<About />} />
-            <Route path="/urunler/:groupId" element={<ProductGroupPage />} />
+            <Route path="/Products/:groupId" element={<ProductGroupPage />} />
             <Route path="/iletisim" element={<Contact />} />
-            <Route path="/urunler/:groupId/alt/:subId" element={<SubProductPage />} />
+            <Route path="/Products/:groupId/alt/:subId" element={<SubProductPage />} />
+            <Route path="/solutions/:slug" element={<SolutionPage />} /> 
 
 
             {/* Admin Login */}
