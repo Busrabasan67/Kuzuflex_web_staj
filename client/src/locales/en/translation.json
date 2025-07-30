@@ -1,0 +1,80 @@
+{
+  "navbar": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About Us",
+    "contact": "Contact",
+    "login": "Login",
+    "logout": "Logout",
+    "solutions": "Solutions",
+    "corporate": "Corporate",
+    "services": "Services",
+    "documents": "Documents",
+    "manufacturing": "Manufacturing",
+    "quality": "Quality",
+    "adminPanel": "Admin Panel",
+    "searchPlaceholder": "Search products, categories or content...",
+    "professionalSolutions": "Professional Industrial Solutions"
+  },
+  "form": {
+    "name": "Name",
+    "email": "Email",
+    "submit": "Submit",
+    "required": "This field is required"
+  },
+  "common": {
+    "phone": "+90 555 123 45 67",
+    "email": "info@kuzuflex.com"
+  },
+  "footer": {
+    "companyDescription": "Leading brand in flexible metal hose. The address of quality, trust and innovation.",
+    "quickLinks": "Quick Links",
+    "ourProducts": "Our Products",
+    "contactInfo": "Contact Info",
+    "allRightsReserved": "All rights reserved."
+  },
+  "loading": {
+    "productInfo": "Loading product information...",
+    "solutionInfo": "Loading solution information..."
+  },
+  "error": {
+    "title": "Error",
+    "categoryNotFound": "Category not found",
+    "categoryNotFoundDesc": "The category you are looking for does not exist or may have been removed.",
+    "solutionNotFound": "Solution not found",
+    "productNotFound": "Product not found",
+    "productNotFoundDesc": "The product you are looking for does not exist or may have been removed.",
+    "generalError": "An error occurred"
+  },
+  "pages": {
+    "home": {
+      "title": "Welcome to Kuzuflex",
+      "subtitle": "Professional Industrial Solutions",
+      "description": "We provide high-quality industrial solutions for your business needs.",
+      "solutionsDesc": "Innovative solutions for modern industry",
+      "qualityDesc": "High quality standards and reliability",
+      "servicesDesc": "Professional service and support"
+    },
+    "about": {
+      "title": "About Us",
+      "subtitle": "Our Story",
+      "description": "Kuzuflex is a leading company in industrial solutions with years of experience.",
+      "mission": "Our Mission",
+      "missionText": "To provide innovative and reliable industrial solutions.",
+      "vision": "Our Vision",
+      "visionText": "To be the leading provider of industrial solutions worldwide."
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Get in Touch",
+      "description": "We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+      "address": "Address",
+      "addressText": "123 Industrial Street, Ankara, Turkey",
+      "phone": "Phone",
+      "email": "Email",
+      "sendMessage": "Send Message",
+      "message": "Message",
+      "subject": "Subject"
+    }
+  }
+}

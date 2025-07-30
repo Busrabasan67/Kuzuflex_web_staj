@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import SolutionExtraContentAdder from "../components/SolutionExtraContentAdder";
+import SolutionManagement from "../components/SolutionManagement";
+import ExtraContentManagement from "../components/ExtraContentManagement";
 
 const AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -38,14 +40,13 @@ const AdminPanel: React.FC = () => {
       case "solutions":
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Çözümler</h2>
-            <p>Çözümler yönetimi sayfası burada olacak.</p>
+            <SolutionManagement />
           </div>
         );
       case "solution-extra-content":
         return (
           <div className="p-6">
-            <SolutionExtraContentAdder />
+            <ExtraContentManagement />
           </div>
         );
       default:

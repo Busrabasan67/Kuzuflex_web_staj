@@ -1,0 +1,80 @@
+{
+  "navbar": {
+    "home": "Startseite",
+    "products": "Produkte",
+    "about": "Über Uns",
+    "contact": "Kontakt",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "solutions": "Lösungen",
+    "corporate": "Unternehmen",
+    "services": "Dienstleistungen",
+    "documents": "Dokumente",
+    "manufacturing": "Fertigung",
+    "quality": "Qualität",
+    "adminPanel": "Admin-Panel",
+    "searchPlaceholder": "Produkte, Kategorien oder Inhalte suchen...",
+    "professionalSolutions": "Professionelle Industrielle Lösungen"
+  },
+  "form": {
+    "name": "Name",
+    "email": "E-Mail",
+    "submit": "Senden",
+    "required": "Dieses Feld ist erforderlich"
+  },
+  "common": {
+    "phone": "+90 555 123 45 67",
+    "email": "info@kuzuflex.com"
+  },
+  "footer": {
+    "companyDescription": "Führende Marke für flexible Metallschläuche. Die Adresse für Qualität, Vertrauen und Innovation.",
+    "quickLinks": "Schnelllinks",
+    "ourProducts": "Unsere Produkte",
+    "contactInfo": "Kontaktinformationen",
+    "allRightsReserved": "Alle Rechte vorbehalten."
+  },
+  "loading": {
+    "productInfo": "Produktinformationen werden geladen...",
+    "solutionInfo": "Lösungsinformationen werden geladen..."
+  },
+  "error": {
+    "title": "Fehler",
+    "categoryNotFound": "Kategorie nicht gefunden",
+    "categoryNotFoundDesc": "Die gesuchte Kategorie existiert nicht oder wurde möglicherweise entfernt.",
+    "solutionNotFound": "Lösung nicht gefunden",
+    "productNotFound": "Produkt nicht gefunden",
+    "productNotFoundDesc": "Das gesuchte Produkt existiert nicht oder wurde möglicherweise entfernt.",
+    "generalError": "Ein Fehler ist aufgetreten"
+  },
+  "pages": {
+    "home": {
+      "title": "Willkommen bei Kuzuflex",
+      "subtitle": "Professionelle Industrielle Lösungen",
+      "description": "Wir bieten hochwertige industrielle Lösungen für Ihre Geschäftsanforderungen.",
+      "solutionsDesc": "Innovative Lösungen für moderne Industrie",
+      "qualityDesc": "Hohe Qualitätsstandards und Zuverlässigkeit",
+      "servicesDesc": "Professioneller Service und Support"
+    },
+    "about": {
+      "title": "Über Uns",
+      "subtitle": "Unsere Geschichte",
+      "description": "Kuzuflex ist ein führendes Unternehmen für industrielle Lösungen mit langjähriger Erfahrung.",
+      "mission": "Unsere Mission",
+      "missionText": "Innovative und zuverlässige industrielle Lösungen bereitzustellen.",
+      "vision": "Unsere Vision",
+      "visionText": "Der führende Anbieter von industriellen Lösungen weltweit zu sein."
+    },
+    "contact": {
+      "title": "Kontakt",
+      "subtitle": "Nehmen Sie Kontakt auf",
+      "description": "Wir würden gerne von Ihnen hören. Senden Sie uns eine Nachricht und wir antworten so schnell wie möglich.",
+      "address": "Adresse",
+      "addressText": "123 Industriestraße, Ankara, Türkei",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "sendMessage": "Nachricht Senden",
+      "message": "Nachricht",
+      "subject": "Betreff"
+    }
+  }
+}

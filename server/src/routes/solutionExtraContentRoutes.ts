@@ -1,7 +1,10 @@
 import express from "express";
 import { 
   addExtraContent, 
+  addMultiLanguageExtraContent,
   getExtraContents, 
+  getAllExtraContentsForAdmin,
+  getExtraContentById,
   updateExtraContent, 
   deleteExtraContent 
 } from "../controllers/solutionExtraContentController";
@@ -40,6 +43,52 @@ router.post("/", addExtraContent);
 
 /**
  * @openapi
+ * /api/solution-extra-content/multi:
+ *   post:
+ *     summary: Solution'a çoklu dil ekstra içerik ekler
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               solutionId:
+ *                 type: integer
+ *               type:
+ *                 type: string
+ *               contents:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     language:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *                     content:
+ *                       type: string
+ *               order:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: "Çoklu dil ekstra içerik başarıyla eklendi"
+ */
+router.post("/multi", addMultiLanguageExtraContent);
+
+/**
+ * @openapi
+ * /api/solution-extra-content/admin:
+ *   get:
+ *     summary: Admin panel için tüm ekstra içerikleri listeler
+ *     responses:
+ *       200:
+ *         description: "Tüm ekstra içerikler listesi"
+ */
+router.get("/admin", getAllExtraContentsForAdmin);
+
+/**
+ * @openapi
  * /api/solution-extra-content/{solutionId}:
  *   get:
  *     summary: Solution'ın ekstra içeriklerini getirir
@@ -59,6 +108,23 @@ router.post("/", addExtraContent);
  *         description: "Ekstra içerikler listesi"
  */
 router.get("/:solutionId", getExtraContents);
+
+/**
+ * @openapi
+ * /api/solution-extra-content/detail/{id}:
+ *   get:
+ *     summary: Tek bir ekstra içeriği getirir
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: "Ekstra içerik detayı"
+ */
+router.get("/detail/:id", getExtraContentById);
 
 /**
  * @openapi

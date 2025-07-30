@@ -1,5 +1,13 @@
 import express from "express";
-import { getAllSolutions, getSolutionBySlug, getSolutionsForAdmin } from "../controllers/solutionController";
+import { 
+  getAllSolutions, 
+  getSolutionBySlug, 
+  getSolutionsForAdmin,
+  getSolutionForEdit,
+  createSolution,
+  updateSolution,
+  deleteSolution
+} from "../controllers/solutionController";
 
 const router = express.Router();
 
@@ -23,6 +31,46 @@ router.get("/", getAllSolutions);
 
 /**
  * @openapi
+ * /api/solutions:
+ *   post:
+ *     summary: Yeni çözüm oluşturur
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               slug:
+ *                 type: string
+ *                 description: "URL için slug"
+ *               imageUrl:
+ *                 type: string
+ *                 description: "Çözüm resmi URL'i"
+ *               hasExtraContent:
+ *                 type: boolean
+ *                 description: "Ekstra içerik var mı?"
+ *               translations:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     language:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *                     subtitle:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *     responses:
+ *       201:
+ *         description: "Çözüm başarıyla oluşturuldu"
+ */
+router.post("/", createSolution);
+
+/**
+ * @openapi
  * /api/solutions/admin:
  *   get:
  *     summary: Admin panel için çözümleri listeler
@@ -31,6 +79,24 @@ router.get("/", getAllSolutions);
  *         description: "Admin için çözüm listesi döner"
  */
 router.get("/admin", getSolutionsForAdmin);
+
+/**
+ * @openapi
+ * /api/solutions/admin/{id}:
+ *   get:
+ *     summary: Admin panel için çözüm detaylarını getirir (düzenleme için)
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: "Çözüm ID'si"
+ *     responses:
+ *       200:
+ *         description: "Düzenleme için çözüm detayları döner"
+ */
+router.get("/admin/:id", getSolutionForEdit);
 
 /**
  * @openapi
@@ -55,5 +121,56 @@ router.get("/admin", getSolutionsForAdmin);
  *         description: "Çözüm detayı döner"
  */
 router.get("/:slug", getSolutionBySlug);
+
+/**
+ * @openapi
+ * /api/solutions/{id}:
+ *   put:
+ *     summary: Çözümü günceller
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               slug:
+ *                 type: string
+ *               imageUrl:
+ *                 type: string
+ *               hasExtraContent:
+ *                 type: boolean
+ *               translations:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *     responses:
+ *       200:
+ *         description: "Çözüm başarıyla güncellendi"
+ */
+router.put("/:id", updateSolution);
+
+/**
+ * @openapi
+ * /api/solutions/{id}:
+ *   delete:
+ *     summary: Çözümü siler
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: "Çözüm başarıyla silindi"
+ */
+router.delete("/:id", deleteSolution);
 
 export default router;

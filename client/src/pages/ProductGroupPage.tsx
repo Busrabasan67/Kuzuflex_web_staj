@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getCatalogUrl } from "../utils/catalogUtils";
 import { FiChevronRight, FiDownload, FiX } from "react-icons/fi";
 
@@ -31,6 +32,7 @@ interface ProductGroup {
 }
 
 const ProductGroupPage = () => {
+  const { t, i18n } = useTranslation();
   const { groupId } = useParams();
   const navigate = useNavigate();
   const [groupData, setGroupData] = useState<ProductGroup | null>(null);
@@ -42,14 +44,14 @@ const ProductGroupPage = () => {
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        // Önce grup bilgilerini al
-        const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=tr`);
+        // Önce grup bilgilerini al - seçili dile göre
+        const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
         const groups = await groupRes.json();
         const currentGroup = groups.find((g: any) => g.id === parseInt(groupId!));
         
         if (currentGroup) {
-          // Alt ürünleri al
-          const productsRes = await fetch(`http://localhost:5000/api/product-groups/${groupId}/products?lang=tr`);
+          // Alt ürünleri al - seçili dile göre
+          const productsRes = await fetch(`http://localhost:5000/api/product-groups/${groupId}/products?lang=${i18n.language}`);
           const products = await productsRes.json();
           
           setGroupData({
@@ -69,13 +71,13 @@ const ProductGroupPage = () => {
     };
 
     fetchGroupData();
-  }, [groupId]);
+  }, [groupId, i18n.language]);
 
   if (loading) return (
     <div className="flex justify-center items-center min-h-[60vh]">
       <div className="text-center">
         <div className="w-14 h-14 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-5"></div>
-        <p className="text-lg text-gray-500">Ürün bilgileri yükleniyor...</p>
+        <p className="text-lg text-gray-500">{t('loading.productInfo')}</p>
       </div>
     </div>
   );
@@ -84,8 +86,8 @@ const ProductGroupPage = () => {
     <div className="flex justify-center items-center min-h-[60vh]">
       <div className="text-center">
         <div className="text-6xl mb-5">😕</div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-3">Kategori bulunamadı</h2>
-        <p className="text-gray-600">Aradığınız kategori mevcut değil veya kaldırılmış olabilir.</p>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t('error.categoryNotFound')}</h2>
+        <p className="text-gray-600">{t('error.categoryNotFoundDesc')}</p>
       </div>
     </div>
   );

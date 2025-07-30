@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface Solution {
   id: number;
@@ -8,6 +9,7 @@ interface Solution {
   subtitle: string;
   description: string;
   imageUrl: string;
+  hasExtraContent: boolean;
   extraContents: ExtraContent[];
 }
 
@@ -17,9 +19,11 @@ interface ExtraContent {
   title: string;
   content: string;
   order: number;
+  language: string;
 }
 
 const SolutionPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [solution, setSolution] = useState<Solution | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,28 +44,31 @@ const SolutionPage: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/solutions/${slug}?lang=tr`);
+        const response = await fetch(`http://localhost:5000/api/solutions/${slug}?lang=${i18n.language}`);
         
         if (!response.ok) {
-          throw new Error('Solution bulunamadı');
+          throw new Error(t('error.solutionNotFound'));
         }
 
         const data: Solution = await response.json();
         setSolution(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Bir hata oluştu');
+        setError(err instanceof Error ? err.message : t('error.generalError'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchSolution();
-  }, [slug]);
+  }, [slug, i18n.language, t]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-500">{t('loading.solutionInfo')}</p>
+        </div>
       </div>
     );
   }
@@ -70,8 +77,8 @@ const SolutionPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Hata</h1>
-          <p className="text-gray-600">{error || 'Solution bulunamadı'}</p>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">{t('error.title')}</h1>
+          <p className="text-gray-600">{error || t('error.solutionNotFound')}</p>
         </div>
       </div>
     );
@@ -117,10 +124,10 @@ const SolutionPage: React.FC = () => {
         </div>
 
         {/* Extra Contents */}
-        {solution.extraContents && solution.extraContents.length > 0 && (
+        {solution.hasExtraContent && solution.extraContents && solution.extraContents.length > 0 && (
           <div className="mt-16">
             <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-              Ek İçerikler
+              Ek İçerikler ({solution.extraContents.length} adet)
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {solution.extraContents.map((content) => (

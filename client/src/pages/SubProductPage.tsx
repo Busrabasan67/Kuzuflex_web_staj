@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getCatalogUrl } from "../utils/catalogUtils";
 
 const API_BASE = "http://localhost:5000";
@@ -20,6 +21,7 @@ interface ProductDetail {
 }
 
 const SubProductPage = () => {
+  const { t, i18n } = useTranslation();
   const { groupId, subId } = useParams();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,9 +30,8 @@ const SubProductPage = () => {
   const [showPdfModal, setShowPdfModal] = useState(false);
 
   useEffect(() => {
-    const lang = "tr"; // çoklu dil varsa dinamik yapılabilir
     fetch(
-      `${API_BASE}/api/products?group=${groupId}&sub=${subId}&lang=${lang}`
+      `${API_BASE}/api/products?group=${groupId}&sub=${subId}&lang=${i18n.language}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -53,7 +54,7 @@ const SubProductPage = () => {
         console.error("Ürün detay alınamadı:", err);
         setLoading(false);
       });
-  }, [groupId, subId]);
+  }, [groupId, subId, i18n.language]);
 
   if (loading) return (
     <div style={{
@@ -78,7 +79,7 @@ const SubProductPage = () => {
           color: '#64748b',
           margin: 0
         }}>
-          Ürün bilgileri yükleniyor...
+          {t('loading.productInfo')}
         </p>
       </div>
     </div>
@@ -99,19 +100,19 @@ const SubProductPage = () => {
         }}>
           😕
         </div>
-        <h2 style={{ 
-          fontSize: '1.5rem', 
-          color: '#1e293b',
+        <h2 style={{
+          fontSize: '2rem',
+          fontWeight: '600',
+          color: '#1f2937',
           marginBottom: '12px'
         }}>
-          Ürün bulunamadı
+          {t('error.productNotFound')}
         </h2>
-        <p style={{ 
-          fontSize: '1rem', 
-          color: '#64748b',
-          margin: 0
+        <p style={{
+          color: '#6b7280',
+          fontSize: '1.1rem'
         }}>
-          Aradığınız ürün mevcut değil veya kaldırılmış olabilir.
+          {t('error.productNotFoundDesc')}
         </p>
       </div>
     </div>

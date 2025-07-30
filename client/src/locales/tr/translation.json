@@ -1,0 +1,80 @@
+{
+  "navbar": {
+    "home": "Anasayfa",
+    "products": "Ürünler",
+    "about": "Hakkımızda",
+    "contact": "İletişim",
+    "login": "Giriş Yap",
+    "logout": "Çıkış Yap",
+    "solutions": "Çözümler",
+    "corporate": "Kurumsal",
+    "services": "Hizmetler",
+    "documents": "Belgeler",
+    "manufacturing": "İmalat",
+    "quality": "Kalite",
+    "adminPanel": "Admin Panel",
+    "searchPlaceholder": "Ürün, kategori veya içerik ara...",
+    "professionalSolutions": "Profesyonel Endüstriyel Çözümler"
+  },
+  "form": {
+    "name": "İsim",
+    "email": "E-posta",
+    "submit": "Gönder",
+    "required": "Bu alan zorunludur"
+  },
+  "common": {
+    "phone": "+90 555 123 45 67",
+    "email": "info@kuzuflex.com"
+  },
+  "footer": {
+    "companyDescription": "Esnek metal hortumda lider marka. Kalite, güven ve inovasyonun adresi.",
+    "quickLinks": "Hızlı Bağlantılar",
+    "ourProducts": "Ürünlerimiz",
+    "contactInfo": "İletişim Bilgileri",
+    "allRightsReserved": "Tüm hakları saklıdır."
+  },
+  "loading": {
+    "productInfo": "Ürün bilgileri yükleniyor...",
+    "solutionInfo": "Çözüm bilgileri yükleniyor..."
+  },
+  "error": {
+    "title": "Hata",
+    "categoryNotFound": "Kategori bulunamadı",
+    "categoryNotFoundDesc": "Aradığınız kategori mevcut değil veya kaldırılmış olabilir.",
+    "solutionNotFound": "Çözüm bulunamadı",
+    "productNotFound": "Ürün bulunamadı",
+    "productNotFoundDesc": "Aradığınız ürün mevcut değil veya kaldırılmış olabilir.",
+    "generalError": "Bir hata oluştu"
+  },
+  "pages": {
+    "home": {
+      "title": "Kuzuflex'e Hoş Geldiniz",
+      "subtitle": "Profesyonel Endüstriyel Çözümler",
+      "description": "İşletmenizin ihtiyaçları için yüksek kaliteli endüstriyel çözümler sunuyoruz.",
+      "solutionsDesc": "Modern endüstri için yenilikçi çözümler",
+      "qualityDesc": "Yüksek kalite standartları ve güvenilirlik",
+      "servicesDesc": "Profesyonel hizmet ve destek"
+    },
+    "about": {
+      "title": "Hakkımızda",
+      "subtitle": "Hikayemiz",
+      "description": "Kuzuflex, yılların deneyimine sahip endüstriyel çözümler alanında önde gelen bir şirkettir.",
+      "mission": "Misyonumuz",
+      "missionText": "Yenilikçi ve güvenilir endüstriyel çözümler sunmak.",
+      "vision": "Vizyonumuz",
+      "visionText": "Dünya çapında endüstriyel çözümler alanında lider sağlayıcı olmak."
+    },
+    "contact": {
+      "title": "İletişim",
+      "subtitle": "Bizimle İletişime Geçin",
+      "description": "Sizden haber almak isteriz. Bize mesaj gönderin, en kısa sürede yanıt vereceğiz.",
+      "address": "Adres",
+      "addressText": "123 Endüstri Caddesi, Ankara, Türkiye",
+      "phone": "Telefon",
+      "email": "E-posta",
+      "sendMessage": "Mesaj Gönder",
+      "message": "Mesaj",
+      "subject": "Konu"
+    }
+  }
+}

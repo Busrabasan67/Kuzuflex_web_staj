@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiSearch, FiMoon, FiSun, FiGlobe } from "react-icons/fi";
+import { FiSearch, FiMoon, FiSun, FiGlobe, FiChevronDown } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import KuzuflexLogo from "../assets/kuzuflex-logo.webp";
 import { ThemeContext } from "../theme/ThemeContext";
-
+import LanguageSwitcher from "./LanguageSwithcer";
 
 interface MenuItem {
   title: string;
@@ -31,12 +32,13 @@ interface Solution {
 }
 
 const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
+  const { t, i18n } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openSubDropdown, setOpenSubDropdown] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [language, setLanguage] = useState("tr");
+  const [language, setLanguage] = useState(i18n.language || "en");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   const { darkMode, setDarkMode } = useContext(ThemeContext);
@@ -44,6 +46,11 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   const navigate = useNavigate();
   const navbarRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  // Dil değişikliğini dinle
+  useEffect(() => {
+    setLanguage(i18n.language);
+  }, [i18n.language]);
 
   useEffect(() => {
     document.addEventListener("mousedown", (e) => {
@@ -91,7 +98,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
         console.log("Navbar solution:", solutionData);
 
         const dynamicProductsMenu: MenuItem = {
-          title: "Ürünler",
+          title: t('navbar.products'),
           submenu: productData.map((group) => ({
             title: group.name,
             path: `/Products/${group.id}`,
@@ -106,7 +113,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
 
         // Solution menüsünü oluştur
         const solutionsMenu: MenuItem = {
-          title: "Çözümler",
+          title: t('navbar.solutions'),
           submenu: solutionData.map((solution) => ({
             title: solution.title, // "Kaynak"
             path: `/solutions/${solution.slug}`, // "/solutions/welding"
@@ -115,19 +122,19 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
         };
 
         const staticMenus: MenuItem[] = [
-          { title: "Home", path: "/" },
+          { title: t('navbar.home'), path: "/" },
           {
-            title: "Kurumsal",
+            title: t('navbar.corporate'),
             submenu: [
-              { title: "Hakkımızda", path: "/hakkimizda" },
-              { title: "Belgeler", path: "/belgeler" },
+              { title: t('navbar.about'), path: "/hakkimizda" },
+              { title: t('navbar.documents'), path: "/belgeler" },
             ],
           },
           {
-            title: "Hizmetler",
+            title: t('navbar.services'),
             submenu: [
-              { title: "İmalat", path: "/hizmetler/imalat" },
-              { title: "Kalite", path: "/hizmetler/kalite" },
+              { title: t('navbar.manufacturing'), path: "/hizmetler/imalat" },
+              { title: t('navbar.quality'), path: "/hizmetler/kalite" },
             ],
           },
         ];
@@ -139,7 +146,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
     };
 
     fetchData();
-  }, [language]);
+  }, [language, t]);
 
   return (
     <nav
@@ -150,10 +157,10 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
     >
       {/* Üst bilgi */}
       <div className="bg-black text-white text-xs py-1 px-4 flex justify-between items-center">
-        <div>Profesyonel Endüstriyel Çözümler</div>
+        <div>{t('navbar.professionalSolutions')}</div>
         <div className="flex items-center space-x-4">
-          <span>+90 555 123 45 67</span>
-          <span>info@kuzuflex.com</span>
+          <span>{t('common.phone')}</span>
+          <span>{t('common.email')}</span>
         </div>
       </div>
 
@@ -237,9 +244,12 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
           <div className="flex items-center gap-3">
             <button onClick={() => setSearchOpen(!searchOpen)}><FiSearch /></button>
             <button onClick={() => setDarkMode(!darkMode)}>{darkMode ? <FiSun /> : <FiMoon />}</button>
-            <button><FiGlobe /></button>
+            
+            {/* LanguageSwitcher Component'i */}
+            <LanguageSwitcher />
+            
             <Link to={isAdminLoggedIn ? "/admin" : "/admin-login"} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
-              Admin Panel
+              {t('navbar.adminPanel')}
             </Link>
             <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden">☰</button>
           </div>
@@ -253,7 +263,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full p-2 rounded-md border shadow-sm"
-              placeholder="Ürün, kategori veya içerik ara..."
+              placeholder={t('navbar.searchPlaceholder')}
             />
           </form>
         )}

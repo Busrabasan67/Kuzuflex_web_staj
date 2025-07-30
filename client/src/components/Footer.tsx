@@ -1,16 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import kuzuflexLogo from "../assets/kuzuflex-logo.webp";
 import { Youtube, Linkedin, Instagram, ArrowRight } from "lucide-react";
-import { ThemeContext } from "../theme/ThemeContext"; // Context’i İçe Aktar
+import { ThemeContext } from "../theme/ThemeContext";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const quickLinks = [
-  { key: "home", label: "Home", to: "/" },
-  { key: "products", label: "Products", to: "/Products" },
-  { key: "aboutus", label: "About Us", to: "/hakkimizda" },
-  { key: "industries", label: "Industries", to: "/endustriler" },
-  { key: "contact", label: "Contact", to: "/iletisim" },
-];
 
 // Dinamik ürün grupları için tip
 interface ProductGroupFooter {
@@ -19,12 +12,20 @@ interface ProductGroupFooter {
 }
 
 const Footer = () => {
+  const { t, i18n } = useTranslation();
   const { darkMode } = useContext(ThemeContext);
   const [productGroups, setProductGroups] = useState<ProductGroupFooter[]>([]);
 
+  const quickLinks = [
+    { key: "home", label: t('navbar.home'), to: "/" },
+    { key: "products", label: t('navbar.products'), to: "/Products" },
+    { key: "aboutus", label: t('navbar.about'), to: "/hakkimizda" },
+    { key: "contact", label: t('navbar.contact'), to: "/iletisim" },
+  ];
+
   useEffect(() => {
     // API'den ürün gruplarını çek
-    fetch("http://localhost:5000/api/product-groups?lang=tr")
+    fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`)
       .then((res) => res.json())
       .then((data) => {
         // Sadece id ve name al
@@ -32,7 +33,7 @@ const Footer = () => {
         setProductGroups(groups);
       })
       .catch((err) => console.error("Footer ürün grupları alınamadı:", err));
-  }, []);
+  }, [i18n.language]);
 
   return (
     <footer className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"} pt-12 pb-6 transition-colors duration-300`}>
@@ -44,7 +45,7 @@ const Footer = () => {
               <img src={kuzuflexLogo} alt="Kuzuflex Logo" className="w-32 h-auto" />
             </div>
             <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm mb-4`}>
-              Esnek metal hortumda lider marka. Kalite, güven ve inovasyonun adresi.
+              {t('footer.companyDescription')}
             </p>
             <div className="flex space-x-4">
               <a 
@@ -75,7 +76,7 @@ const Footer = () => {
           </div>
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">Quick Links</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.quickLinks')}</h3>
             <ul className="space-y-2">
               {quickLinks.map((item) => (
                 <li key={item.key}>
@@ -92,7 +93,7 @@ const Footer = () => {
           </div>
           {/* Products - Dinamik */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">Our Products</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.ourProducts')}</h3>
             <ul className="space-y-2">
               {productGroups.map((group) => (
                 <li key={group.id}>
@@ -109,37 +110,23 @@ const Footer = () => {
           </div>
           {/* Contact Info */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">Contact Us</h3>
-            <div className="space-y-4 text-sm">
-              <div>
-                <p className="font-semibold text-white mb-1">Turkey</p>
-                <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Tel: +90 850 800 22 22</p>
-                <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>kuzu@kuzuflex.com</p>
-              </div>
-              <div>
-                <p className="font-semibold text-white mb-1">Germany</p>
-                <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Tel: +49 (0) 4152 889 256</p>
-                <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Mobil: +49 (0) 152 288 30 946</p>
-                <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>deutschland@kuzuflex.com</p>
-              </div>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.contactInfo')}</h3>
+            <div className="space-y-2">
+              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>
+                {t('common.phone')}
+              </p>
+              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>
+                {t('common.email')}
+              </p>
             </div>
           </div>
         </div>
-        <div className={`pt-6 border-t text-center md:flex md:justify-between md:items-center ${darkMode ? "border-gray-700" : "border-gray-300"}`}>
-          <p className={`${darkMode ? "text-gray-500" : "text-gray-600"} text-sm mb-4 md:mb-0`}>
-            &copy; {new Date().getFullYear()} KUZUFLEX METAL HOSE. All rights reserved.
+        
+        {/* Copyright */}
+        <div className="border-t border-gray-300 pt-6 text-center">
+          <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>
+            © 2024 Kuzuflex. {t('footer.allRightsReserved')}
           </p>
-          <div className="flex justify-center space-x-6">
-            <a href="#" className={`${darkMode ? "text-gray-500 hover:text-gray-400" : "text-gray-600 hover:text-gray-800"} transition-colors duration-200 text-sm`}>
-              Privacy Policy
-            </a>
-            <a href="#" className={`${darkMode ? "text-gray-500 hover:text-gray-400" : "text-gray-600 hover:text-gray-800"} transition-colors duration-200 text-sm`}>
-              Terms of Service
-            </a>
-            <a href="#" className={`${darkMode ? "text-gray-500 hover:text-gray-400" : "text-gray-600 hover:text-gray-800"} transition-colors duration-200 text-sm`}>
-              Sitemap
-            </a>
-          </div>
         </div>
       </div>
     </footer>
