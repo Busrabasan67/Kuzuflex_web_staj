@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllGroups, getProductsByGroupId } from "../controllers/productGroupController";
+import { getAllGroups, getProductsByGroupId, getAdminProductGroups } from "../controllers/productGroupController";
 
 const router = Router();
 
@@ -44,6 +44,18 @@ router.get("/", getAllGroups);
  *         description: Alt ürünler başarıyla listelendi
  */
 router.get("/:groupId/products", getProductsByGroupId);
+
+/**
+ * @swagger
+ * /api/product-groups/admin:
+ *   get:
+ *     summary: Admin paneli için tüm ürün gruplarını getirir
+ *     tags: [ProductGroup]
+ *     responses:
+ *       200:
+ *         description: Gruplar başarıyla getirildi
+ */
+router.get("/admin", getAdminProductGroups);
 
 
 export default router;

@@ -18,6 +18,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import ProductGroupPage from "./pages/ProductGroupPage";
 import SubProductPage from "./pages/SubProductPage";
 import SolutionPage from "./pages/SolutionPage";
+import AdminProductGroups from "./pages/AdminProductGroups";
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -61,6 +62,18 @@ function AppContent() {
                 <ProtectedRoute>
                   <AdminLayout>
                     <AdminPanel />
+                  </AdminLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Product Groups Management */}
+            <Route
+              path="/admin/product-groups"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout>
+                    <AdminProductGroups />
                   </AdminLayout>
                 </ProtectedRoute>
               }

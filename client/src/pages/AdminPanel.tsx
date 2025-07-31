@@ -2,16 +2,28 @@ import React, { useState } from "react";
 import SolutionExtraContentAdder from "../components/SolutionExtraContentAdder";
 import SolutionManagement from "../components/SolutionManagement";
 import ExtraContentManagement from "../components/ExtraContentManagement";
+import AdminProductGroups from "./AdminProductGroups";
+import { 
+  FiHome, 
+  FiPackage, 
+  FiGrid, 
+  FiSettings, 
+  FiUsers,
+  FiTrendingUp,
+  FiFileText,
+  FiTool,
+  FiEdit3
+} from "react-icons/fi";
 
 const AdminPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("dashboard");  // admin panelinin başlangıçta hangi taba açılacağını belirler. 
 
   const tabs = [
-    { id: "dashboard", name: "Dashboard", icon: "📊" },
-    { id: "products", name: "Ürünler", icon: "📦" },
-    { id: "product-groups", name: "Ürün Grupları", icon: "📁" },
-    { id: "solutions", name: "Çözümler", icon: "🔧" },
-    { id: "solution-extra-content", name: "Solution İçerik Ekle", icon: "✏️" },
+    { id: "dashboard", name: "Dashboard", icon: FiHome },
+    { id: "product-groups", name: "Üst Kategoriler", icon: FiPackage },
+    { id: "products", name: "Alt Ürünler", icon: FiGrid },
+    { id: "solutions", name: "Çözümler", icon: FiTool },
+    { id: "solution-extra-content", name: "Solution İçerik Ekle", icon: FiEdit3 },
   ];
 
   const renderTabContent = () => {
@@ -33,8 +45,7 @@ const AdminPanel: React.FC = () => {
       case "product-groups":
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Ürün Grupları</h2>
-            <p>Ürün grupları yönetimi sayfası burada olacak.</p>
+            <AdminProductGroups />
           </div>
         );
       case "solutions":
@@ -72,20 +83,23 @@ const AdminPanel: React.FC = () => {
         
         <div className="p-4">
           <nav className="space-y-2">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? "bg-white/20 text-white shadow-lg"
-                    : "text-blue-100 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <span className="mr-3 text-lg">{tab.icon}</span>
-                <span className="font-medium">{tab.name}</span>
-              </button>
-            ))}
+                         {tabs.map((tab) => {
+               const Icon = tab.icon;
+               return (
+                 <button
+                   key={tab.id}
+                   onClick={() => setActiveTab(tab.id)}
+                   className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 ${
+                     activeTab === tab.id
+                       ? "bg-white/20 text-white shadow-lg"
+                       : "text-blue-100 hover:bg-white/10 hover:text-white"
+                   }`}
+                 >
+                   <Icon className="mr-3 text-lg" />
+                   <span className="font-medium">{tab.name}</span>
+                 </button>
+               );
+             })}
           </nav>
         </div>
       </div>
