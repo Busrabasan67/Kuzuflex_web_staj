@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAllGroups, getProductsByGroupId, getAdminProductGroups, createProductGroupWithFormData } from "../controllers/productGroupController";
-import { upload } from "../controllers/uploadController";
+import { uploadProductGroup } from "../controllers/uploadController";
 
 const router = Router();
 
@@ -60,43 +60,27 @@ router.get("/admin", getAdminProductGroups);
 
 /**
  * @swagger
- * /api/product-groups:
+ * /api/product-groups/formdata:
  *   post:
- *     summary: Yeni bir üst ürün kategorisi (ProductGroup) ve 4 dilde çevirisini ekler
+ *     summary: Yeni bir üst ürün kategorisi (ProductGroup) ve 4 dilde çevirisini ekler (FormData ile)
  *     tags: [ProductGroup]
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               imageUrl:
+ *               image:
  *                 type: string
- *                 description: Grup görselinin yolu
- *                 example: "group-image.jpg"
+ *                 format: binary
+ *                 description: Grup görseli
  *               standard:
  *                 type: string
- *                 description: Grup standardı
- *                 example: "ISO 9001"
  *               translations:
- *                 type: array
- *                 description: 4 dilde çeviri bilgileri
- *                 items:
- *                   type: object
- *                   properties:
- *                     language:
- *                       type: string
- *                       description: Dil kodu (tr, en, fr, de)
- *                       example: "tr"
- *                     title:
- *                       type: string
- *                       description: Grup adı
- *                       example: "Türkçe Grup"
- *                     description:
- *                       type: string
- *                       description: Grup açıklaması
- *                       example: "Türkçe Açıklama"
+ *                 type: string
+ *                 description: JSON formatında 4 dilde çeviri bilgileri
+ *                 example: '[{"language":"tr","title":"Grup","description":"Açıklama"}, ...]'
  *     responses:
  *       201:
  *         description: Grup başarıyla eklendi
@@ -105,7 +89,6 @@ router.get("/admin", getAdminProductGroups);
  *       500:
  *         description: Sunucu hatası
  */
-// FormData ile hem dosya hem diğer alanları alan endpoint
-router.post("/formdata", upload.single("image"), createProductGroupWithFormData);
+router.post("/formdata", uploadProductGroup.single("image"), createProductGroupWithFormData);
 
 export default router;

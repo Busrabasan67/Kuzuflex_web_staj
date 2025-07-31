@@ -86,55 +86,11 @@ export const getProductsByGroupId = async (req: Request, res: Response) => {
 };
 
 
-  /*
- 
-   // Yeni bir üst ürün kategorisi (ProductGroup) ve ona ait çevirileri ekleyen fonksiyon
-   export const createProductGroup = async (req: Request, res: Response) => {
-    try {
-      // İstekten ortak alanları (imageUrl, standard) ve çevirileri (translations) al
-      const { imageUrl, standard, translations } = req.body;
-
-      // Çeviri dizisi yoksa veya 4 dilde değilse hata döndür
-      if (!translations || !Array.isArray(translations) || translations.length !== 4) {
-        return res.status(400).json({ message: "4 dilde çeviri zorunludur." });
-      }
-
-      // ProductGroup repository'sini al
-      const groupRepo = AppDataSource.getRepository(ProductGroup);
-
-      // Yeni bir ProductGroup nesnesi oluştur ve ortak alanları ata
-      const group = groupRepo.create({ imageUrl, standard });
-
-      // Her bir çeviri için ProductGroupTranslation nesnesi oluştur
-      group.translations = translations.map((tr: any) => {
-        // Yeni çeviri nesnesi oluştur
-        const translation = new ProductGroupTranslation();
-        // Dil kodunu ata (ör: 'tr', 'en', 'fr', 'de')
-        translation.language = tr.language;
-        // Başlığı ata
-        translation.name = tr.name;
-        // Açıklamayı ata
-        translation.description = tr.description;
-        // Çeviri nesnesini döndür
-        return translation;
-      });
-
-      // ProductGroup'u ve çevirilerini veritabanına kaydet
-      await groupRepo.save(group);
-
-      // Başarıyla eklenen grubu JSON olarak döndür
-      return res.status(201).json(group);
-    } catch (error) {
-      // Hata olursa logla ve hata mesajı döndür
-      console.error("Grup eklenemedi:", error);
-      return res.status(500).json({ message: "Sunucu hatası" });
-    }
-  };
-
-  */
-
+/*
   // FormData ile hem dosya hem diğer alanları alan yeni fonksiyon
 export const createProductGroupWithFormData = async (req: Request, res: Response) => {
+  console.log("🟡 req.body.translations:", req.body.translations);
+
   try {
     // Yüklenen dosyanın yolunu al (public/ öneki olmadan)
     const imageUrl = req.file ? `uploads/images/Products/${req.file.filename}` : "";
@@ -174,6 +130,61 @@ export const createProductGroupWithFormData = async (req: Request, res: Response
     return res.status(500).json({ message: "Sunucu hatası" });
   }
 };
+*/
+export const createProductGroupWithFormData = async (req: Request, res: Response) => {
+  try {
+    console.log("📥 Gelen body:", req.body);
+    console.log("📎 Gelen translations:", req.body?.translations);
+    console.log("📷 Gelen dosya:", req.file?.filename);
+
+    // req.body kontrolü
+    if (!req.body) {
+      return res.status(400).json({ message: "Form verileri alınamadı. Multer middleware'i eksik olabilir." });
+    }
+
+    const imageUrl = req.file ? `uploads/images/Products/${req.file.filename}` : "";
+
+    const { standard } = req.body;
+
+    // 🔒 Güvenli parse
+    let translations;
+    try {
+      if (!req.body.translations) {
+        return res.status(400).json({ message: "translations alanı eksik!" });
+      }
+      translations = JSON.parse(req.body.translations);
+    } catch (err) {
+      console.error("❌ JSON parse hatası:", err);
+      return res.status(400).json({ message: "translations formatı hatalı. JSON.stringify ile gönderilmeli." });
+    }
+
+    if (!translations || !Array.isArray(translations) || translations.length !== 4) {
+      return res.status(400).json({ message: "4 dilde çeviri zorunludur." });
+    }
+
+    const groupRepo = AppDataSource.getRepository(ProductGroup);
+
+    const group = groupRepo.create({ imageUrl, standard });
+
+    group.translations = translations.map((tr: any) => {
+      const translation = new ProductGroupTranslation();
+      translation.language = tr.language;
+      translation.name = tr.name;
+      translation.description = tr.description;
+      return translation;
+    });
+
+    await groupRepo.save(group);
+
+    return res.status(201).json(group);
+  } catch (error: any) {
+    console.error("❌ Grup eklenemedi:", error);
+    return res.status(500).json({ message: "Sunucu hatası", detail: error.message });
+  }
+};
+
+
+
 // Admin paneli için üst kategorileri listeleme fonksiyonu
 export const getAdminProductGroups = async (req: Request, res: Response) => {
   try {

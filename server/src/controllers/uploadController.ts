@@ -3,70 +3,82 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Yüklenen dosyaların kaydedileceği dizin
-const uploadDir = path.join(__dirname, "../../public/uploads/images/Products");
-// Klasör yoksa oluştur
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Ana upload klasörü
+const BASE_UPLOAD_DIR = path.join(__dirname, "../../public/uploads");
 
-// Multer ayarları: dosya nereye ve hangi isimle kaydedilecek
-const storage = multer.diskStorage({
+// ProductGroup için storage
+const productGroupStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir); // Hedef klasör
+    const uploadDir = path.join(BASE_UPLOAD_DIR, "images/Products");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    // Dosya adını benzersiz yapmak için zaman damgası ekle
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
-    cb(null, "productgroup-" + uniqueSuffix + ext);
-  },
+    cb(null, `product-group-${uniqueSuffix}${ext}`);
+  }
 });
 
-// Sadece resim dosyalarına izin ver
+// Solution için storage
+const solutionStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(BASE_UPLOAD_DIR, "solutions");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `solution-${uniqueSuffix}${ext}`);
+  }
+});
+
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  if (file.mimetype.startsWith("image/")) {
-    cb(null, true);
-  } else {
-    cb(new Error("Sadece resim dosyaları yüklenebilir!"));
-  }
+  if (file.mimetype.startsWith("image/")) cb(null, true);
+  else cb(new Error("Sadece resim dosyaları yüklenebilir!"));
 };
 
-export const upload = multer({ storage, fileFilter });
+// ProductGroup için upload middleware
+export const uploadProductGroup = multer({ storage: productGroupStorage, fileFilter });
 
-// Resim yükleme
-export const uploadImage = async (req: Request, res: Response) => {
-  upload.single("image")(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
-    
-    if (!req.file) {
-      return res.status(400).json({ error: "Dosya seçilmedi" });
-    }
-    
-    const imageUrl = `/uploads/extra-content/${req.file.filename}`;
-    res.status(200).json({
-      url: imageUrl,
-      filename: req.file.filename,
-      size: req.file.size,
-    });
-  });
-};
+// Solution için upload middleware
+export const uploadSolution = multer({ storage: solutionStorage, fileFilter });
 
-// Resim silme
-export const deleteImage = async (req: Request, res: Response) => {
-  const { filename } = req.params;
-  const filePath = path.join(uploadDir, filename);
+// Genel upload middleware (varsayılan)
+export const upload = multer({ storage: productGroupStorage, fileFilter });
+
+// Dinamik upload middleware (farklı türler için)
+export const uploadImage = (req: Request, res: Response) => {
+  const type = req.params.type || "other";
   
-  try {
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      res.status(200).json({ message: "Resim başarıyla silindi" });
-    } else {
-      res.status(404).json({ error: "Dosya bulunamadı" });
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Dosya silme hatası" });
-  }
+  const dynamicStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      let folder = "other";
+      if (type === "product-group") folder = "images/Products";
+      else if (type === "solution") folder = "solutions";
+      const uploadDir = path.join(BASE_UPLOAD_DIR, folder);
+      fs.mkdirSync(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const ext = path.extname(file.originalname);
+      cb(null, `${type}-${uniqueSuffix}${ext}`);
+    },
+  });
+
+  const dynamicUpload = multer({ storage: dynamicStorage, fileFilter }).single("image");
+
+  dynamicUpload(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: "Dosya seçilmedi" });
+
+    let folder = "other";
+    if (type === "product-group") folder = "images/Products";
+    else if (type === "solution") folder = "solutions";
+
+    const imageUrl = `/uploads/${folder}/${req.file.filename}`;
+    res.status(200).json({ url: imageUrl, filename: req.file.filename, size: req.file.size });
+  });
 };

@@ -1,13 +1,27 @@
 import express from "express";
-import { uploadImage, deleteImage } from "../controllers/uploadController";
+import { uploadImage } from "../controllers/uploadController";
 
 const router = express.Router();
 
 /**
  * @openapi
- * /api/upload/image:
+ * /api/upload/image/{type}/{id}:
  *   post:
- *     summary: Resim yükler
+ *     summary: Belirli bir tür ve ID için resim yükler
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [product-group, solution]
+ *         description: "Yükleme tipi (örn: product-group, solution)"
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: "İlgili varlığın veritabanı ID'si"
  *     requestBody:
  *       required: true
  *       content:
@@ -21,24 +35,23 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: "Resim başarıyla yüklendi"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                   example: "/uploads/images/Products/product-group-169999999.png"
+ *                 filename:
+ *                   type: string
+ *                 size:
+ *                   type: integer
+ *       400:
+ *         description: "Geçersiz istek ya da dosya"
  */
-router.post("/image", uploadImage);
 
-/**
- * @openapi
- * /api/upload/image/{filename}:
- *   delete:
- *     summary: Resmi siler
- *     parameters:
- *       - name: filename
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: "Resim başarıyla silindi"
- */
-router.delete("/image/:filename", deleteImage);
+router.post("/image/:type/:id", uploadImage);
+
 
 export default router;
