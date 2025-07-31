@@ -1,23 +1,23 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { ProductGroup } from "./ProductGroup";
 
+// Ürün grubu çevirilerini tutan tablo
 @Entity()
 export class ProductGroupTranslation {
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: number; // Benzersiz çeviri ID'si
 
   @Column()
-  language!: string; // 'tr', 'en', 'fr', 'de'
+  language!: string; // Dil kodu ('tr', 'en', 'fr', 'de')
 
   @Column()
-  name!: string;
+  name!: string; // Grup adı (çeviri)
 
   @Column({ type: 'nvarchar', length: 'MAX' })
-  description!: string;
-  
+  description!: string; // Grup açıklaması (çeviri)
 
   @ManyToOne(() => ProductGroup, (group) => group.translations, {
     onDelete: 'CASCADE',
   })
-  group!: ProductGroup;
+  group!: ProductGroup; // Bağlı olduğu grup
 }

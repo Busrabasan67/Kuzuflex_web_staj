@@ -19,9 +19,15 @@ interface SubCategory {
 }
 
 interface ProductGroup {
-  id: number;
-  name: string; // 🟢 Üst grup ProductGroup → ProductGroupTranslation → name
-  subcategories?: SubCategory[];
+  id: number; // Grup ID'si
+  translation: {
+    language: string; // Dil kodu
+    name: string; // Grup adı (çeviri)
+    description: string; // Grup açıklaması (çeviri)
+  } | null; // Çeviri olmayabilir
+  subcategories?: SubCategory[]; // Alt ürünler
+  imageUrl?: string; // Grup görseli
+  standard?: string; // Grup standardı
 }
 
 interface Solution {
@@ -87,7 +93,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Ürün gruplarını fetch et
+        // Ürün gruplarını fetch et (üst grup verileri)
         const productRes = await fetch(`http://localhost:5000/api/product-groups?lang=${language}`);
         const productData: ProductGroup[] = await productRes.json();
         console.log("Navbar grubu:", productData);
@@ -97,14 +103,16 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
         const solutionData: Solution[] = await solutionRes.json();
         console.log("Navbar solution:", solutionData);
 
+        // Ürünler menüsünü oluştur
+        // Menüde grup adı olarak çeviri üzerinden göster
         const dynamicProductsMenu: MenuItem = {
           title: t('navbar.products'),
           submenu: productData.map((group) => ({
-            title: group.name,
+            title: group.translation?.name || '', // Çeviri üzerinden grup adı
             path: `/Products/${group.id}`,
             key: `group-${group.id}`,
             submenu: group.subcategories?.map((sub) => ({
-              title: sub.title,
+              title: sub.title, // Alt ürün adı
               path: `/Products/${group.id}/alt/${sub.id}`,
               key: `sub-${group.id}-${sub.id}`,
             })),

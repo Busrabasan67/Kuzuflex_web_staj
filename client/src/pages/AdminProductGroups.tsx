@@ -1,48 +1,122 @@
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+// import { useTranslation } from 'react-i18next'; // Kullanılmıyor, kaldırıldı
 
 const API_BASE = "http://localhost:5000";
 
+// Üst kategori (ProductGroup) tipini tanımlar
 interface ProductGroup {
-  id: number;
-  name: string;
-  description: string;
-  imageUrl: string;
-  standard: string;
-  translations: any[];
-  productCount: number;
+  id: number; // Grup ID'si
+  imageUrl: string; // Grup görseli
+  standard: string; // Grup standardı
+  translations: {
+    language: string; // Dil kodu
+    name: string; // Grup adı (çeviri)
+    description: string; // Grup açıklaması (çeviri)
+  }[];
+  productCount: number; // Alt ürün sayısı
 }
 
-const AdminProductGroups = () => {
-  const { t } = useTranslation();
-  const [groups, setGroups] = useState<ProductGroup[]>([]); // üst kategori verilerini tutar. ProductGroup[] → ProductGroup tipinde nesnelerden oluşan bir dizi başlangıçta boş dizi.
-  const [loading, setLoading] = useState(true); //verilerin yüklenip yüklenmediğini kontrol eder.
-  const [error, setError] = useState<string | null>(null); // hata olup olmadığını kontrol eder.
+// 4 desteklenen dil kodu
+const LANGUAGES = [
+  { code: 'tr', label: 'Türkçe' },
+  { code: 'en', label: 'English' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+];
 
-  useEffect(() => { // sayfa yüklendiğinde verileri alır. sayfa ilk açıldığında fetchGroups fonksiyonu çağrılır ve API'dan veriler alınır.
+const AdminProductGroups = () => {
+  // const { t } = useTranslation(); // Çoklu dil desteği için hook
+  const [groups, setGroups] = useState<ProductGroup[]>([]); // Üst kategori verileri
+  const [loading, setLoading] = useState(true); // Yüklenme durumu
+  const [error, setError] = useState<string | null>(null); // Hata mesajı
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Modal/form açma kapama durumu
+  const [showModal, setShowModal] = useState(false);
+  // Formun ortak alanları
+  const [form, setForm] = useState({
+    imageUrl: '', // Görsel yolu
+    standard: '', // Standart
+  });
+  // 4 dil için çeviri alanları
+  const [translations, setTranslations] = useState(
+    LANGUAGES.map(l => ({ language: l.code, name: '', description: '' }))
+  );
+  // Form gönderim yüklenme durumu
+  const [submitLoading, setSubmitLoading] = useState(false);
+  // Form gönderim sonrası mesaj
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+
+  // Sayfa yüklendiğinde grupları getirir
+  useEffect(() => {
     fetchGroups();
   }, []);
 
+  // API'dan üst kategorileri çeker
   const fetchGroups = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/product-groups/admin`); // API'den /api/product-groups/admin endpoint'ine istek gönderir.
-      
+      const response = await fetch(`${API_BASE}/api/product-groups/admin`);
       if (!response.ok) {
         throw new Error('Veriler alınamadı');
       }
-      
-      const data = await response.json(); // API'den gelen verileri JSON formatına çevirir.
-      setGroups(data); // gelen JSON verileri setGroups fonksiyonu ile üst kategori verileri olarak tutulur. 
-      setError(null); // hata yoksa hata mesajı null olarak tutulur.
+      const data = await response.json();
+      setGroups(data);
+      setError(null);
     } catch (err) {
-      console.error('❌ Grup verileri alınamadı:', err); // hata mesajı console'a yazdırılır.
-      setError('Veriler yüklenirken hata oluştu'); // hata mesajı setError fonksiyonu ile hata mesajı olarak tutulur.
+      console.error('❌ Grup verileri alınamadı:', err);
+      setError('Veriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
     }
   };
 
+  // Formdaki ortak alanlar değiştiğinde çalışır
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // Çeviri alanları değiştiğinde çalışır
+  const handleTranslationChange = (idx: number, field: 'name' | 'description', value: string) => {
+    setTranslations(prev => prev.map((tr, i) => i === idx ? { ...tr, [field]: value } : tr));
+  };
+
+  // Form gönderildiğinde çalışır
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitLoading(true);
+    setSubmitMessage(null);
+
+    try {
+      const formData = new FormData();
+      if (selectedFile) {
+        formData.append("image", selectedFile);
+      }
+      formData.append("standard", form.standard);
+      formData.append("translations", JSON.stringify(translations));
+
+      const response = await fetch(`${API_BASE}/api/product-groups/formdata`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Kategori eklenemedi");
+
+      await fetchGroups();
+      setSubmitMessage("Kategori başarıyla eklendi!");
+      setForm({ imageUrl: "", standard: "" });
+      setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
+      setSelectedFile(null);
+      setShowModal(false);
+    } catch (err) {
+      setSubmitMessage("Kategori eklenirken hata oluştu");
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  // Yükleniyorsa yükleniyor ekranı göster
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -54,6 +128,7 @@ const AdminProductGroups = () => {
     );
   }
 
+  // Hata varsa hata ekranı göster
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -81,10 +156,13 @@ const AdminProductGroups = () => {
       {/* Action Buttons */}
       <div className="mb-6 flex justify-between items-center">
         <div className="flex gap-3">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            onClick={() => setShowModal(true)}
+          >
             + Yeni Kategori Ekle
           </button>
-          <button 
+          <button
             onClick={fetchGroups}
             className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
           >
@@ -95,6 +173,102 @@ const AdminProductGroups = () => {
           Toplam: {groups.length} kategori
         </div>
       </div>
+
+      {/* Modal: Yeni Kategori Ekle */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
+              onClick={() => setShowModal(false)}
+              aria-label="Kapat"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-bold mb-4">Yeni Üst Kategori Ekle</h2>
+            <form onSubmit={handleSubmit}>
+              {/* Ortak Alanlar */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Görsel Yolu</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    if (e.target.files && e.target.files[0]) setSelectedFile(e.target.files[0]);
+                  }}
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+                  required
+                />
+                {selectedFile && (
+                  <img
+                    src={URL.createObjectURL(selectedFile)}
+                    alt="Önizleme"
+                    className="h-16 w-16 object-cover rounded mb-2"
+                  />
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Standart</label>
+                <input
+                  type="text"
+                  name="standard"
+                  value={form.standard}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="ISO 9001"
+                  required
+                />
+              </div>
+              {/* 4 Dil için Çeviri Alanları */}
+              <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {LANGUAGES.map((lang, idx) => (
+                  <div key={lang.code} className="border rounded p-3">
+                    <div className="font-semibold mb-2">{lang.label} ({lang.code})</div>
+                    <label className="block text-xs text-gray-600 mb-1">Başlık</label>
+                    <input
+                      type="text"
+                      value={translations[idx].name}
+                      onChange={e => handleTranslationChange(idx, 'name', e.target.value)}
+                      className="w-full border border-gray-300 rounded px-2 py-1 mb-2"
+                      placeholder={`${lang.label} başlık`}
+                      required
+                    />
+                    <label className="block text-xs text-gray-600 mb-1">Açıklama</label>
+                    <textarea
+                      value={translations[idx].description}
+                      onChange={e => handleTranslationChange(idx, 'description', e.target.value)}
+                      className="w-full border border-gray-300 rounded px-2 py-1"
+                      placeholder={`${lang.label} açıklama`}
+                      required
+                    />
+                  </div>
+                ))}
+              </div>
+              {/* Gönder Butonu */}
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
+                  onClick={() => setShowModal(false)}
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  disabled={submitLoading}
+                >
+                  {submitLoading ? 'Ekleniyor...' : 'Kaydet'}
+                </button>
+              </div>
+              {/* Sonuç Mesajı */}
+              {submitMessage && (
+                <div className="mt-3 text-center text-sm text-red-600">{submitMessage}</div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Groups Table */}
       <div className="bg-white rounded-lg shadow">
@@ -138,7 +312,7 @@ const AdminProductGroups = () => {
                     {group.imageUrl ? (
                       <img
                         src={`${API_BASE}/${group.imageUrl.startsWith('/') ? group.imageUrl.slice(1) : group.imageUrl}`}
-                        alt={group.name}
+                        alt={group.translations[0]?.name || 'Görsel'}
                         className="h-10 w-10 rounded-lg object-cover"
                       />
                     ) : (
@@ -148,13 +322,13 @@ const AdminProductGroups = () => {
                     )}
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <div className="max-w-xs truncate" title={group.name}>
-                      {group.name}
+                    <div className="max-w-xs truncate" title={group.translations[0]?.name}>
+                      {group.translations[0]?.name}
                     </div>
                   </td>
                   <td className="px-3 py-4 text-sm text-gray-500">
-                    <div className="max-w-xs truncate" title={group.description || '-'}>
-                      {group.description || '-'}
+                    <div className="max-w-xs truncate" title={group.translations[0]?.description || '-'}>
+                      {group.translations[0]?.description || '-'}
                     </div>
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -187,7 +361,6 @@ const AdminProductGroups = () => {
             </tbody>
           </table>
         </div>
-        
         {groups.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📦</div>

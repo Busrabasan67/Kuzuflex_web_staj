@@ -12,34 +12,42 @@ export const getAllGroups = async (req: Request, res: Response) => {
   const lang = (req.query.lang as string) || "tr";
 
   try {
+    // Veritabanından ilgili dilde çevirisiyle birlikte grupları al
     const groups = await AppDataSource.getRepository(ProductGroup)
-  .createQueryBuilder("group")
-  .leftJoinAndSelect("group.translations", "groupTranslation", "groupTranslation.language = :lang", { lang })
-  .leftJoinAndSelect("group.products", "product")
-  .leftJoinAndSelect("product.translations", "productTranslation", "productTranslation.language = :lang", { lang })
-  .getMany();
+      .createQueryBuilder("group")
+      .leftJoinAndSelect("group.translations", "groupTranslation", "groupTranslation.language = :lang", { lang })
+      .leftJoinAndSelect("group.products", "product")
+      .leftJoinAndSelect("product.translations", "productTranslation", "productTranslation.language = :lang", { lang })
+      .getMany();
 
-
+    // Her grup için, ortak alanlar ve ilgili dilde çeviri döndür
     const result = groups.map((group) => ({
-      id: group.id,
-      name: group.translations?.[0]?.name || group.name,
-      description: group.translations?.[0]?.description || group.description,
-      imageUrl: group.imageUrl || null,
-      standard: group.standard || null,
-      key: `group-${group.id}`,
+      id: group.id, // Grup ID'si
+      imageUrl: group.imageUrl || null, // Grup görseli
+      standard: group.standard || null, // Grup standardı
+      // Sadece ilgili dildeki çeviri
+      translation: group.translations?.[0]
+        ? {
+            language: group.translations[0].language,
+            name: group.translations[0].name,
+            description: group.translations[0].description,
+          }
+        : null,
+      // Alt ürünler (subcategories)
       subcategories: (group.products || []).map((product) => {
         const translation = product.translations?.find(t => t.language === lang);
         return {
-          id: product.id,
-          title: translation?.title,
-          description: translation?.description,
-          imageUrl: product.imageUrl || null,
-          standard: product.standard || null,
-          key: `sub-${group.id}-${product.id}`,
+          id: product.id, // Ürün ID'si
+          title: translation?.title, // Ürün adı (çeviri)
+          description: translation?.description, // Ürün açıklaması (çeviri)
+          imageUrl: product.imageUrl || null, // Ürün görseli
+          standard: product.standard || null, // Ürün standardı
+          key: `sub-${group.id}-${product.id}` // Anahtar
         };
       }),
     }));
 
+    // Sonucu JSON olarak döndür
     return res.status(200).json(result);
   } catch (error) {
     console.error("❌ Grup verileri alınamadı:", error);
@@ -78,54 +86,112 @@ export const getProductsByGroupId = async (req: Request, res: Response) => {
 };
 
 
-  export const createProductGroup = async (req: Request, res: Response) => {
+  /*
+ 
+   // Yeni bir üst ürün kategorisi (ProductGroup) ve ona ait çevirileri ekleyen fonksiyon
+   export const createProductGroup = async (req: Request, res: Response) => {
     try {
-      const { name, description, imageUrl, standard, translations } = req.body;
-  
-      // Ana grup oluştur
-      const groupRepo = AppDataSource.getRepository(ProductGroup);
-      const group = groupRepo.create({ name, description, imageUrl, standard });
-  
-      // Çevirileri ekle
-      if (translations && Array.isArray(translations)) {
-        group.translations = translations.map((tr: any) =>
-          Object.assign(new ProductGroupTranslation(), tr)
-        );
+      // İstekten ortak alanları (imageUrl, standard) ve çevirileri (translations) al
+      const { imageUrl, standard, translations } = req.body;
+
+      // Çeviri dizisi yoksa veya 4 dilde değilse hata döndür
+      if (!translations || !Array.isArray(translations) || translations.length !== 4) {
+        return res.status(400).json({ message: "4 dilde çeviri zorunludur." });
       }
-  
+
+      // ProductGroup repository'sini al
+      const groupRepo = AppDataSource.getRepository(ProductGroup);
+
+      // Yeni bir ProductGroup nesnesi oluştur ve ortak alanları ata
+      const group = groupRepo.create({ imageUrl, standard });
+
+      // Her bir çeviri için ProductGroupTranslation nesnesi oluştur
+      group.translations = translations.map((tr: any) => {
+        // Yeni çeviri nesnesi oluştur
+        const translation = new ProductGroupTranslation();
+        // Dil kodunu ata (ör: 'tr', 'en', 'fr', 'de')
+        translation.language = tr.language;
+        // Başlığı ata
+        translation.name = tr.name;
+        // Açıklamayı ata
+        translation.description = tr.description;
+        // Çeviri nesnesini döndür
+        return translation;
+      });
+
+      // ProductGroup'u ve çevirilerini veritabanına kaydet
       await groupRepo.save(group);
-  
+
+      // Başarıyla eklenen grubu JSON olarak döndür
       return res.status(201).json(group);
     } catch (error) {
+      // Hata olursa logla ve hata mesajı döndür
       console.error("Grup eklenemedi:", error);
       return res.status(500).json({ message: "Sunucu hatası" });
     }
   };
 
+  */
+
+  // FormData ile hem dosya hem diğer alanları alan yeni fonksiyon
+export const createProductGroupWithFormData = async (req: Request, res: Response) => {
+  try {
+    // Yüklenen dosyanın yolunu al (public/ öneki olmadan)
+    const imageUrl = req.file ? `uploads/images/Products/${req.file.filename}` : "";
+
+    // Diğer alanları al
+    const { standard } = req.body;
+    // translations alanı JSON string olarak gelir, parse et
+    const translations = JSON.parse(req.body.translations);
+
+    // Çeviri sayısı kontrolü
+    if (!translations || !Array.isArray(translations) || translations.length !== 4) {
+      return res.status(400).json({ message: "4 dilde çeviri zorunludur." });
+    }
+
+    // ProductGroup repository'sini al
+    const groupRepo = AppDataSource.getRepository(ProductGroup);
+
+    // Yeni bir ProductGroup nesnesi oluştur ve ortak alanları ata
+    const group = groupRepo.create({ imageUrl, standard });
+
+    // Her bir çeviri için ProductGroupTranslation nesnesi oluştur
+    group.translations = translations.map((tr: any) => {
+      const translation = new ProductGroupTranslation();
+      translation.language = tr.language;
+      translation.name = tr.name;
+      translation.description = tr.description;
+      return translation;
+    });
+
+    // ProductGroup'u ve çevirilerini veritabanına kaydet
+    await groupRepo.save(group);
+
+    // Başarıyla eklenen grubu JSON olarak döndür
+    return res.status(201).json(group);
+  } catch (error) {
+    console.error("Grup eklenemedi:", error);
+    return res.status(500).json({ message: "Sunucu hatası" });
+  }
+};
 // Admin paneli için üst kategorileri listeleme fonksiyonu
 export const getAdminProductGroups = async (req: Request, res: Response) => {
   try {
-    const groupRepo = AppDataSource.getRepository(ProductGroup); //veritabanındaki ProductGroup tablosuna erişir.
-    
-    // veritabanındaki ProductGroup tablosundaki tüm grupları çevirileri ile birlikte alır.
+    const groupRepo = AppDataSource.getRepository(ProductGroup); // Veritabanındaki ProductGroup tablosuna erişir
+    // Veritabanındaki ProductGroup tablosundaki tüm grupları çevirileri ile birlikte alır
     const groups = await groupRepo.find({
-      relations: ["translations", "products"], //çok dilli çeviri ve ürünleri ile birlikte alır.
-      order: { id: "ASC" } //id'ye göre artan sırada sıralar.
+      relations: ["translations", "products"], // Çok dilli çeviri ve ürünleri ile birlikte alır
+      order: { id: "ASC" } // id'ye göre artan sırada sıralar
     });
-
-    // Verileri frontend'e uygun formatta döndür.
+    // Verileri frontend'e uygun formatta döndür
     const result = groups.map((group) => ({
-      id: group.id,
-      name: group.name,
-      description: group.description,
-      imageUrl: group.imageUrl,
-      standard: group.standard,
-      translations: group.translations || [],
-      productCount: group.products?.length || 0
+      id: group.id, // Grup ID'si
+      imageUrl: group.imageUrl, // Grup görseli
+      standard: group.standard, // Grup standardı
+      translations: group.translations || [], // Çeviri dizisi
+      productCount: group.products?.length || 0 // Alt ürün sayısı
     }));
- 
-    //her group nesnesi sadeleştirilerek bir JSON objesi olarak döndürülür.
-    //kısaca alınan verileri JSON formatına çevirir.
+    // Sonucu JSON olarak döndür
     return res.status(200).json(result);
   } catch (error) {
     console.error("❌ Admin grup listesi alınamadı:", error);

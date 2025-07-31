@@ -23,12 +23,15 @@ interface Product {
 }
 
 interface ProductGroup {
-  id: number;
-  name: string;
-  description: string;
-  imageUrl: string;
-  standard: string;
-  products: Product[];
+  id: number; // Grup ID'si
+  translation: {
+    language: string; // Dil kodu
+    name: string; // Grup adı (çeviri)
+    description: string; // Grup açıklaması (çeviri)
+  } | null; // Çeviri olmayabilir
+  imageUrl: string; // Grup görseli
+  standard: string; // Grup standardı
+  products: Product[]; // Alt ürünler
 }
 
 const ProductGroupPage = () => {
@@ -44,7 +47,7 @@ const ProductGroupPage = () => {
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        // Önce grup bilgilerini al - seçili dile göre
+        // Üst grup bilgilerini al - seçili dile göre
         const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
         const groups = await groupRes.json();
         const currentGroup = groups.find((g: any) => g.id === parseInt(groupId!));
@@ -55,12 +58,11 @@ const ProductGroupPage = () => {
           const products = await productsRes.json();
           
           setGroupData({
-            id: currentGroup.id,
-            name: currentGroup.name,
-            description: currentGroup.description || "",
-            imageUrl: currentGroup.imageUrl || "",
-            standard: currentGroup.standard || "",
-            products: products
+            id: currentGroup.id, // Grup ID'si
+            translation: currentGroup.translation, // Grup çevirisi
+            imageUrl: currentGroup.imageUrl || '', // Grup görseli
+            standard: currentGroup.standard || '', // Grup standardı
+            products: products // Alt ürünler
           });
         }
         setLoading(false);
@@ -108,7 +110,7 @@ const ProductGroupPage = () => {
                   )}
                   <img
                     src={`${API_BASE}/${groupData.imageUrl.startsWith('/') ? groupData.imageUrl.slice(1) : groupData.imageUrl}`}
-                    alt={groupData.name}
+                    alt={groupData.translation?.name || "Product Group"} // Use the translated name for alt text, fallback to "Product Group" if not available
                     className={`w-full h-80 lg:h-96 object-cover transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
                     style={{
                       imageRendering: '-webkit-optimize-contrast'
@@ -124,12 +126,12 @@ const ProductGroupPage = () => {
               {/* Group Info */}
               <div className="text-center lg:text-left">
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                  {groupData.name}
+                  {groupData.translation?.name}
                 </h1>
                 
-                {groupData.description && (
+                {groupData.translation?.description && (
                   <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                    {groupData.description}
+                    {groupData.translation.description}
                   </p>
                 )}
 
@@ -293,7 +295,7 @@ const ProductGroupPage = () => {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img
                   src={`${API_BASE}/${groupData.imageUrl.startsWith('/') ? groupData.imageUrl.slice(1) : groupData.imageUrl}`}
-                  alt={groupData.name}
+                  alt={groupData.translation?.name || "Product Group"} // Use the translated name for alt text, fallback to "Product Group" if not available
                   className="w-full h-80 lg:h-96 object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20"></div>
@@ -303,12 +305,12 @@ const ProductGroupPage = () => {
             {/* Group Info */}
             <div className="text-center lg:text-left">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-                {groupData.name}
+                {groupData.translation?.name}
               </h1>
               
-              {groupData.description && (
+              {groupData.translation?.description && (
                 <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                  {groupData.description}
+                  {groupData.translation.description}
                 </p>
               )}
 
