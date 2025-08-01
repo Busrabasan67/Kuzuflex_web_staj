@@ -14,7 +14,7 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *           enum: [product-group, solution]
+ *           enum: [product-group, solution, product]
  *         description: "Yükleme tipi (örn: product-group, solution)"
  *       - in: path
  *         name: id

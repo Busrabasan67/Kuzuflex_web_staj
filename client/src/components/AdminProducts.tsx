@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AddProductModal from './AddProductModal';
 
 const API_BASE = "http://localhost:5000";
 
@@ -17,6 +18,7 @@ const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Sayfa yüklendiğinde ürünleri getirir
   useEffect(() => {
@@ -40,6 +42,11 @@ const AdminProducts = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Modal başarılı olduğunda ürünleri yeniden yükle
+  const handleAddSuccess = () => {
+    fetchProducts();
   };
 
   if (loading) {
@@ -77,7 +84,7 @@ const AdminProducts = () => {
           <p className="text-gray-600">Tüm alt ürünleri görüntüleyin ve yönetin</p>
         </div>
         <button
-          onClick={() => {/* TODO: Ekleme modalı */}}
+          onClick={() => setShowAddModal(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,19 +130,19 @@ const AdminProducts = () => {
               {products.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                                         {product.imageUrl ? (
-                       <img
-                         src={`${API_BASE}/${product.imageUrl}`}
-                         alt={product.title}
-                         className="h-12 w-12 rounded-lg object-cover"
-                         onError={(e) => {
-                           // Resim yüklenemezse placeholder göster
-                           const target = e.target as HTMLImageElement;
-                           target.style.display = 'none';
-                           target.nextElementSibling?.classList.remove('hidden');
-                         }}
-                       />
-                     ) : null}
+                    {product.imageUrl ? (
+                      <img
+                        src={`${API_BASE}/${product.imageUrl}`}
+                        alt={product.title}
+                        className="h-12 w-12 rounded-lg object-cover"
+                        onError={(e) => {
+                          // Resim yüklenemezse placeholder göster
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
                     <div className={`h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center ${product.imageUrl ? 'hidden' : ''}`}>
                       <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -180,6 +187,13 @@ const AdminProducts = () => {
           </table>
         </div>
       </div>
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleAddSuccess}
+      />
     </div>
   );
 };

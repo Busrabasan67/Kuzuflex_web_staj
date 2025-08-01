@@ -21,6 +21,8 @@ const router = Router();
  */
 router.get("/", getAllGroups);
 
+
+
 /**
  * @swagger
  * /api/product-groups/{groupId}/products:

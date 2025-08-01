@@ -57,6 +57,7 @@ export const uploadImage = (req: Request, res: Response) => {
       let folder = "other";
       if (type === "product-group") folder = "images/Products";
       else if (type === "solution") folder = "solutions";
+      else if (type === "product") folder = "images/Products"; // Alt ürünler için
       const uploadDir = path.join(BASE_UPLOAD_DIR, folder);
       fs.mkdirSync(uploadDir, { recursive: true });
       cb(null, uploadDir);
@@ -77,8 +78,15 @@ export const uploadImage = (req: Request, res: Response) => {
     let folder = "other";
     if (type === "product-group") folder = "images/Products";
     else if (type === "solution") folder = "solutions";
+    else if (type === "product") folder = "images/Products"; // Alt ürünler için
 
     const imageUrl = `/uploads/${folder}/${req.file.filename}`;
-    res.status(200).json({ url: imageUrl, filename: req.file.filename, size: req.file.size });
+    const fullPath = `uploads/${folder}/${req.file.filename}`;
+    res.status(200).json({ 
+      url: imageUrl, 
+      filename: fullPath, // Tam yolu döndür (veritabanı için)
+      originalFilename: req.file.filename, // Sadece dosya adı
+      size: req.file.size 
+    });
   });
 };
