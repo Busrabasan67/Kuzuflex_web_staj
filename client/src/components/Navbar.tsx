@@ -15,11 +15,13 @@ interface MenuItem {
 
 interface SubCategory {
   id: number;
+  slug: string; // Ürün slug'ı
   title: string; // 🟡 Alt ürünler Product → ProductTranslation → title
 }
 
 interface ProductGroup {
   id: number; // Grup ID'si
+  slug: string; // SEO dostu URL slug'ı
   translation: {
     language: string; // Dil kodu
     name: string; // Grup adı (çeviri)
@@ -107,11 +109,11 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
           title: t('navbar.products'),
           submenu: productData.map((group) => ({
             title: group.translation?.name || '', // Çeviri üzerinden grup adı
-            path: `/Products/${group.id}`,
+            path: `/products/${group.slug}`, // Slug bazlı URL
             key: `group-${group.id}`,
             submenu: group.subcategories?.map((sub) => ({
               title: sub.title, // Alt ürün adı
-              path: `/Products/${group.id}/alt/${sub.id}`,
+              path: `/products/${group.slug}/${sub.slug}`, // Slug bazlı URL
               key: `sub-${group.id}-${sub.id}`,
             })),
           })),

@@ -11,6 +11,9 @@ export class Product {
   id!: number;
 
   @Column({ nullable: true })
+  slug!: string;
+
+  @Column({ nullable: true })
   imageUrl?: string;
 
   @Column({ nullable: true })

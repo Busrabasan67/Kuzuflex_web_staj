@@ -13,6 +13,9 @@ interface Catalog {
 
 interface ProductDetail {
   id: number;
+  slug: string; // Ürün slug'ı
+  groupId: number;
+  groupSlug: string; // Grup slug'ı
   title: string;
   description: string;
   imageUrl: string;
@@ -22,7 +25,7 @@ interface ProductDetail {
 
 const SubProductPage = () => {
   const { t, i18n } = useTranslation();
-  const { groupId, subId } = useParams();
+  const { groupId, subId, groupSlug, productSlug } = useParams();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [imageLoading, setImageLoading] = useState(true);
@@ -30,31 +33,67 @@ const SubProductPage = () => {
   const [showPdfModal, setShowPdfModal] = useState(false);
 
   useEffect(() => {
-    fetch(
-      `${API_BASE}/api/products?group=${groupId}&sub=${subId}&lang=${i18n.language}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("API'den gelen veri:", data);
-        console.log("Resim URL:", data.imageUrl);
-        if (data.catalogs) {
-          console.log("Kataloglar:", data.catalogs);
-          data.catalogs.forEach((catalog: Catalog, index: number) => {
-            console.log(`Katalog ${index + 1}:`, {
-              name: catalog.name,
-              filePath: catalog.filePath,
-              finalUrl: getCatalogUrl(catalog.filePath)
+    // Slug varsa slug ile, yoksa ID ile çalış
+    const isSlugMode = !!groupSlug && !!productSlug;
+    
+    if (isSlugMode) {
+      // Slug bazlı veri çekme
+      fetch(
+        `${API_BASE}/api/products/slug/${groupSlug}/${productSlug}?lang=${i18n.language}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("API'den gelen veri (slug):", data);
+          console.log("Resim URL:", data.imageUrl);
+          if (data.catalogs) {
+            console.log("Kataloglar:", data.catalogs);
+            data.catalogs.forEach((catalog: Catalog, index: number) => {
+              console.log(`Katalog ${index + 1}:`, {
+                name: catalog.name,
+                filePath: catalog.filePath,
+                finalUrl: getCatalogUrl(catalog.filePath)
+              });
             });
-          });
-        }
-        setProduct(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Ürün detay alınamadı:", err);
-        setLoading(false);
-      });
-  }, [groupId, subId, i18n.language]);
+          }
+          setProduct(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Ürün detay alınamadı (slug):", err);
+          setLoading(false);
+        });
+    } else {
+      // ID bazlı veri çekme (backward compatibility)
+      fetch(
+        `${API_BASE}/api/products?group=${groupId}&sub=${subId}&lang=${i18n.language}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          // Fallback slug'lar ekle
+          const productWithSlug = {
+            ...data,
+            slug: data.slug || `product-${data.id}`,
+            groupSlug: data.groupSlug || `group-${data.groupId}`
+          };
+          
+          if (data.catalogs) {
+            data.catalogs.forEach((catalog: Catalog, index: number) => {
+              console.log(`Katalog ${index + 1}:`, {
+                name: catalog.name,
+                filePath: catalog.filePath,
+                finalUrl: getCatalogUrl(catalog.filePath)
+              });
+            });
+          }
+          setProduct(productWithSlug);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Ürün detay alınamadı (ID):", err);
+          setLoading(false);
+        });
+    }
+  }, [groupId, subId, groupSlug, productSlug, i18n.language]);
 
   if (loading) return (
     <div style={{

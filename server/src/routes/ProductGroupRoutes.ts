@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllGroups, getProductsByGroupId, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup } from "../controllers/productGroupController";
+import { getAllGroups, getProductsByGroupId, getProductsByGroupSlug, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup } from "../controllers/productGroupController";
 
 const router = Router();
 
@@ -25,9 +25,33 @@ router.get("/", getAllGroups);
 
 /**
  * @swagger
+ * /api/product-groups/slug/{groupSlug}/products:
+ *   get:
+ *     summary: Slug ile ürün grubuna ait alt ürünleri getirir (YENİ)
+ *     parameters:
+ *       - in: path
+ *         name: groupSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Ürün grup slug'ı (örn: metal-hoses)
+ *       - in: query
+ *         name: lang
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Çeviri dili (varsayılan: tr)
+ *     responses:
+ *       200:
+ *         description: Alt ürünler başarıyla listelendi
+ */
+router.get("/slug/:groupSlug/products", getProductsByGroupSlug);
+
+/**
+ * @swagger
  * /api/product-groups/{groupId}/products:
  *   get:
- *     summary: Belirli bir ürün grubuna ait alt ürünleri getirir
+ *     summary: ID ile ürün grubuna ait alt ürünleri getirir (ESKİ - backward compatibility)
  *     parameters:
  *       - in: path
  *         name: groupId

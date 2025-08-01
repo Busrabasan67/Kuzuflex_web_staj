@@ -9,6 +9,10 @@ export class ProductGroup {
   id!: number; // Benzersiz grup ID'si
 
   @Column({ nullable: true })
+  slug?: string;
+ // URL için SEO dostu tanım
+
+  @Column({ nullable: true })
   imageUrl!: string; // Grup görselinin yolu
 
   @Column({ nullable: true })

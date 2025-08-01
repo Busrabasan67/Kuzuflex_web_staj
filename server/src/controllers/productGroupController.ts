@@ -23,6 +23,7 @@ export const getAllGroups = async (req: Request, res: Response) => {
     // Her grup için, ortak alanlar ve ilgili dilde çeviri döndür
     const result = groups.map((group) => ({
       id: group.id, // Grup ID'si
+      slug: group.slug, // SEO dostu URL slug'ı
       imageUrl: group.imageUrl || null, // Grup görseli
       standard: group.standard || null, // Grup standardı
       // Sadece ilgili dildeki çeviri
@@ -38,6 +39,7 @@ export const getAllGroups = async (req: Request, res: Response) => {
         const translation = product.translations?.find(t => t.language === lang);
         return {
           id: product.id, // Ürün ID'si
+          slug: product.slug, // Ürün slug'ı
           title: translation?.title, // Ürün adı (çeviri)
           description: translation?.description, // Ürün açıklaması (çeviri)
           imageUrl: product.imageUrl || null, // Ürün görseli
@@ -56,6 +58,7 @@ export const getAllGroups = async (req: Request, res: Response) => {
 };
 
 
+// Grup ID ile ürünleri getirme (backward compatibility için)
 export const getProductsByGroupId = async (req: Request, res: Response) => {
   const lang = (req.query.lang as string) || "tr";
   const groupId = parseInt(req.params.groupId);
@@ -70,6 +73,7 @@ export const getProductsByGroupId = async (req: Request, res: Response) => {
 
   const result = products.map((product) => ({
     id: product.id,
+    slug: product.slug,
     title: product.translations?.[0]?.title,
     description: product.translations?.[0]?.description,
     imageUrl: product.imageUrl,
@@ -83,6 +87,43 @@ export const getProductsByGroupId = async (req: Request, res: Response) => {
   }));
 
   return res.status(200).json(result);
+};
+
+// Grup slug ile ürünleri getirme (yeni slug sistemi)
+export const getProductsByGroupSlug = async (req: Request, res: Response) => {
+  const lang = (req.query.lang as string) || "tr";
+  const { groupSlug } = req.params;
+
+  try {
+    const products = await AppDataSource.getRepository(Product)
+      .createQueryBuilder("product")
+      .leftJoinAndSelect("product.group", "group")
+      .leftJoinAndSelect("product.translations", "translation", "translation.language = :lang", { lang })
+      .leftJoinAndSelect("product.catalogs", "catalog")
+      .leftJoinAndSelect("catalog.translations", "catalogTranslation", "catalogTranslation.language = :lang", { lang })
+      .where("group.slug = :groupSlug", { groupSlug })
+      .getMany();
+
+    const result = products.map((product) => ({
+      id: product.id,
+      slug: product.slug,
+      title: product.translations?.[0]?.title,
+      description: product.translations?.[0]?.description,
+      imageUrl: product.imageUrl,
+      standard: product.standard,
+      catalogs: (product.catalogs || []).map((catalog) => ({
+        id: catalog.id,
+        name: catalog.translations?.[0]?.name || "Katalog",
+        filePath: catalog.filePath,
+      })),
+      key: `sub-${product.group?.slug}-${product.slug}`,
+    }));
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("❌ Grup slug ile ürünler alınamadı:", error);
+    return res.status(500).json({ message: "Sunucu hatası" });
+  }
 };
 
 export const createProductGroupWithFormData = async (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getSubProduct, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct } from "../controllers/productController";
+import { getSubProduct, getProductBySlug, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct } from "../controllers/productController";
 
 const router = express.Router();
 
@@ -34,7 +34,39 @@ const router = express.Router();
  *         description: Ürün detayları başarıyla getirildi
  */
 
-// Alt ürün verisi getiren route
+// Slug bazlı ürün getirme (YENİ)
+/**
+ * @swagger
+ * /api/products/slug/{groupSlug}/{productSlug}:
+ *   get:
+ *     summary: Slug ile alt ürün detayını getir (YENİ)
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: groupSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Ürün grubu slug'ı (örn: metal-hoses)
+ *       - in: path
+ *         name: productSlug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Ürün slug'ı (örn: stainless-steel-hoses)
+ *       - in: query
+ *         name: lang
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Çeviri dili (varsayılan "tr")
+ *     responses:
+ *       200:
+ *         description: Ürün detayları başarıyla getirildi
+ */
+router.get("/slug/:groupSlug/:productSlug", getProductBySlug);
+
+// Alt ürün verisi getiren route (ESKİ - backward compatibility)
 router.get("/", getSubProduct);
 
 /**

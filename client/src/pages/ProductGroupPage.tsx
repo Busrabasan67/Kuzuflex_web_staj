@@ -14,6 +14,7 @@ interface Catalog {
 
 interface Product {
   id: number;
+  slug: string; // Ürün slug'ı
   title: string;
   description: string;
   imageUrl: string;
@@ -24,6 +25,7 @@ interface Product {
 
 interface ProductGroup {
   id: number; // Grup ID'si
+  slug: string; // SEO dostu URL slug'ı
   translation: {
     language: string; // Dil kodu
     name: string; // Grup adı (çeviri)
@@ -36,7 +38,7 @@ interface ProductGroup {
 
 const ProductGroupPage = () => {
   const { t, i18n } = useTranslation();
-  const { groupId } = useParams();
+  const { groupId, groupSlug } = useParams();
   const navigate = useNavigate();
   const [groupData, setGroupData] = useState<ProductGroup | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,23 +49,59 @@ const ProductGroupPage = () => {
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        // Üst grup bilgilerini al - seçili dile göre
-        const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
-        const groups = await groupRes.json();
-        const currentGroup = groups.find((g: any) => g.id === parseInt(groupId!));
+        // Slug varsa slug ile, yoksa ID ile çalış
+        const identifier = groupSlug || groupId;
+        const isSlugMode = !!groupSlug;
         
-        if (currentGroup) {
-          // Alt ürünleri al - seçili dile göre
-          const productsRes = await fetch(`http://localhost:5000/api/product-groups/${groupId}/products?lang=${i18n.language}`);
-          const products = await productsRes.json();
+        if (isSlugMode) {
+          // Slug bazlı veri çekme
+          const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
+          const groups = await groupRes.json();
+          const currentGroup = groups.find((g: any) => g.slug === groupSlug);
           
-          setGroupData({
-            id: currentGroup.id, // Grup ID'si
-            translation: currentGroup.translation, // Grup çevirisi
-            imageUrl: currentGroup.imageUrl || '', // Grup görseli
-            standard: currentGroup.standard || '', // Grup standardı
-            products: products // Alt ürünler
-          });
+          if (currentGroup) {
+            // Slug ile alt ürünleri al
+            const productsRes = await fetch(`http://localhost:5000/api/product-groups/slug/${groupSlug}/products?lang=${i18n.language}`);
+            const products = await productsRes.json();
+            
+            setGroupData({
+              id: currentGroup.id,
+              slug: currentGroup.slug,
+              translation: currentGroup.translation,
+              imageUrl: currentGroup.imageUrl || '',
+              standard: currentGroup.standard || '',
+              products: products
+            });
+          }
+        } else {
+          // ID bazlı veri çekme (backward compatibility)
+          try {
+            const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
+            const groups = await groupRes.json();
+            
+            const currentGroup = groups.find((g: any) => g.id === parseInt(groupId!));
+            
+            if (currentGroup) {
+              const productsRes = await fetch(`http://localhost:5000/api/product-groups/${groupId}/products?lang=${i18n.language}`);
+              const products = await productsRes.json();
+              
+              setGroupData({
+                id: currentGroup.id,
+                slug: currentGroup.slug || `group-${currentGroup.id}`, // Fallback slug
+                translation: currentGroup.translation,
+                imageUrl: currentGroup.imageUrl || '',
+                standard: currentGroup.standard || '',
+                products: products.map((p: any) => ({
+                  ...p,
+                  slug: p.slug || `product-${p.id}` // Fallback slug
+                }))
+              });
+            } else {
+              console.error("❌ Grup bulunamadı! groupId:", groupId);
+            }
+          } catch (error) {
+            console.error("❌ ID bazlı veri çekme hatası:", error);
+          }
         }
         setLoading(false);
       } catch (error) {
@@ -73,7 +111,7 @@ const ProductGroupPage = () => {
     };
 
     fetchGroupData();
-  }, [groupId, i18n.language]);
+  }, [groupId, groupSlug, i18n.language]);
 
   if (loading) return (
     <div className="flex justify-center items-center min-h-[60vh]">
@@ -162,7 +200,7 @@ const ProductGroupPage = () => {
                 <div 
                   key={product.id} 
                   className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer"
-                  onClick={() => navigate(`/Products/${groupId}/alt/${product.id}`)}
+                  onClick={() => navigate(`/products/${groupData.slug}/${product.slug}`)}
                 >
                   {/* Product Image */}
                   {product.imageUrl && (

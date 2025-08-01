@@ -46,7 +46,9 @@ export const getSubProduct = async (req: Request, res: Response) => {
   
    return res.json({
     id: product.id,
+    slug: product.slug,
     groupId: product.group?.id || null,
+    groupSlug: product.group?.slug || null,
     title: trTranslation?.title,
     description: trTranslation?.description,
     imageUrl: product.imageUrl,
@@ -55,6 +57,59 @@ export const getSubProduct = async (req: Request, res: Response) => {
   });
   } catch (err) {
     console.error("Alt ürün API hatası:", err);
+    return res.status(500).json({ message: "Sunucu hatası" });
+  }
+};
+
+// Slug bazlı ürün getirme (yeni sistem)
+export const getProductBySlug = async (req: Request, res: Response) => {
+  const { groupSlug, productSlug } = req.params;
+  const lang = (req.query.lang as string) || "tr";
+
+  try {
+    const productRepo = AppDataSource.getRepository(Product);
+
+    const product = await productRepo.findOne({
+      where: { 
+        slug: productSlug,
+        group: { slug: groupSlug }
+      },
+      relations: [
+        "group",
+        "translations",
+        "catalogs",
+        "catalogs.translations",
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Ürün bulunamadı" });
+    }
+
+    const trTranslation = product.translations?.find((t) => t.language === lang);
+
+    const catalogs = product.catalogs?.map((catalog) => {
+      const translation = catalog.translations?.find((t) => t.language === lang);
+      return {
+        id: catalog.id,
+        name: translation?.name || "Katalog",
+        filePath: catalog.filePath,
+      };
+    }) || [];
+
+    return res.json({
+      id: product.id,
+      slug: product.slug,
+      groupId: product.group?.id || null,
+      groupSlug: product.group?.slug || null,
+      title: trTranslation?.title,
+      description: trTranslation?.description,
+      imageUrl: product.imageUrl,
+      standard: product.standard,
+      catalogs: catalogs,
+    });
+  } catch (err) {
+    console.error("Slug bazlı ürün API hatası:", err);
     return res.status(500).json({ message: "Sunucu hatası" });
   }
 };
@@ -73,14 +128,14 @@ export const getAllProducts = async (req: Request, res: Response) => {
 
     const result = products.map((product) => ({
       id: product.id,
+      slug: product.slug,
       title: product.translations?.[0]?.title || "Başlık yok",
       description: product.translations?.[0]?.description || "Açıklama yok",
       imageUrl: product.imageUrl,
       standard: product.standard,
       groupId: product.group?.id || null,
+      groupSlug: product.group?.slug || null,
       groupName: product.group?.translations?.[0]?.name || "Grup yok",
-      // Debug için imageUrl'i de ekleyelim
-
     }));
 
     return res.status(200).json(result);
