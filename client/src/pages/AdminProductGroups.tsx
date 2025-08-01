@@ -532,10 +532,15 @@ const AdminProductGroups = () => {
             <p className="text-gray-700 mb-4">
               <strong>"{deletingGroup.translations[0]?.name}"</strong> kategorisini silmek istediğinizden emin misiniz?
             </p>
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
-              <p className="text-sm text-yellow-800">
-                ⚠️ Bu işlem geri alınamaz. Kategoriye bağlı ürünler varsa önce onları silmeniz gerekecek.
+            <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
+              <p className="text-sm text-red-800">
+                ⚠️ Bu işlem geri alınamaz!
               </p>
+              {deletingGroup.productCount > 0 && (
+                <p className="text-sm text-red-800 mt-1">
+                  Bu kategoriye bağlı <strong>{deletingGroup.productCount} adet alt ürün</strong> de silinecektir.
+                </p>
+              )}
             </div>
             <div className="flex justify-end gap-2">
               <button

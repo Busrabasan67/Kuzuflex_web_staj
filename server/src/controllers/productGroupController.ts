@@ -235,11 +235,15 @@ export const deleteProductGroup = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Grup bulunamadı" });
     }
 
-    // Eğer grupla ilişkili ürünler varsa uyarı ver
+    // Eğer grupla ilişkili ürünler varsa bunları da sil
     if (existingGroup.products && existingGroup.products.length > 0) {
-      return res.status(400).json({ 
-        message: `Bu grup silinemez. ${existingGroup.products.length} adet ürün bu gruba bağlı. Önce ürünleri silin.` 
-      });
+      console.log(`🗑️ ${existingGroup.products.length} adet bağlı ürün de silinecek`);
+      
+      const productRepo = AppDataSource.getRepository(Product);
+      // Önce bağlı ürünleri sil (CASCADE ile çevirileri de silinir)
+      await productRepo.remove(existingGroup.products);
+      
+      console.log("✅ Bağlı ürünler silindi");
     }
 
     // Grubu sil (CASCADE ile çeviriler otomatik silinir)

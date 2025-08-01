@@ -164,6 +164,11 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
 
   // Modal'ı kapat ve formu sıfırla
   const handleClose = () => {
+    // Memory cleanup için URL.createObjectURL'den oluşan URL'leri temizle
+    if (selectedFile) {
+      URL.revokeObjectURL(URL.createObjectURL(selectedFile));
+    }
+    
     setForm({ standard: '', groupId: '' });
     setTranslations(LANGUAGES.map(l => ({ language: l.code, title: '', description: '' })));
     setSelectedFile(null);
@@ -247,9 +252,17 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             {selectedFile && (
-              <p className="mt-1 text-sm text-gray-500">
-                Seçilen dosya: {selectedFile.name}
-              </p>
+              <div className="mt-3">
+                <p className="text-sm text-gray-600 mb-2">Ön izleme:</p>
+                <img
+                  src={URL.createObjectURL(selectedFile)}
+                  alt="Ürün resmi ön izleme"
+                  className="h-24 w-24 object-cover rounded-lg border border-gray-200"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Seçilen dosya: {selectedFile.name}
+                </p>
+              </div>
             )}
           </div>
 

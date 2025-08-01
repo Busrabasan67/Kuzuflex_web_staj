@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getSubProduct, getAllProducts, createProduct } from "../controllers/productController";
+import { getSubProduct, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct } from "../controllers/productController";
 
 const router = express.Router();
 
@@ -94,5 +94,99 @@ router.get("/all", getAllProducts);
 
 // Alt ürün ekleme route'u
 router.post("/", createProduct);
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Tek alt ürün getir (düzenleme için)
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Ürün ID'si
+ *     responses:
+ *       200:
+ *         description: Ürün başarıyla getirildi
+ *       404:
+ *         description: Ürün bulunamadı
+ */
+
+// Tek ürün getirme route'u
+router.get("/:id", getProductById);
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   put:
+ *     summary: Alt ürün güncelle
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Güncellenecek ürün ID'si
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               imageUrl:
+ *                 type: string
+ *                 description: Ürün resmi URL'i
+ *               standard:
+ *                 type: string
+ *                 description: Ürün standardı (opsiyonel)
+ *               groupId:
+ *                 type: integer
+ *                 description: Üst kategori ID'si
+ *               translations:
+ *                 type: string
+ *                 description: JSON formatında 4 dilde çeviri bilgileri
+ *     responses:
+ *       200:
+ *         description: Alt ürün başarıyla güncellendi
+ *       404:
+ *         description: Ürün bulunamadı
+ *       400:
+ *         description: Eksik veya hatalı veri
+ *       500:
+ *         description: Sunucu hatası
+ */
+
+// Alt ürün güncelleme route'u
+router.put("/:id", updateProduct);
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Alt ürün sil
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Silinecek ürün ID'si
+ *     responses:
+ *       200:
+ *         description: Alt ürün başarıyla silindi
+ *       404:
+ *         description: Ürün bulunamadı
+ *       500:
+ *         description: Sunucu hatası
+ */
+
+// Alt ürün silme route'u
+router.delete("/:id", deleteProduct);
 
 export default router;

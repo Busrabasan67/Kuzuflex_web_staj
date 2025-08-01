@@ -90,6 +90,154 @@ export const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
+// Tek alt ürün getiren fonksiyon (düzenleme için admin paneli için)
+export const getProductById = async (req: Request, res: Response) => {
+  try {
+    const productId = parseInt(req.params.id);
+    
+    const productRepo = AppDataSource.getRepository(Product);
+    const product = await productRepo.findOne({
+      where: { id: productId },
+      relations: ['translations', 'group', 'group.translations']
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Ürün bulunamadı." });
+    }
+
+    const result = {
+      id: product.id,
+      imageUrl: product.imageUrl,
+      standard: product.standard,
+      groupId: product.group?.id || null,
+      groupName: product.group?.translations?.[0]?.name || "Grup yok",
+      translations: product.translations?.map(t => ({
+        language: t.language,
+        title: t.title,
+        description: t.description
+      })) || []
+    };
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("❌ Ürün getirme hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası." });
+  }
+};
+
+// Alt ürün güncelleme fonksiyonu
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = parseInt(req.params.id);
+    console.log("📥 Gelen güncelleme verisi:", req.body, "ID:", productId);
+
+    if (!req.body) {
+      return res.status(400).json({ message: "Form verileri alınamadı." });
+    }
+
+    const { imageUrl, standard, groupId, translations } = req.body;
+
+    // 🔒 Güvenli parse
+    let parsedTranslations;
+    try {
+      parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
+    } catch (error) {
+      console.error("❌ Translations parse hatası:", error);
+      return res.status(400).json({ message: "Çeviri verileri hatalı format." });
+    }
+
+    // Validasyon
+    if (!parsedTranslations || !Array.isArray(parsedTranslations)) {
+      return res.status(400).json({ message: "Çeviri verileri eksik veya hatalı." });
+    }
+
+    if (!groupId) {
+      return res.status(400).json({ message: "Üst kategori seçimi zorunludur." });
+    }
+
+    // Mevcut ürünü bul
+    const productRepo = AppDataSource.getRepository(Product);
+    const product = await productRepo.findOne({ 
+      where: { id: productId },
+      relations: ['translations', 'group']
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Ürün bulunamadı." });
+    }
+
+    // Üst kategori kontrolü
+    const productGroupRepo = AppDataSource.getRepository(ProductGroup);
+    const group = await productGroupRepo.findOne({ where: { id: groupId } });
+    if (!group) {
+      return res.status(400).json({ message: "Seçilen üst kategori bulunamadı." });
+    }
+
+    // Ürün bilgilerini güncelle
+    product.imageUrl = imageUrl || product.imageUrl; // Resim değişmediyse eskisini kullan
+    product.standard = standard || null;
+    product.group = group;
+
+    // Ürünü kaydet
+    const savedProduct = await productRepo.save(product);
+
+    // Mevcut çevirileri sil
+    const translationRepo = AppDataSource.getRepository(ProductTranslation);
+    await translationRepo.delete({ product: { id: productId } });
+
+    // Yeni çevirileri oluştur ve kaydet
+    const translationPromises = parsedTranslations.map((translation: any) => {
+      const newTranslation = new ProductTranslation();
+      newTranslation.language = translation.language;
+      newTranslation.title = translation.title;
+      newTranslation.description = translation.description;
+      newTranslation.product = savedProduct;
+      return translationRepo.save(newTranslation);
+    });
+
+    await Promise.all(translationPromises);
+
+    console.log("✅ Alt ürün başarıyla güncellendi:", savedProduct.id);
+    return res.status(200).json({
+      message: "Alt ürün başarıyla güncellendi.",
+      productId: savedProduct.id
+    });
+
+  } catch (error) {
+    console.error("❌ Alt ürün güncelleme hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası." });
+  }
+};
+
+// Alt ürün silme fonksiyonu
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = parseInt(req.params.id);
+    
+    const productRepo = AppDataSource.getRepository(Product);
+    const product = await productRepo.findOne({
+      where: { id: productId },
+      relations: ['translations']
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "Ürün bulunamadı." });
+    }
+
+    // Ürünü sil (CASCADE olduğu için çeviriler de silinir)
+    await productRepo.remove(product);
+
+    console.log("✅ Alt ürün başarıyla silindi:", productId);
+    return res.status(200).json({
+      message: "Alt ürün başarıyla silindi."
+    });
+
+  } catch (error) {
+    console.error("❌ Alt ürün silme hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası." });
+  }
+};
+
 // Alt ürün ekleme fonksiyonu
 export const createProduct = async (req: Request, res: Response) => {
   try {

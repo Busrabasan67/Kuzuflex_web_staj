@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AddProductModal from './AddProductModal';
+import EditProductModal from './EditProductModal';
 
 const API_BASE = "http://localhost:5000";
 
@@ -19,6 +20,11 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Sayfa yüklendiğinde ürünleri getirir
   useEffect(() => {
@@ -47,6 +53,63 @@ const AdminProducts = () => {
   // Modal başarılı olduğunda ürünleri yeniden yükle
   const handleAddSuccess = () => {
     fetchProducts();
+  };
+
+  // Düzenleme modal'ını aç
+  const handleEditClick = (productId: number) => {
+    setEditingProductId(productId);
+    setShowEditModal(true);
+  };
+
+  // Düzenleme başarılı olduğunda ürünleri yeniden yükle
+  const handleEditSuccess = () => {
+    fetchProducts();
+  };
+
+  // Düzenleme modal'ını kapat
+  const handleEditClose = () => {
+    setShowEditModal(false);
+    setEditingProductId(null);
+  };
+
+  // Silme dialog'unu aç
+  const handleDeleteClick = (product: Product) => {
+    setDeletingProduct(product);
+    setShowDeleteDialog(true);
+  };
+
+  // Silme işlemini gerçekleştir
+  const handleDeleteConfirm = async () => {
+    if (!deletingProduct) return;
+
+    try {
+      setDeleteLoading(true);
+      const response = await fetch(`${API_BASE}/api/products/${deletingProduct.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Ürün silinemedi');
+      }
+
+      // Başarılı silme sonrası listeyi yenile
+      await fetchProducts();
+      setShowDeleteDialog(false);
+      setDeletingProduct(null);
+      
+    } catch (err) {
+      console.error('❌ Ürün silme hatası:', err);
+      alert(err instanceof Error ? err.message : 'Ürün silinirken hata oluştu');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Silme dialog'unu kapat
+  const handleDeleteCancel = () => {
+    setShowDeleteDialog(false);
+    setDeletingProduct(null);
   };
 
   if (loading) {
@@ -168,15 +231,21 @@ const AdminProducts = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => {/* TODO: Düzenleme modalı */}}
-                        className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                        onClick={() => handleEditClick(product.id)}
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                       >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
                         Düzenle
                       </button>
                       <button
-                        onClick={() => {/* TODO: Silme dialogu */}}
-                        className="text-red-600 hover:text-red-900 transition-colors duration-200"
+                        onClick={() => handleDeleteClick(product)}
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
                       >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                         Sil
                       </button>
                     </div>
@@ -194,6 +263,67 @@ const AdminProducts = () => {
         onClose={() => setShowAddModal(false)}
         onSuccess={handleAddSuccess}
       />
+
+      {/* Edit Product Modal */}
+      <EditProductModal
+        isOpen={showEditModal}
+        productId={editingProductId}
+        onClose={handleEditClose}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteDialog && deletingProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4">
+              <div className="flex items-center mb-4">
+                <div className="flex-shrink-0">
+                  <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-medium text-gray-900">Alt Ürünü Sil</h3>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <p className="text-sm text-gray-600">
+                  "<span className="font-semibold">{deletingProduct.title}</span>" alt ürününü silmek istediğinizden emin misiniz?
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  Bu işlem geri alınamaz ve ürünün tüm çevirileri silinecektir.
+                </p>
+              </div>
+              
+              <div className="flex items-center justify-end space-x-3">
+                <button
+                  onClick={handleDeleteCancel}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleteLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Siliniyor...</span>
+                    </div>
+                  ) : (
+                    'Evet, Sil'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
