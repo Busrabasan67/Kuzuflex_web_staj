@@ -134,17 +134,13 @@ export const createProductGroupWithFormData = async (req: Request, res: Response
 export const createProductGroupWithFormData = async (req: Request, res: Response) => {
   try {
     console.log("📥 Gelen body:", req.body);
-    console.log("📎 Gelen translations:", req.body?.translations);
-    console.log("📷 Gelen dosya:", req.file?.filename);
 
     // req.body kontrolü
     if (!req.body) {
-      return res.status(400).json({ message: "Form verileri alınamadı. Multer middleware'i eksik olabilir." });
+      return res.status(400).json({ message: "Form verileri alınamadı." });
     }
 
-    const imageUrl = req.file ? `uploads/images/Products/${req.file.filename}` : "";
-
-    const { standard } = req.body;
+    const { imageUrl, standard } = req.body;
 
     // 🔒 Güvenli parse
     let translations;

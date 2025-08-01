@@ -89,16 +89,39 @@ const AdminProductGroups = () => {
     setSubmitMessage(null);
 
     try {
-      const formData = new FormData();
+      let imageUrl = form.imageUrl; // Varsayılan olarak manuel URL
+
+      // 1. Adım: Eğer dosya seçildiyse, önce resmi yükle
       if (selectedFile) {
-        formData.append("image", selectedFile);
+        const imageFormData = new FormData();
+        imageFormData.append("image", selectedFile);
+
+        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product-group/0`, {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Resim yüklenirken hata oluştu');
+        }
+
+        const uploadData = await uploadResponse.json();
+        imageUrl = uploadData.url;
       }
-      formData.append("standard", form.standard);
-      formData.append("translations", JSON.stringify(translations));
+
+      // 2. Adım: Kategori oluştur
+      const categoryData = {
+        imageUrl,
+        standard: form.standard,
+        translations: JSON.stringify(translations)
+      };
 
       const response = await fetch(`${API_BASE}/api/product-groups/formdata`, {
         method: "POST",
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(categoryData),
       });
 
       if (!response.ok) throw new Error("Kategori eklenemedi");

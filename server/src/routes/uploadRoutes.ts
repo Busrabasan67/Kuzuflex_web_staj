@@ -53,5 +53,4 @@ const router = express.Router();
 
 router.post("/image/:type/:id", uploadImage);
 
-
 export default router;

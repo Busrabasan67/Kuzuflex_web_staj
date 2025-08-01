@@ -96,12 +96,10 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
         // Ürün gruplarını fetch et (üst grup verileri)
         const productRes = await fetch(`http://localhost:5000/api/product-groups?lang=${language}`);
         const productData: ProductGroup[] = await productRes.json();
-        console.log("Navbar grubu:", productData);
 
         // Solution'ları fetch et
         const solutionRes = await fetch(`http://localhost:5000/api/solutions?lang=${language}`);
         const solutionData: Solution[] = await solutionRes.json();
-        console.log("Navbar solution:", solutionData);
 
         // Ürünler menüsünü oluştur
         // Menüde grup adı olarak çeviri üzerinden göster

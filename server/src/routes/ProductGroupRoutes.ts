@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { getAllGroups, getProductsByGroupId, getAdminProductGroups, createProductGroupWithFormData } from "../controllers/productGroupController";
-import { uploadProductGroup } from "../controllers/uploadController";
 
 const router = Router();
 
@@ -89,6 +88,6 @@ router.get("/admin", getAdminProductGroups);
  *       500:
  *         description: Sunucu hatası
  */
-router.post("/formdata", uploadProductGroup.single("image"), createProductGroupWithFormData);
+router.post("/formdata", createProductGroupWithFormData);
 
 export default router;
