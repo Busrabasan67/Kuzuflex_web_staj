@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import productGroupRoutes from "./routes/ProductGroupRoutes";
 import productRoutes from "./routes/productRoutes";
 import solutionRoutes from "./routes/solutionRoutes";
@@ -16,6 +17,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Static dosya servisi
+app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // Route'lar
 app.use("/api/product-groups", productGroupRoutes);

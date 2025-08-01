@@ -1,7 +1,6 @@
 import express from "express";
 
-import { getSubProduct } from "../controllers/productController";
-
+import { getSubProduct, getAllProducts } from "../controllers/productController";
 
 const router = express.Router();
 
@@ -37,5 +36,26 @@ const router = express.Router();
 
 // Alt ürün verisi getiren route
 router.get("/", getSubProduct);
+
+/**
+ * @swagger
+ * /api/products/all:
+ *   get:
+ *     summary: Tüm ürünleri listele (admin paneli için)
+ *     tags: [Product]
+ *     parameters:
+ *       - in: query
+ *         name: lang
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Çeviri dili (varsayılan "tr")
+ *     responses:
+ *       200:
+ *         description: Tüm ürünler başarıyla getirildi
+ */
+
+// Tüm ürünleri listeleyen route (admin paneli için)
+router.get("/all", getAllProducts);
 
 export default router;

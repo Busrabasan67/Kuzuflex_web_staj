@@ -3,6 +3,7 @@ import SolutionExtraContentAdder from "../components/SolutionExtraContentAdder";
 import SolutionManagement from "../components/SolutionManagement";
 import ExtraContentManagement from "../components/ExtraContentManagement";
 import AdminProductGroups from "./AdminProductGroups";
+import AdminProducts from "../components/AdminProducts";
 import { 
   FiHome, 
   FiPackage, 
@@ -38,8 +39,7 @@ const AdminPanel: React.FC = () => {
       case "products":
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Ürün Yönetimi</h2>
-            <p>Ürün yönetimi sayfası burada olacak.</p>
+            <AdminProducts />
           </div>
         );
       case "product-groups":
