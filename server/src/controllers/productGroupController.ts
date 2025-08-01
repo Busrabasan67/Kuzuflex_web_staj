@@ -85,52 +85,6 @@ export const getProductsByGroupId = async (req: Request, res: Response) => {
   return res.status(200).json(result);
 };
 
-
-/*
-  // FormData ile hem dosya hem diğer alanları alan yeni fonksiyon
-export const createProductGroupWithFormData = async (req: Request, res: Response) => {
-  console.log("🟡 req.body.translations:", req.body.translations);
-
-  try {
-    // Yüklenen dosyanın yolunu al (public/ öneki olmadan)
-    const imageUrl = req.file ? `uploads/images/Products/${req.file.filename}` : "";
-
-    // Diğer alanları al
-    const { standard } = req.body;
-    // translations alanı JSON string olarak gelir, parse et
-    const translations = JSON.parse(req.body.translations);
-
-    // Çeviri sayısı kontrolü
-    if (!translations || !Array.isArray(translations) || translations.length !== 4) {
-      return res.status(400).json({ message: "4 dilde çeviri zorunludur." });
-    }
-
-    // ProductGroup repository'sini al
-    const groupRepo = AppDataSource.getRepository(ProductGroup);
-
-    // Yeni bir ProductGroup nesnesi oluştur ve ortak alanları ata
-    const group = groupRepo.create({ imageUrl, standard });
-
-    // Her bir çeviri için ProductGroupTranslation nesnesi oluştur
-    group.translations = translations.map((tr: any) => {
-      const translation = new ProductGroupTranslation();
-      translation.language = tr.language;
-      translation.name = tr.name;
-      translation.description = tr.description;
-      return translation;
-    });
-
-    // ProductGroup'u ve çevirilerini veritabanına kaydet
-    await groupRepo.save(group);
-
-    // Başarıyla eklenen grubu JSON olarak döndür
-    return res.status(201).json(group);
-  } catch (error) {
-    console.error("Grup eklenemedi:", error);
-    return res.status(500).json({ message: "Sunucu hatası" });
-  }
-};
-*/
 export const createProductGroupWithFormData = async (req: Request, res: Response) => {
   try {
     console.log("📥 Gelen body:", req.body);
@@ -175,6 +129,125 @@ export const createProductGroupWithFormData = async (req: Request, res: Response
     return res.status(201).json(group);
   } catch (error: any) {
     console.error("❌ Grup eklenemedi:", error);
+    return res.status(500).json({ message: "Sunucu hatası", detail: error.message });
+  }
+};
+
+// ProductGroup güncelleme fonksiyonu
+export const updateProductGroup = async (req: Request, res: Response) => {
+  try {
+    const groupId = parseInt(req.params.id);
+    console.log("📝 Güncelleme ID:", groupId);
+    console.log("📥 Gelen body:", req.body);
+
+    if (!groupId || isNaN(groupId)) {
+      return res.status(400).json({ message: "Geçerli bir ID gerekli" });
+    }
+
+    const { imageUrl, standard } = req.body;
+
+    // 🔒 Güvenli parse
+    let translations;
+    try {
+      if (!req.body.translations) {
+        return res.status(400).json({ message: "translations alanı eksik!" });
+      }
+      translations = JSON.parse(req.body.translations);
+    } catch (err) {
+      console.error("❌ JSON parse hatası:", err);
+      return res.status(400).json({ message: "translations formatı hatalı." });
+    }
+
+    if (!translations || !Array.isArray(translations) || translations.length !== 4) {
+      return res.status(400).json({ message: "4 dilde çeviri zorunludur." });
+    }
+
+    const groupRepo = AppDataSource.getRepository(ProductGroup);
+    const translationRepo = AppDataSource.getRepository(ProductGroupTranslation);
+
+    // Mevcut grubu bul
+    const existingGroup = await groupRepo.findOne({
+      where: { id: groupId },
+      relations: ["translations"]
+    });
+
+    if (!existingGroup) {
+      return res.status(404).json({ message: "Grup bulunamadı" });
+    }
+
+    // Grup bilgilerini güncelle
+    existingGroup.imageUrl = imageUrl;
+    existingGroup.standard = standard;
+
+    // Güncellenmiş grubu kaydet
+    await groupRepo.save(existingGroup);
+
+    // Eski çevirileri sil
+    if (existingGroup.translations && existingGroup.translations.length > 0) {
+      await translationRepo.remove(existingGroup.translations);
+    }
+
+    // Yeni çevirileri oluştur ve kaydet
+    const newTranslations = [];
+    for (const tr of translations) {
+      const translation = new ProductGroupTranslation();
+      translation.language = tr.language;
+      translation.name = tr.name;
+      translation.description = tr.description;
+      translation.group = existingGroup;
+      newTranslations.push(translation);
+    }
+    
+    await translationRepo.save(newTranslations);
+
+    // Güncellenmiş grubu ve çevirilerini tekrar çek
+    const updatedGroup = await groupRepo.findOne({
+      where: { id: groupId },
+      relations: ["translations"]
+    });
+
+    return res.status(200).json({ message: "Grup başarıyla güncellendi", group: updatedGroup });
+  } catch (error: any) {
+    console.error("❌ Grup güncellenemedi:", error);
+    return res.status(500).json({ message: "Sunucu hatası", detail: error.message });
+  }
+};
+
+// ProductGroup silme fonksiyonu
+export const deleteProductGroup = async (req: Request, res: Response) => {
+  try {
+    const groupId = parseInt(req.params.id);
+    console.log("🗑️ Silinecek grup ID:", groupId);
+
+    if (!groupId || isNaN(groupId)) {
+      return res.status(400).json({ message: "Geçerli bir ID gerekli" });
+    }
+
+    const groupRepo = AppDataSource.getRepository(ProductGroup);
+
+    // Mevcut grubu bul
+    const existingGroup = await groupRepo.findOne({
+      where: { id: groupId },
+      relations: ["translations", "products"]
+    });
+
+    if (!existingGroup) {
+      return res.status(404).json({ message: "Grup bulunamadı" });
+    }
+
+    // Eğer grupla ilişkili ürünler varsa uyarı ver
+    if (existingGroup.products && existingGroup.products.length > 0) {
+      return res.status(400).json({ 
+        message: `Bu grup silinemez. ${existingGroup.products.length} adet ürün bu gruba bağlı. Önce ürünleri silin.` 
+      });
+    }
+
+    // Grubu sil (CASCADE ile çeviriler otomatik silinir)
+    await groupRepo.remove(existingGroup);
+
+    return res.status(200).json({ message: "Grup başarıyla silindi" });
+  } catch (error: any) {
+    console.error("❌ Grup silinemedi:", error);
     return res.status(500).json({ message: "Sunucu hatası", detail: error.message });
   }
 };

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllGroups, getProductsByGroupId, getAdminProductGroups, createProductGroupWithFormData } from "../controllers/productGroupController";
+import { getAllGroups, getProductsByGroupId, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup } from "../controllers/productGroupController";
 
 const router = Router();
 
@@ -89,5 +89,69 @@ router.get("/admin", getAdminProductGroups);
  *         description: Sunucu hatası
  */
 router.post("/formdata", createProductGroupWithFormData);
+
+/**
+ * @swagger
+ * /api/product-groups/{id}:
+ *   put:
+ *     summary: Bir üst ürün kategorisini (ProductGroup) günceller
+ *     tags: [ProductGroup]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Güncellenecek grup ID'si
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               imageUrl:
+ *                 type: string
+ *               standard:
+ *                 type: string
+ *               translations:
+ *                 type: string
+ *                 description: JSON formatında 4 dilde çeviri bilgileri
+ *     responses:
+ *       200:
+ *         description: Grup başarıyla güncellendi
+ *       404:
+ *         description: Grup bulunamadı
+ *       400:
+ *         description: Eksik veya hatalı veri
+ *       500:
+ *         description: Sunucu hatası
+ */
+router.put("/:id", updateProductGroup);
+
+/**
+ * @swagger
+ * /api/product-groups/{id}:
+ *   delete:
+ *     summary: Bir üst ürün kategorisini (ProductGroup) siler
+ *     tags: [ProductGroup]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Silinecek grup ID'si
+ *     responses:
+ *       200:
+ *         description: Grup başarıyla silindi
+ *       404:
+ *         description: Grup bulunamadı
+ *       400:
+ *         description: Grup silinemez (bağlı ürünler var)
+ *       500:
+ *         description: Sunucu hatası
+ */
+router.delete("/:id", deleteProductGroup);
 
 export default router;

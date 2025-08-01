@@ -34,6 +34,13 @@ const AdminProductGroups = () => {
 
   // Modal/form açma kapama durumu
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  
+  // Düzenleme için seçili grup
+  const [editingGroup, setEditingGroup] = useState<ProductGroup | null>(null);
+  const [deletingGroup, setDeletingGroup] = useState<ProductGroup | null>(null);
+
   // Formun ortak alanları
   const [form, setForm] = useState({
     imageUrl: '', // Görsel yolu
@@ -82,7 +89,33 @@ const AdminProductGroups = () => {
     setTranslations(prev => prev.map((tr, i) => i === idx ? { ...tr, [field]: value } : tr));
   };
 
-  // Form gönderildiğinde çalışır
+  // Düzenleme modalını açar ve verileri doldurur
+  const handleEditClick = (group: ProductGroup) => {
+    setEditingGroup(group);
+    setForm({
+      imageUrl: group.imageUrl,
+      standard: group.standard,
+    });
+    setTranslations(
+      LANGUAGES.map(lang => {
+        const translation = group.translations.find(t => t.language === lang.code);
+        return {
+          language: lang.code,
+          name: translation?.name || '',
+          description: translation?.description || ''
+        };
+      })
+    );
+    setShowEditModal(true);
+  };
+
+  // Silme dialog'unu açar
+  const handleDeleteClick = (group: ProductGroup) => {
+    setDeletingGroup(group);
+    setShowDeleteDialog(true);
+  };
+
+  // Form gönderildiğinde çalışır (Yeni ekleme)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitLoading(true);
@@ -134,6 +167,93 @@ const AdminProductGroups = () => {
       setShowModal(false);
     } catch (err) {
       setSubmitMessage("Kategori eklenirken hata oluştu");
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  // Düzenleme form gönderildiğinde çalışır
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingGroup) return;
+
+    setSubmitLoading(true);
+    setSubmitMessage(null);
+
+    try {
+      let imageUrl = form.imageUrl; // Varsayılan olarak mevcut URL
+
+      // 1. Adım: Eğer yeni dosya seçildiyse, önce resmi yükle
+      if (selectedFile) {
+        const imageFormData = new FormData();
+        imageFormData.append("image", selectedFile);
+
+        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product-group/0`, {
+          method: 'POST',
+          body: imageFormData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error('Resim yüklenirken hata oluştu');
+        }
+
+        const uploadData = await uploadResponse.json();
+        imageUrl = uploadData.url;
+      }
+
+      // 2. Adım: Kategori güncelle
+      const categoryData = {
+        imageUrl,
+        standard: form.standard,
+        translations: JSON.stringify(translations)
+      };
+
+      const response = await fetch(`${API_BASE}/api/product-groups/${editingGroup.id}`, {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(categoryData),
+      });
+
+      if (!response.ok) throw new Error("Kategori güncellenemedi");
+
+      await fetchGroups();
+      setSubmitMessage("Kategori başarıyla güncellendi!");
+      setForm({ imageUrl: "", standard: "" });
+      setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
+      setSelectedFile(null);
+      setEditingGroup(null);
+      setShowEditModal(false);
+    } catch (err) {
+      setSubmitMessage("Kategori güncellenirken hata oluştu");
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  // Silme işlemini gerçekleştirir
+  const handleDeleteConfirm = async () => {
+    if (!deletingGroup) return;
+
+    setSubmitLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/api/product-groups/${deletingGroup.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Kategori silinemedi");
+      }
+
+      await fetchGroups();
+      setSubmitMessage("Kategori başarıyla silindi!");
+      setDeletingGroup(null);
+      setShowDeleteDialog(false);
+    } catch (err: any) {
+      alert(err.message || "Kategori silinirken hata oluştu");
     } finally {
       setSubmitLoading(false);
     }
@@ -293,6 +413,153 @@ const AdminProductGroups = () => {
         </div>
       )}
 
+      {/* Edit Modal: Kategori Düzenle */}
+      {showEditModal && editingGroup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
+              onClick={() => {
+                setShowEditModal(false);
+                setEditingGroup(null);
+                setSelectedFile(null);
+              }}
+              aria-label="Kapat"
+            >
+              ×
+            </button>
+            <h2 className="text-xl font-bold mb-4">✏️ Kategori Düzenle</h2>
+            <form onSubmit={handleEditSubmit}>
+              {/* Ortak Alanlar */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mevcut Görsel</label>
+                {form.imageUrl && (
+                  <img
+                    src={`${API_BASE}/${form.imageUrl.startsWith('/') ? form.imageUrl.slice(1) : form.imageUrl}`}
+                    alt="Mevcut görsel"
+                    className="h-16 w-16 object-cover rounded mb-2"
+                  />
+                )}
+                <label className="block text-sm font-medium text-gray-700 mb-1">Yeni Görsel (İsteğe bağlı)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    if (e.target.files && e.target.files[0]) setSelectedFile(e.target.files[0]);
+                  }}
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+                />
+                {selectedFile && (
+                  <img
+                    src={URL.createObjectURL(selectedFile)}
+                    alt="Yeni önizleme"
+                    className="h-16 w-16 object-cover rounded mb-2"
+                  />
+                )}
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Standart</label>
+                <input
+                  type="text"
+                  name="standard"
+                  value={form.standard}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  placeholder="ISO 9001"
+                  required
+                />
+              </div>
+              {/* 4 Dil için Çeviri Alanları */}
+              <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {LANGUAGES.map((lang, idx) => (
+                  <div key={lang.code} className="border rounded p-3">
+                    <div className="font-semibold mb-2">{lang.label} ({lang.code})</div>
+                    <label className="block text-xs text-gray-600 mb-1">Başlık</label>
+                    <input
+                      type="text"
+                      value={translations[idx].name}
+                      onChange={e => handleTranslationChange(idx, 'name', e.target.value)}
+                      className="w-full border border-gray-300 rounded px-2 py-1 mb-2"
+                      placeholder={`${lang.label} başlık`}
+                      required
+                    />
+                    <label className="block text-xs text-gray-600 mb-1">Açıklama</label>
+                    <textarea
+                      value={translations[idx].description}
+                      onChange={e => handleTranslationChange(idx, 'description', e.target.value)}
+                      className="w-full border border-gray-300 rounded px-2 py-1"
+                      placeholder={`${lang.label} açıklama`}
+                      required
+                    />
+                  </div>
+                ))}
+              </div>
+              {/* Gönder Butonu */}
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingGroup(null);
+                    setSelectedFile(null);
+                  }}
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  disabled={submitLoading}
+                >
+                  {submitLoading ? 'Güncelleniyor...' : 'Güncelle'}
+                </button>
+              </div>
+              {/* Sonuç Mesajı */}
+              {submitMessage && (
+                <div className="mt-3 text-center text-sm text-red-600">{submitMessage}</div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Dialog: Silme Onayı */}
+      {showDeleteDialog && deletingGroup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+            <h2 className="text-xl font-bold mb-4 text-red-600">🗑️ Kategori Sil</h2>
+            <p className="text-gray-700 mb-4">
+              <strong>"{deletingGroup.translations[0]?.name}"</strong> kategorisini silmek istediğinizden emin misiniz?
+            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+              <p className="text-sm text-yellow-800">
+                ⚠️ Bu işlem geri alınamaz. Kategoriye bağlı ürünler varsa önce onları silmeniz gerekecek.
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-gray-800"
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeletingGroup(null);
+                }}
+                disabled={submitLoading}
+              >
+                İptal
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold"
+                onClick={handleDeleteConfirm}
+                disabled={submitLoading}
+              >
+                {submitLoading ? 'Siliniyor...' : 'Evet, Sil'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Groups Table */}
       <div className="bg-white rounded-lg shadow">
         <div className="overflow-x-auto max-w-full">
@@ -371,10 +638,16 @@ const AdminProductGroups = () => {
                   </td>
                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">
-                      <button className="bg-blue-500 hover:bg-blue-600 text-white transition-colors px-3 py-1.5 rounded-md text-xs font-medium shadow-sm">
+                      <button 
+                        onClick={() => handleEditClick(group)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white transition-colors px-3 py-1.5 rounded-md text-xs font-medium shadow-sm"
+                      >
                         Düzenle
                       </button>
-                      <button className="bg-red-500 hover:bg-red-600 text-white transition-colors px-3 py-1.5 rounded-md text-xs font-medium shadow-sm">
+                      <button 
+                        onClick={() => handleDeleteClick(group)}
+                        className="bg-red-500 hover:bg-red-600 text-white transition-colors px-3 py-1.5 rounded-md text-xs font-medium shadow-sm"
+                      >
                         Sil
                       </button>
                     </div>
