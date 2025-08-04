@@ -190,7 +190,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Form verileri alınamadı." });
     }
 
-    const { imageUrl, standard, groupId, translations } = req.body;
+    const { imageUrl, standard, groupId, translations, slug } = req.body;
 
     // 🔒 Güvenli parse
     let parsedTranslations;
@@ -231,6 +231,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     // Ürün bilgilerini güncelle
     product.imageUrl = imageUrl || product.imageUrl; // Resim değişmediyse eskisini kullan
     product.standard = standard || null;
+    product.slug = slug;
     product.group = group;
 
     // Ürünü kaydet
@@ -302,7 +303,7 @@ export const createProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Form verileri alınamadı." });
     }
 
-    const { imageUrl, standard, groupId, translations } = req.body;
+    const { imageUrl, standard, groupId, translations, slug } = req.body;
 
     // 🔒 Güvenli parse
     let parsedTranslations;
@@ -334,6 +335,7 @@ export const createProduct = async (req: Request, res: Response) => {
     const newProduct = new Product();
     newProduct.imageUrl = imageUrl || null;
     newProduct.standard = standard || null;
+    newProduct.slug = slug;
     newProduct.group = group;
 
     // Ürünü kaydet

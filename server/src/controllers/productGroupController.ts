@@ -135,7 +135,7 @@ export const createProductGroupWithFormData = async (req: Request, res: Response
       return res.status(400).json({ message: "Form verileri alınamadı." });
     }
 
-    const { imageUrl, standard } = req.body;
+    const { imageUrl, standard, slug } = req.body;
 
     // 🔒 Güvenli parse
     let translations;
@@ -155,7 +155,7 @@ export const createProductGroupWithFormData = async (req: Request, res: Response
 
     const groupRepo = AppDataSource.getRepository(ProductGroup);
 
-    const group = groupRepo.create({ imageUrl, standard });
+    const group = groupRepo.create({ imageUrl, standard, slug });
 
     group.translations = translations.map((tr: any) => {
       const translation = new ProductGroupTranslation();
@@ -185,7 +185,7 @@ export const updateProductGroup = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Geçerli bir ID gerekli" });
     }
 
-    const { imageUrl, standard } = req.body;
+    const { imageUrl, standard, slug } = req.body;
 
     // 🔒 Güvenli parse
     let translations;
@@ -219,6 +219,7 @@ export const updateProductGroup = async (req: Request, res: Response) => {
     // Grup bilgilerini güncelle
     existingGroup.imageUrl = imageUrl;
     existingGroup.standard = standard;
+    existingGroup.slug = slug;
 
     // Güncellenmiş grubu kaydet
     await groupRepo.save(existingGroup);
