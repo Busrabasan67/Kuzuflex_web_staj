@@ -6,6 +6,7 @@ const API_BASE = "http://localhost:5000";
 // Üst kategori (ProductGroup) tipini tanımlar
 interface ProductGroup {
   id: number; // Grup ID'si
+  slug: string; // SEO dostu URL slug'ı
   imageUrl: string; // Grup görseli
   standard: string; // Grup standardı
   translations: {
@@ -43,6 +44,7 @@ const AdminProductGroups = () => {
 
   // Formun ortak alanları
   const [form, setForm] = useState({
+    slug: '', // SEO dostu URL slug'ı
     imageUrl: '', // Görsel yolu
     standard: '', // Standart
   });
@@ -87,12 +89,32 @@ const AdminProductGroups = () => {
   // Çeviri alanları değiştiğinde çalışır
   const handleTranslationChange = (idx: number, field: 'name' | 'description', value: string) => {
     setTranslations(prev => prev.map((tr, i) => i === idx ? { ...tr, [field]: value } : tr));
+    
+    // Türkçe başlık değiştiğinde otomatik slug oluştur
+    if (field === 'name' && idx === 0) { // Türkçe (ilk dil)
+      const turkishName = value;
+      const autoSlug = turkishName
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+      
+      setForm(prev => ({ ...prev, slug: autoSlug }));
+    }
   };
 
   // Düzenleme modalını açar ve verileri doldurur
   const handleEditClick = (group: ProductGroup) => {
     setEditingGroup(group);
     setForm({
+      slug: group.slug || '',
       imageUrl: group.imageUrl,
       standard: group.standard,
     });
@@ -144,6 +166,7 @@ const AdminProductGroups = () => {
 
       // 2. Adım: Kategori oluştur
       const categoryData = {
+        slug: form.slug,
         imageUrl,
         standard: form.standard,
         translations: JSON.stringify(translations)
@@ -161,7 +184,7 @@ const AdminProductGroups = () => {
 
       await fetchGroups();
       setSubmitMessage("Kategori başarıyla eklendi!");
-      setForm({ imageUrl: "", standard: "" });
+      setForm({ slug: "", imageUrl: "", standard: "" });
       setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
       setSelectedFile(null);
       setShowModal(false);
@@ -203,6 +226,7 @@ const AdminProductGroups = () => {
 
       // 2. Adım: Kategori güncelle
       const categoryData = {
+        slug: form.slug,
         imageUrl,
         standard: form.standard,
         translations: JSON.stringify(translations)
@@ -220,7 +244,7 @@ const AdminProductGroups = () => {
 
       await fetchGroups();
       setSubmitMessage("Kategori başarıyla güncellendi!");
-      setForm({ imageUrl: "", standard: "" });
+      setForm({ slug: "", imageUrl: "", standard: "" });
       setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
       setSelectedFile(null);
       setEditingGroup(null);
@@ -332,6 +356,19 @@ const AdminProductGroups = () => {
             <form onSubmit={handleSubmit}>
               {/* Ortak Alanlar */}
               <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL)</label>
+                <input
+                  type="text"
+                  name="slug"
+                  value={form.slug}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+                  placeholder="metal-hortumlar"
+                  required
+                />
+                <p className="text-xs text-gray-500">SEO dostu URL kısmı (otomatik oluşturulur)</p>
+              </div>
+              <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Görsel Yolu</label>
                 <input
                   type="file"
@@ -431,6 +468,19 @@ const AdminProductGroups = () => {
             <h2 className="text-xl font-bold mb-4">✏️ Kategori Düzenle</h2>
             <form onSubmit={handleEditSubmit}>
               {/* Ortak Alanlar */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL)</label>
+                <input
+                  type="text"
+                  name="slug"
+                  value={form.slug}
+                  onChange={handleFormChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+                  placeholder="metal-hortumlar"
+                  required
+                />
+                <p className="text-xs text-gray-500">SEO dostu URL kısmı</p>
+              </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mevcut Görsel</label>
                 {form.imageUrl && (
@@ -580,6 +630,9 @@ const AdminProductGroups = () => {
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
                   İsim
                 </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                  Slug
+                </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-0">
                   Açıklama
                 </th>
@@ -619,6 +672,13 @@ const AdminProductGroups = () => {
                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <div className="max-w-xs truncate" title={group.translations[0]?.name}>
                       {group.translations[0]?.name}
+                    </div>
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="max-w-xs truncate" title={group.slug || '-'}>
+                      <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">
+                        {group.slug || '-'}
+                      </code>
                     </div>
                   </td>
                   <td className="px-3 py-4 text-sm text-gray-500">

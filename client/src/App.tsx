@@ -39,11 +39,7 @@ function AppContent() {
             <Route path="/hakkimizda" element={<About />} />
             <Route path="/iletisim" element={<Contact />} />
             
-            {/* ESKİ: ID bazlı ürün sayfaları (backward compatibility) - ÖNCE */}
-            <Route path="/Products/:groupId" element={<ProductGroupPage />} />
-            <Route path="/Products/:groupId/alt/:subId" element={<SubProductPage />} />
-            
-            {/* YENİ: Slug bazlı ürün sayfaları - SONRA */}
+            {/* Slug bazlı ürün sayfaları */}
             <Route path="/products/:groupSlug" element={<ProductGroupPage />} />
             <Route path="/products/:groupSlug/:productSlug" element={<SubProductPage />} />
             

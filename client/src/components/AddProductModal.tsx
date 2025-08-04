@@ -32,6 +32,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
   // Form state'leri
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [form, setForm] = useState({
+    slug: '', // SEO dostu URL slug'ı
     standard: '',
     groupId: '',
   });
@@ -79,6 +80,25 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
   // Çeviri alanları değişikliklerini handle et
   const handleTranslationChange = (idx: number, field: 'title' | 'description', value: string) => {
     setTranslations(prev => prev.map((tr, i) => i === idx ? { ...tr, [field]: value } : tr));
+    
+    // Türkçe başlık değiştiğinde otomatik slug oluştur
+    if (field === 'title' && idx === 0) { // Türkçe (ilk dil)
+      const turkishTitle = value;
+      const autoSlug = turkishTitle
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+      
+      setForm(prev => ({ ...prev, slug: autoSlug }));
+    }
   };
 
   // Dosya seçimi
@@ -130,6 +150,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
 
       // Alt ürün oluştur
       const productData = {
+        slug: form.slug,
         imageUrl,
         standard: form.standard || null,
         groupId: parseInt(form.groupId),
@@ -169,7 +190,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
       URL.revokeObjectURL(URL.createObjectURL(selectedFile));
     }
     
-    setForm({ standard: '', groupId: '' });
+    setForm({ slug: '', standard: '', groupId: '' });
     setTranslations(LANGUAGES.map(l => ({ language: l.code, title: '', description: '' })));
     setSelectedFile(null);
     setError(null);
@@ -238,6 +259,23 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
                 ))}
               </select>
             )}
+          </div>
+
+          {/* Slug */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Slug (URL) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="slug"
+              value={form.slug}
+              onChange={handleFormChange}
+              placeholder="paslanmaz-celik-hortumlar"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">SEO dostu URL kısmı (otomatik oluşturulur)</p>
           </div>
 
           {/* Resim Yükleme */}

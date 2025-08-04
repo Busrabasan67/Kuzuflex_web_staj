@@ -38,7 +38,7 @@ interface ProductGroup {
 
 const ProductGroupPage = () => {
   const { t, i18n } = useTranslation();
-  const { groupId, groupSlug } = useParams();
+  const { groupSlug } = useParams();
   const navigate = useNavigate();
   const [groupData, setGroupData] = useState<ProductGroup | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,59 +49,26 @@ const ProductGroupPage = () => {
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        // Slug varsa slug ile, yoksa ID ile çalış
-        const identifier = groupSlug || groupId;
-        const isSlugMode = !!groupSlug;
+        // Slug bazlı veri çekme
+        const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
+        const groups = await groupRes.json();
+        const currentGroup = groups.find((g: any) => g.slug === groupSlug);
         
-        if (isSlugMode) {
-          // Slug bazlı veri çekme
-          const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
-          const groups = await groupRes.json();
-          const currentGroup = groups.find((g: any) => g.slug === groupSlug);
+        if (currentGroup) {
+          // Slug ile alt ürünleri al
+          const productsRes = await fetch(`http://localhost:5000/api/product-groups/slug/${groupSlug}/products?lang=${i18n.language}`);
+          const products = await productsRes.json();
           
-          if (currentGroup) {
-            // Slug ile alt ürünleri al
-            const productsRes = await fetch(`http://localhost:5000/api/product-groups/slug/${groupSlug}/products?lang=${i18n.language}`);
-            const products = await productsRes.json();
-            
-            setGroupData({
-              id: currentGroup.id,
-              slug: currentGroup.slug,
-              translation: currentGroup.translation,
-              imageUrl: currentGroup.imageUrl || '',
-              standard: currentGroup.standard || '',
-              products: products
-            });
-          }
+          setGroupData({
+            id: currentGroup.id,
+            slug: currentGroup.slug,
+            translation: currentGroup.translation,
+            imageUrl: currentGroup.imageUrl || '',
+            standard: currentGroup.standard || '',
+            products: products
+          });
         } else {
-          // ID bazlı veri çekme (backward compatibility)
-          try {
-            const groupRes = await fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`);
-            const groups = await groupRes.json();
-            
-            const currentGroup = groups.find((g: any) => g.id === parseInt(groupId!));
-            
-            if (currentGroup) {
-              const productsRes = await fetch(`http://localhost:5000/api/product-groups/${groupId}/products?lang=${i18n.language}`);
-              const products = await productsRes.json();
-              
-              setGroupData({
-                id: currentGroup.id,
-                slug: currentGroup.slug || `group-${currentGroup.id}`, // Fallback slug
-                translation: currentGroup.translation,
-                imageUrl: currentGroup.imageUrl || '',
-                standard: currentGroup.standard || '',
-                products: products.map((p: any) => ({
-                  ...p,
-                  slug: p.slug || `product-${p.id}` // Fallback slug
-                }))
-              });
-            } else {
-              console.error("❌ Grup bulunamadı! groupId:", groupId);
-            }
-          } catch (error) {
-            console.error("❌ ID bazlı veri çekme hatası:", error);
-          }
+          console.error("❌ Grup bulunamadı! groupSlug:", groupSlug);
         }
         setLoading(false);
       } catch (error) {
@@ -111,7 +78,7 @@ const ProductGroupPage = () => {
     };
 
     fetchGroupData();
-  }, [groupId, groupSlug, i18n.language]);
+  }, [groupSlug, i18n.language]);
 
   if (loading) return (
     <div className="flex justify-center items-center min-h-[60vh]">
