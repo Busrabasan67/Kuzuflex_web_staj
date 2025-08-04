@@ -1,5 +1,6 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import path from "path";
 
 const options = {
   definition: {
@@ -15,7 +16,7 @@ const options = {
       },
     ],
   },
-  apis: ["./src/routes/*.ts"], // Route'ların yorumları buradan okunacak
+  apis: [path.join(__dirname, "../routes/*.ts")], // Absolute path kullan
 };
 
 const swaggerSpec = swaggerJsdoc(options);

@@ -6,6 +6,7 @@ import productRoutes from "./routes/productRoutes";
 import solutionRoutes from "./routes/solutionRoutes";
 import solutionExtraContentRoutes from "./routes/solutionExtraContentRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
+import catalogRoutes from "./routes/catalogRoutes";
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.use("/api/products", productRoutes);
 app.use("/api/solutions", solutionRoutes);
 app.use("/api/solution-extra-content", solutionExtraContentRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/catalogs", catalogRoutes);
 
 export default app;

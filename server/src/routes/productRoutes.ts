@@ -9,7 +9,7 @@ const router = express.Router();
  * /api/products:
  *   get:
  *     summary: Alt ürün detayını getir
- *     tags: [Product]
+ *     tags: [Products]
  *     parameters:
  *       - in: query
  *         name: group
@@ -40,7 +40,7 @@ const router = express.Router();
  * /api/products/slug/{groupSlug}/{productSlug}:
  *   get:
  *     summary: Slug ile alt ürün detayını getir (YENİ)
- *     tags: [Product]
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: groupSlug
@@ -74,7 +74,7 @@ router.get("/", getSubProduct);
  * /api/products/all:
  *   get:
  *     summary: Tüm ürünleri listele (admin paneli için)
- *     tags: [Product]
+ *     tags: [Products]
  *     parameters:
  *       - in: query
  *         name: lang
@@ -95,7 +95,7 @@ router.get("/all", getAllProducts);
  * /api/products:
  *   post:
  *     summary: Yeni alt ürün ekle
- *     tags: [Product]
+ *     tags: [Products]
  *     requestBody:
  *       required: true
  *       content:
@@ -132,7 +132,7 @@ router.post("/", createProduct);
  * /api/products/{id}:
  *   get:
  *     summary: Tek alt ürün getir (düzenleme için)
- *     tags: [Product]
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: id
@@ -155,7 +155,7 @@ router.get("/:id", getProductById);
  * /api/products/{id}:
  *   put:
  *     summary: Alt ürün güncelle
- *     tags: [Product]
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: id
@@ -201,7 +201,7 @@ router.put("/:id", updateProduct);
  * /api/products/{id}:
  *   delete:
  *     summary: Alt ürün sil
- *     tags: [Product]
+ *     tags: [Products]
  *     parameters:
  *       - in: path
  *         name: id

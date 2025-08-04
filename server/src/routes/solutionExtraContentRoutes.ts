@@ -16,6 +16,7 @@ const router = express.Router();
  * /api/solution-extra-content:
  *   post:
  *     summary: Solution'a ekstra içerik ekler
+ *     tags: [Solution Extra Content]
  *     requestBody:
  *       required: true
  *       content:
@@ -46,6 +47,7 @@ router.post("/", addExtraContent);
  * /api/solution-extra-content/multi:
  *   post:
  *     summary: Solution'a çoklu dil ekstra içerik ekler
+ *     tags: [Solution Extra Content]
  *     requestBody:
  *       required: true
  *       content:
@@ -81,6 +83,7 @@ router.post("/multi", addMultiLanguageExtraContent);
  * /api/solution-extra-content/admin:
  *   get:
  *     summary: Admin panel için tüm ekstra içerikleri listeler
+ *     tags: [Solution Extra Content]
  *     responses:
  *       200:
  *         description: "Tüm ekstra içerikler listesi"
@@ -92,6 +95,7 @@ router.get("/admin", getAllExtraContentsForAdmin);
  * /api/solution-extra-content/{solutionId}:
  *   get:
  *     summary: Solution'ın ekstra içeriklerini getirir
+ *     tags: [Solution Extra Content]
  *     parameters:
  *       - name: solutionId
  *         in: path
@@ -114,6 +118,7 @@ router.get("/:solutionId", getExtraContents);
  * /api/solution-extra-content/detail/{id}:
  *   get:
  *     summary: Tek bir ekstra içeriği getirir
+ *     tags: [Solution Extra Content]
  *     parameters:
  *       - name: id
  *         in: path
@@ -131,6 +136,7 @@ router.get("/detail/:id", getExtraContentById);
  * /api/solution-extra-content/{id}:
  *   put:
  *     summary: Ekstra içeriği günceller
+ *     tags: [Solution Extra Content]
  *     parameters:
  *       - name: id
  *         in: path
@@ -163,6 +169,7 @@ router.put("/:id", updateExtraContent);
  * /api/solution-extra-content/{id}:
  *   delete:
  *     summary: Ekstra içeriği siler
+ *     tags: [Solution Extra Content]
  *     parameters:
  *       - name: id
  *         in: path

@@ -3,6 +3,7 @@ import AppDataSource from "../data-source";
 import { Product } from "../entity/Product";
 import { ProductTranslation } from "../entity/ProductTranslation";
 import { ProductGroup } from "../entity/ProductGroup";
+import { Catalog } from "../entity/Catalog";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -140,14 +141,17 @@ export const getProductBySlug = async (req: Request, res: Response) => {
 // Tüm ürünleri listeleyen fonksiyon (admin paneli için)
 export const getAllProducts = async (req: Request, res: Response) => {
   const lang = (req.query.lang as string) || "tr";
+  const hasCatalog = req.query.hasCatalog === "true"; // Katalogu olan ürünleri filtrele
 
   try {
-    const products = await AppDataSource.getRepository(Product)
+    let query = AppDataSource.getRepository(Product)
       .createQueryBuilder("product")
       .leftJoinAndSelect("product.group", "group")
       .leftJoinAndSelect("group.translations", "groupTranslation", "groupTranslation.language = :lang", { lang })
       .leftJoinAndSelect("product.translations", "translation", "translation.language = :lang", { lang })
-      .getMany();
+      .leftJoinAndSelect("product.catalogs", "catalog"); // Her zaman katalog bilgilerini al
+
+    const products = await query.getMany();
 
     const result = products.map((product) => ({
       id: product.id,
@@ -159,9 +163,16 @@ export const getAllProducts = async (req: Request, res: Response) => {
       groupId: product.group?.id || null,
       groupSlug: product.group?.slug || null,
       groupName: product.group?.translations?.[0]?.name || "Grup yok",
+      hasCatalog: product.catalogs && product.catalogs.length > 0,
+      catalogCount: product.catalogs?.length || 0,
     }));
 
-    return res.status(200).json(result);
+    // Eğer sadece katalogu olan ürünler isteniyorsa filtrele
+    const filteredResult = hasCatalog 
+      ? result.filter(product => product.hasCatalog)
+      : result;
+
+    return res.status(200).json(filteredResult);
   } catch (err) {
     console.error("Ürün listesi API hatası:", err);
     return res.status(500).json({ message: "Sunucu hatası" });
@@ -303,11 +314,29 @@ export const deleteProduct = async (req: Request, res: Response) => {
     const productRepo = AppDataSource.getRepository(Product);
     const product = await productRepo.findOne({
       where: { id: productId },
-      relations: ['translations']
+      relations: ['translations', 'catalogs']
     });
 
     if (!product) {
       return res.status(404).json({ message: "Ürün bulunamadı." });
+    }
+
+    // Katalogları ve dosyalarını sil
+    if (product.catalogs && product.catalogs.length > 0) {
+      console.log(`🗑️ ${product.catalogs.length} adet katalog silinecek`);
+      
+      for (const catalog of product.catalogs) {
+        if (catalog.filePath) {
+          const catalogFilePath = getPublicFilePath(catalog.filePath);
+          deleteFileIfExists(catalogFilePath);
+        }
+      }
+      
+      // Katalogları sil (CASCADE ile çevirileri de silinir)
+      const catalogRepo = AppDataSource.getRepository(Catalog);
+      await catalogRepo.remove(product.catalogs);
+      
+      console.log("✅ Kataloglar silindi");
     }
 
     // Ürün resmini sil

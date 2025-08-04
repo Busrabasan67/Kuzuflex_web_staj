@@ -16,6 +16,7 @@ const router = express.Router();
  * /api/solutions:
  *   get:
  *     summary: Tüm çözümleri listeler
+ *     tags: [Solutions]
  *     parameters:
  *       - name: lang
  *         in: query
@@ -34,6 +35,7 @@ router.get("/", getAllSolutions);
  * /api/solutions:
  *   post:
  *     summary: Yeni çözüm oluşturur
+ *     tags: [Solutions]
  *     requestBody:
  *       required: true
  *       content:
@@ -74,6 +76,7 @@ router.post("/", createSolution);
  * /api/solutions/admin:
  *   get:
  *     summary: Admin panel için çözümleri listeler
+ *     tags: [Solutions]
  *     responses:
  *       200:
  *         description: "Admin için çözüm listesi döner"
@@ -85,6 +88,7 @@ router.get("/admin", getSolutionsForAdmin);
  * /api/solutions/admin/{id}:
  *   get:
  *     summary: Admin panel için çözüm detaylarını getirir (düzenleme için)
+ *     tags: [Solutions]
  *     parameters:
  *       - name: id
  *         in: path
@@ -103,6 +107,7 @@ router.get("/admin/:id", getSolutionForEdit);
  * /api/solutions/{slug}:
  *   get:
  *     summary: Slug'a göre çözüm detayını getirir
+ *     tags: [Solutions]
  *     parameters:
  *       - name: slug
  *         in: path
@@ -127,6 +132,7 @@ router.get("/:slug", getSolutionBySlug);
  * /api/solutions/{id}:
  *   put:
  *     summary: Çözümü günceller
+ *     tags: [Solutions]
  *     parameters:
  *       - name: id
  *         in: path
@@ -161,6 +167,7 @@ router.put("/:id", updateSolution);
  * /api/solutions/{id}:
  *   delete:
  *     summary: Çözümü siler
+ *     tags: [Solutions]
  *     parameters:
  *       - name: id
  *         in: path

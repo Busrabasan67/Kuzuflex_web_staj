@@ -8,6 +8,7 @@ const router = express.Router();
  * /api/upload/image/{type}/{id}:
  *   post:
  *     summary: Belirli bir tür ve ID için resim yükler
+ *     tags: [Upload]
  *     parameters:
  *       - in: path
  *         name: type

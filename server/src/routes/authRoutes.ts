@@ -11,7 +11,7 @@ export default router;
  * /api/auth/admin-login:
  *   post:
  *     summary: Admin girişi yap
- *     tags: [Auth]
+ *     tags: [Authentication]
  *     requestBody:
  *       required: true
  *       content:

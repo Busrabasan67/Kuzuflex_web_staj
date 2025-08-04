@@ -4,6 +4,7 @@ import AppDataSource from "../data-source";
 import { ProductGroup } from "../entity/ProductGroup";
 import { Product } from "../entity/Product";
 import { ProductGroupTranslation } from "../entity/ProductGroupTranslation";
+import { Catalog } from "../entity/Catalog";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -310,18 +311,42 @@ export const deleteProductGroup = async (req: Request, res: Response) => {
       console.log(`🗑️ ${existingGroup.products.length} adet bağlı ürün de silinecek`);
       
       const productRepo = AppDataSource.getRepository(Product);
-      // Önce bağlı ürünlerin resimlerini sil
+      const catalogRepo = AppDataSource.getRepository(Catalog);
+      
+      // Önce bağlı ürünlerin kataloglarını ve dosyalarını sil
       for (const product of existingGroup.products) {
+        // Ürünün kataloglarını getir
+        const productWithCatalogs = await productRepo.findOne({
+          where: { id: product.id },
+          relations: ['catalogs']
+        });
+        
+        if (productWithCatalogs && productWithCatalogs.catalogs && productWithCatalogs.catalogs.length > 0) {
+          console.log(`🗑️ Ürün ${product.id} için ${productWithCatalogs.catalogs.length} adet katalog silinecek`);
+          
+          // Katalog dosyalarını sil
+          for (const catalog of productWithCatalogs.catalogs) {
+            if (catalog.filePath) {
+              const catalogFilePath = getPublicFilePath(catalog.filePath);
+              deleteFileIfExists(catalogFilePath);
+            }
+          }
+          
+          // Katalogları sil (CASCADE ile çevirileri de silinir)
+          await catalogRepo.remove(productWithCatalogs.catalogs);
+        }
+        
+        // Ürün resmini sil
         if (product.imageUrl) {
           const productImagePath = getPublicFilePath(product.imageUrl);
           deleteFileIfExists(productImagePath);
         }
       }
       
-      // Önce bağlı ürünleri sil (CASCADE ile çevirileri de silinir)
+      // Bağlı ürünleri sil (CASCADE ile çevirileri de silinir)
       await productRepo.remove(existingGroup.products);
       
-      console.log("✅ Bağlı ürünler silindi");
+      console.log("✅ Bağlı ürünler ve katalogları silindi");
     }
 
     // Grup resmini sil

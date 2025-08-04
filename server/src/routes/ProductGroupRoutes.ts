@@ -76,7 +76,7 @@ router.get("/:groupId/products", getProductsByGroupId);
  * /api/product-groups/admin:
  *   get:
  *     summary: Admin paneli için tüm ürün gruplarını getirir
- *     tags: [ProductGroup]
+ *     tags: [Product Groups]
  *     responses:
  *       200:
  *         description: Gruplar başarıyla getirildi
@@ -88,7 +88,7 @@ router.get("/admin", getAdminProductGroups);
  * /api/product-groups/formdata:
  *   post:
  *     summary: Yeni bir üst ürün kategorisi (ProductGroup) ve 4 dilde çevirisini ekler (FormData ile)
- *     tags: [ProductGroup]
+ *     tags: [Product Groups]
  *     requestBody:
  *       required: true
  *       content:
@@ -121,7 +121,7 @@ router.post("/formdata", createProductGroupWithFormData);
  * /api/product-groups/{id}:
  *   put:
  *     summary: Bir üst ürün kategorisini (ProductGroup) günceller
- *     tags: [ProductGroup]
+ *     tags: [Product Groups]
  *     parameters:
  *       - in: path
  *         name: id
@@ -160,7 +160,7 @@ router.put("/:id", updateProductGroup);
  * /api/product-groups/{id}:
  *   delete:
  *     summary: Bir üst ürün kategorisini (ProductGroup) siler
- *     tags: [ProductGroup]
+ *     tags: [Product Groups]
  *     parameters:
  *       - in: path
  *         name: id

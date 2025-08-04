@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AddProductModal from './AddProductModal';
 import EditProductModal from './EditProductModal';
+import CatalogManagementModal from './CatalogManagementModal';
 
 const API_BASE = "http://localhost:5000";
 
@@ -13,6 +14,8 @@ interface Product {
   standard: string;
   groupId: number | null;
   groupName: string;
+  hasCatalog?: boolean;
+  catalogCount?: number;
 }
 
 const AdminProducts = () => {
@@ -25,17 +28,33 @@ const AdminProducts = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showOnlyWithCatalog, setShowOnlyWithCatalog] = useState(false);
 
-  // Sayfa yüklendiğinde ürünleri getirir
+  // Katalog yönetimi için state'ler ekle
+const [showCatalogModal, setShowCatalogModal] = useState(false);
+const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+
+// Katalog modal'ını aç
+const handleCatalogClick = (productId: number) => {
+  setSelectedProductId(productId);
+  setShowCatalogModal(true);
+};
+
+
+  // Sayfa yüklendiğinde ve filtre değiştiğinde ürünleri getirir
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [showOnlyWithCatalog]);
 
   // API'dan alt ürünleri çeker
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/products/all`);
+      const url = showOnlyWithCatalog 
+        ? `${API_BASE}/api/products/all?hasCatalog=true`
+        : `${API_BASE}/api/products/all`;
+      
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error('Veriler alınamadı');
       }
@@ -146,15 +165,32 @@ const AdminProducts = () => {
           <h2 className="text-2xl font-bold text-gray-900">Alt Ürünler</h2>
           <p className="text-gray-600">Tüm alt ürünleri görüntüleyin ve yönetin</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          <span>Yeni Ürün Ekle</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          {/* Katalog Filtresi */}
+          <button
+            onClick={() => setShowOnlyWithCatalog(!showOnlyWithCatalog)}
+            className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200 ${
+              showOnlyWithCatalog 
+                ? 'bg-green-600 hover:bg-green-700 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>{showOnlyWithCatalog ? 'Tüm Ürünler' : 'Sadece Katalogu Olanlar'}</span>
+          </button>
+          
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>Yeni Ürün Ekle</span>
+          </button>
+        </div>
       </div>
 
       {/* Ürün Listesi */}
@@ -183,6 +219,9 @@ const AdminProducts = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Standart
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Katalog
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   İşlemler
@@ -228,6 +267,20 @@ const AdminProducts = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {product.standard || '-'}
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {product.hasCatalog ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        {product.catalogCount || 0} katalog
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        Katalog yok
+                      </span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
                       <button
@@ -239,6 +292,17 @@ const AdminProducts = () => {
                         </svg>
                         Düzenle
                       </button>
+                      
+                      <button
+                        onClick={() => handleCatalogClick(product.id)}
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                      >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Kataloglar
+                      </button>
+                      
                       <button
                         onClick={() => handleDeleteClick(product)}
                         className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
@@ -324,6 +388,19 @@ const AdminProducts = () => {
           </div>
         </div>
       )}
+
+      {/* Catalog Management Modal */}
+      <CatalogManagementModal
+        isOpen={showCatalogModal}
+        productId={selectedProductId}
+        onClose={() => {
+          setShowCatalogModal(false);
+          setSelectedProductId(null);
+        }}
+        onSuccess={() => {
+          fetchProducts(); // Ürünleri yeniden yükle
+        }}
+      />
     </div>
   );
 };
