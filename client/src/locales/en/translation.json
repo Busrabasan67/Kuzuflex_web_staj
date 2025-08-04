@@ -12,6 +12,7 @@
     "documents": "Documents",
     "manufacturing": "Manufacturing",
     "quality": "Quality",
+    "qmDocuments": "QM Documents & Certificates",
     "adminPanel": "Admin Panel",
     "searchPlaceholder": "Search products, categories or content...",
     "professionalSolutions": "Professional Industrial Solutions"
@@ -75,6 +76,22 @@
       "sendMessage": "Send Message",
       "message": "Message",
       "subject": "Subject"
+    },
+    "qmDocuments": {
+      "title": "QM Documents & Certificates",
+      "description": "Explore our quality management documents and certificates",
+      "internationalCertificates": "International Certificates",
+      "documents": "Documentation",
+      "certificate": "Certificate",
+      "document": "Document",
+      "viewDocument": "View Document",
+      "noDocuments": "No documents available yet",
+      "noDocumentsDesc": "There are currently no documents to display."
     }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry"
   }
 }

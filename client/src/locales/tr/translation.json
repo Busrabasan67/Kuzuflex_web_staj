@@ -12,6 +12,7 @@
     "documents": "Belgeler",
     "manufacturing": "İmalat",
     "quality": "Kalite",
+    "qmDocuments": "QM Documents & Certificates",
     "adminPanel": "Admin Panel",
     "searchPlaceholder": "Ürün, kategori veya içerik ara...",
     "professionalSolutions": "Profesyonel Endüstriyel Çözümler"
@@ -75,6 +76,22 @@
       "sendMessage": "Mesaj Gönder",
       "message": "Mesaj",
       "subject": "Konu"
+    },
+    "qmDocuments": {
+      "title": "QM Documents & Certificates",
+      "description": "Kalite yönetimi belgelerimizi ve sertifikalarımızı inceleyin",
+      "internationalCertificates": "Uluslararası Sertifikalar",
+      "documents": "Dokümantasyonlar",
+      "certificate": "Sertifika",
+      "document": "Doküman",
+      "viewDocument": "Belgeyi Görüntüle",
+      "noDocuments": "Henüz belge bulunmuyor",
+      "noDocumentsDesc": "Şu anda görüntülenecek belge bulunmuyor."
     }
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "retry": "Tekrar Dene"
   }
 }

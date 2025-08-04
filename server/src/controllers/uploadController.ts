@@ -45,8 +45,75 @@ export const uploadProductGroup = multer({ storage: productGroupStorage, fileFil
 // Solution için upload middleware
 export const uploadSolution = multer({ storage: solutionStorage, fileFilter });
 
+// QM Documents için storage
+const qmDocumentsStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const { language = 'tr', documentType = 'images' } = req.params;
+    const uploadDir = path.join(BASE_UPLOAD_DIR, `qm-documents-and-certificates/${documentType}/${language}`);
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `qm-doc-${uniqueSuffix}${ext}`);
+  }
+});
+
+// QM Documents için upload middleware
+export const uploadQMDocuments = multer({ storage: qmDocumentsStorage, fileFilter });
+
 // Genel upload middleware (varsayılan)
 export const upload = multer({ storage: productGroupStorage, fileFilter });
+
+// QM Documents için upload endpoint
+export const uploadQMDocumentsFile = (req: Request, res: Response) => {
+  const { language = 'tr', documentType = 'images' } = req.params;
+  
+  const qmDocumentsStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      const uploadDir = path.join(BASE_UPLOAD_DIR, `qm-documents-and-certificates/${documentType}/${language}`);
+      fs.mkdirSync(uploadDir, { recursive: true });
+      cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const ext = path.extname(file.originalname);
+      cb(null, `qm-doc-${uniqueSuffix}${ext}`);
+    },
+  });
+
+  const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    if (documentType === 'pdfs') {
+      // PDF dosyaları için
+      if (file.mimetype === 'application/pdf') cb(null, true);
+      else cb(new Error("Sadece PDF dosyaları yüklenebilir!"));
+    } else {
+      // Resim dosyaları için
+      if (file.mimetype.startsWith("image/")) cb(null, true);
+      else cb(new Error("Sadece resim dosyaları yüklenebilir!"));
+    }
+  };
+
+  const qmDocumentsUpload = multer({ storage: qmDocumentsStorage, fileFilter }).single("file");
+
+  qmDocumentsUpload(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: "Dosya seçilmedi" });
+
+    const fileUrl = `/uploads/qm-documents-and-certificates/${documentType}/${language}/${req.file.filename}`;
+    const fullPath = `uploads/qm-documents-and-certificates/${documentType}/${language}/${req.file.filename}`;
+    
+    res.status(200).json({ 
+      url: fileUrl, 
+      filename: fullPath, // Tam yolu döndür (veritabanı için)
+      originalFilename: req.file.filename, // Sadece dosya adı
+      size: req.file.size,
+      language: language,
+      documentType: documentType
+    });
+  });
+};
 
 // Dinamik upload middleware (farklı türler için)
 export const uploadImage = (req: Request, res: Response) => {

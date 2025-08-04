@@ -7,6 +7,7 @@ import solutionRoutes from "./routes/solutionRoutes";
 import solutionExtraContentRoutes from "./routes/solutionExtraContentRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import catalogRoutes from "./routes/catalogRoutes";
+import qmDocumentsAndCertificatesRoutes from "./routes/qmDocumentsAndCertificatesRoutes";
 
 const app = express();
 
@@ -29,5 +30,6 @@ app.use("/api/solutions", solutionRoutes);
 app.use("/api/solution-extra-content", solutionExtraContentRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/catalogs", catalogRoutes);
+app.use("/api/qm-documents-and-certificates", qmDocumentsAndCertificatesRoutes);
 
 export default app;

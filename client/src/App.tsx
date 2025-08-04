@@ -19,6 +19,7 @@ import ProductGroupPage from "./pages/ProductGroupPage";
 import SubProductPage from "./pages/SubProductPage";
 import SolutionPage from "./pages/SolutionPage";
 import AdminProductGroups from "./pages/AdminProductGroups";
+import QMDocuments from "./pages/QMDocuments";
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -44,7 +45,7 @@ function AppContent() {
             <Route path="/products/:groupSlug/:productSlug" element={<SubProductPage />} />
             
             <Route path="/solutions/:slug" element={<SolutionPage />} /> 
-
+            <Route path="/qm-documents" element={<QMDocuments />} />
 
             {/* Admin Login */}
             <Route
@@ -96,7 +97,7 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider>
-        <AppContent />
+      <AppContent />
     </ThemeProvider>
   );
 }

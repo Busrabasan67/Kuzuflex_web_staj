@@ -1,5 +1,5 @@
 import express from "express";
-import { uploadImage } from "../controllers/uploadController";
+import { uploadImage, uploadQMDocumentsFile } from "../controllers/uploadController";
 
 const router = express.Router();
 
@@ -53,5 +53,60 @@ const router = express.Router();
  */
 
 router.post("/image/:type/:id", uploadImage);
+
+/**
+ * @openapi
+ * /api/upload/qm-documents/{language}/{documentType}:
+ *   post:
+ *     summary: QM Documents için dosya yükler (resim veya PDF)
+ *     tags: [Upload]
+ *     parameters:
+ *       - in: path
+ *         name: language
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [tr, en]
+ *         description: "Dosya dili (tr veya en)"
+ *       - in: path
+ *         name: documentType
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [images, pdfs]
+ *         description: "Dosya tipi (images veya pdfs)"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: "Dosya başarıyla yüklendi"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                   example: "/uploads/qm-documents-and-certificates/images/tr/qm-doc-169999999.jpg"
+ *                 filename:
+ *                   type: string
+ *                 size:
+ *                   type: integer
+ *                 language:
+ *                   type: string
+ *                 type:
+ *                   type: string
+ *       400:
+ *         description: "Geçersiz istek ya da dosya"
+ */
+router.post("/qm-documents/:language/:documentType", uploadQMDocumentsFile);
 
 export default router;

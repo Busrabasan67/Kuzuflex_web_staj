@@ -135,7 +135,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
             title: t('navbar.corporate'),
             submenu: [
               { title: t('navbar.about'), path: "/hakkimizda" },
-              { title: t('navbar.documents'), path: "/belgeler" },
+              { title: t('navbar.qmDocuments'), path: "/qm-documents" },
             ],
           },
           {
