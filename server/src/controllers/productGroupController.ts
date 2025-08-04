@@ -4,8 +4,30 @@ import AppDataSource from "../data-source";
 import { ProductGroup } from "../entity/ProductGroup";
 import { Product } from "../entity/Product";
 import { ProductGroupTranslation } from "../entity/ProductGroupTranslation";
+import * as fs from "fs";
+import * as path from "path";
 
+// Dosya silme yardımcı fonksiyonu
+const deleteFileIfExists = (filePath: string) => {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`✅ Dosya silindi: ${filePath}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(`❌ Dosya silinirken hata: ${filePath}`, error);
+    return false;
+  }
+};
 
+// Dosya yolu oluşturma yardımcı fonksiyonu
+const getPublicFilePath = (relativePath: string) => {
+  // __dirname: server/src/controllers
+  // İhtiyacımız: server/public
+  return path.join(__dirname, "../../public", relativePath);
+};
 
 // fonksiyonu projende navbar menüsünü beslemek için tasarlanmış ana fonksiyondur. 
 export const getAllGroups = async (req: Request, res: Response) => {
@@ -216,6 +238,12 @@ export const updateProductGroup = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Grup bulunamadı" });
     }
 
+    // Eski resmi sil (eğer yeni resim yüklendiyse)
+    if (existingGroup.imageUrl && existingGroup.imageUrl !== imageUrl) {
+      const oldImagePath = getPublicFilePath(existingGroup.imageUrl);
+      deleteFileIfExists(oldImagePath);
+    }
+
     // Grup bilgilerini güncelle
     existingGroup.imageUrl = imageUrl;
     existingGroup.standard = standard;
@@ -282,10 +310,24 @@ export const deleteProductGroup = async (req: Request, res: Response) => {
       console.log(`🗑️ ${existingGroup.products.length} adet bağlı ürün de silinecek`);
       
       const productRepo = AppDataSource.getRepository(Product);
+      // Önce bağlı ürünlerin resimlerini sil
+      for (const product of existingGroup.products) {
+        if (product.imageUrl) {
+          const productImagePath = getPublicFilePath(product.imageUrl);
+          deleteFileIfExists(productImagePath);
+        }
+      }
+      
       // Önce bağlı ürünleri sil (CASCADE ile çevirileri de silinir)
       await productRepo.remove(existingGroup.products);
       
       console.log("✅ Bağlı ürünler silindi");
+    }
+
+    // Grup resmini sil
+    if (existingGroup.imageUrl) {
+      const groupImagePath = getPublicFilePath(existingGroup.imageUrl);
+      deleteFileIfExists(groupImagePath);
     }
 
     // Grubu sil (CASCADE ile çeviriler otomatik silinir)
@@ -312,6 +354,7 @@ export const getAdminProductGroups = async (req: Request, res: Response) => {
     // Verileri frontend'e uygun formatta döndür
     const result = groups.map((group) => ({
       id: group.id, // Grup ID'si
+      slug: group.slug, // SEO dostu URL slug'ı
       imageUrl: group.imageUrl, // Grup görseli
       standard: group.standard, // Grup standardı
       translations: group.translations || [], // Çeviri dizisi

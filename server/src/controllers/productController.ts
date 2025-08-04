@@ -3,7 +3,30 @@ import AppDataSource from "../data-source";
 import { Product } from "../entity/Product";
 import { ProductTranslation } from "../entity/ProductTranslation";
 import { ProductGroup } from "../entity/ProductGroup";
+import * as fs from "fs";
+import * as path from "path";
 
+// Dosya silme yardımcı fonksiyonu
+const deleteFileIfExists = (filePath: string) => {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`✅ Dosya silindi: ${filePath}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(`❌ Dosya silinirken hata: ${filePath}`, error);
+    return false;
+  }
+};
+
+// Dosya yolu oluşturma yardımcı fonksiyonu
+const getPublicFilePath = (relativePath: string) => {
+  // __dirname: server/src/controllers
+  // İhtiyacımız: server/public
+  return path.join(__dirname, "../../public", relativePath);
+};
 
 // Belirli bir ürünün detayını çekmek için tasarlanmış fonksiyondur.
 export const getSubProduct = async (req: Request, res: Response) => {
@@ -162,6 +185,7 @@ export const getProductById = async (req: Request, res: Response) => {
 
     const result = {
       id: product.id,
+      slug: product.slug, // SEO dostu URL slug'ı
       imageUrl: product.imageUrl,
       standard: product.standard,
       groupId: product.group?.id || null,
@@ -228,6 +252,12 @@ export const updateProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Seçilen üst kategori bulunamadı." });
     }
 
+    // Eski resmi sil (eğer yeni resim yüklendiyse)
+    if (product.imageUrl && product.imageUrl !== imageUrl) {
+      const oldImagePath = getPublicFilePath(product.imageUrl);
+      deleteFileIfExists(oldImagePath);
+    }
+
     // Ürün bilgilerini güncelle
     product.imageUrl = imageUrl || product.imageUrl; // Resim değişmediyse eskisini kullan
     product.standard = standard || null;
@@ -278,6 +308,12 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
     if (!product) {
       return res.status(404).json({ message: "Ürün bulunamadı." });
+    }
+
+    // Ürün resmini sil
+    if (product.imageUrl) {
+      const productImagePath = getPublicFilePath(product.imageUrl);
+      deleteFileIfExists(productImagePath);
     }
 
     // Ürünü sil (CASCADE olduğu için çeviriler de silinir)
