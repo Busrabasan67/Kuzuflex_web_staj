@@ -8,12 +8,15 @@ import * as path from "path";
 // Dosya silme yardımcı fonksiyonu
 const deleteFileIfExists = (filePath: string) => {
   try {
+    console.log(`🔍 Dosya kontrol ediliyor: ${filePath}`);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
       console.log(`✅ Dosya silindi: ${filePath}`);
       return true;
+    } else {
+      console.log(`⚠️ Dosya bulunamadı: ${filePath}`);
+      return false;
     }
-    return false;
   } catch (error) {
     console.error(`❌ Dosya silinirken hata: ${filePath}`, error);
     return false;
@@ -261,6 +264,10 @@ export const updateQMDocumentAndCertificate = async (req: Request, res: Response
       pdfUrlEn: document.pdfUrlEn
     });
 
+    // updatedAt'i manuel olarak güncelle
+    document.updatedAt = new Date();
+    console.log('UpdatedAt set to:', document.updatedAt);
+
     await documentRepo.save(document);
 
     // Çevirileri güncelle
@@ -285,17 +292,30 @@ export const updateQMDocumentAndCertificate = async (req: Request, res: Response
     }
 
     // Eski dosyaları sil (yeni dosya yüklendiyse)
+    console.log('=== DOSYA SİLME İŞLEMİ ===');
+    console.log('Eski dosyalar:', { oldImageUrlTr, oldImageUrlEn, oldPdfUrlTr, oldPdfUrlEn });
+    console.log('Yeni dosyalar:', { 
+      imageUrlTr: req.body.imageUrlTr, 
+      imageUrlEn: req.body.imageUrlEn, 
+      pdfUrlTr: req.body.pdfUrlTr, 
+      pdfUrlEn: req.body.pdfUrlEn 
+    });
+
     if (req.body.imageUrlTr && oldImageUrlTr && req.body.imageUrlTr !== oldImageUrlTr) {
-      deleteFileIfExists(oldImageUrlTr);
+      console.log('Eski TR resmi siliniyor:', oldImageUrlTr);
+      deleteFileIfExists(getPublicFilePath(oldImageUrlTr));
     }
     if (req.body.imageUrlEn && oldImageUrlEn && req.body.imageUrlEn !== oldImageUrlEn) {
-      deleteFileIfExists(oldImageUrlEn);
+      console.log('Eski EN resmi siliniyor:', oldImageUrlEn);
+      deleteFileIfExists(getPublicFilePath(oldImageUrlEn));
     }
     if (req.body.pdfUrlTr && oldPdfUrlTr && req.body.pdfUrlTr !== oldPdfUrlTr) {
-      deleteFileIfExists(oldPdfUrlTr);
+      console.log('Eski TR PDF siliniyor:', oldPdfUrlTr);
+      deleteFileIfExists(getPublicFilePath(oldPdfUrlTr));
     }
     if (req.body.pdfUrlEn && oldPdfUrlEn && req.body.pdfUrlEn !== oldPdfUrlEn) {
-      deleteFileIfExists(oldPdfUrlEn);
+      console.log('Eski EN PDF siliniyor:', oldPdfUrlEn);
+      deleteFileIfExists(getPublicFilePath(oldPdfUrlEn));
     }
 
     return res.json({
