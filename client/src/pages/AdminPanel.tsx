@@ -5,6 +5,7 @@ import ExtraContentManagement from "../components/ExtraContentManagement";
 import AdminProductGroups from "./AdminProductGroups";
 import AdminProducts from "../components/AdminProducts";
 import QMDocumentsManagement from "../components/QMDocumentsManagement";
+import MarketsManagement from "../components/MarketsManagement";
 import { 
   FiHome, 
   FiPackage, 
@@ -15,7 +16,8 @@ import {
   FiFileText,
   FiTool,
   FiEdit3,
-  FiAward
+  FiAward,
+  FiGlobe
 } from "react-icons/fi";
 
 const AdminPanel: React.FC = () => {
@@ -23,6 +25,7 @@ const AdminPanel: React.FC = () => {
 
   const tabs = [
     { id: "dashboard", name: "Dashboard", icon: FiHome },
+    { id: "markets", name: "Markets", icon: FiGlobe },
     { id: "product-groups", name: "Üst Kategoriler", icon: FiPackage },
     { id: "products", name: "Alt Ürünler", icon: FiGrid },
     { id: "solutions", name: "Çözümler", icon: FiTool },
@@ -37,6 +40,12 @@ const AdminPanel: React.FC = () => {
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
             <p>Hoş geldiniz! Buradan sitenizi yönetebilirsiniz.</p>
+          </div>
+        );
+      case "markets":
+        return (
+          <div className="p-6">
+            <MarketsManagement />
           </div>
         );
       case "products":

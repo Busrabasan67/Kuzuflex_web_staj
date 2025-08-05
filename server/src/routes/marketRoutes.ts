@@ -1,13 +1,16 @@
 import { Router } from "express";
-import {
-  getAllMarkets,
-  getMarketBySlug,
-  createMarket,
-  updateMarket,
+import { 
+  getAllMarkets, 
+  getMarketBySlug, 
+  createMarket, 
+  updateMarket, 
   deleteMarket,
   createMarketContent,
   updateMarketContent,
-  deleteMarketContent
+  deleteMarketContent,
+  getAvailableProductGroups,
+  getAvailableSolutions,
+  updateMarketImage
 } from "../controllers/marketController";
 
 /**
@@ -418,5 +421,123 @@ router.put("/contents/:id", updateMarketContent);
  *         description: Content not found
  */
 router.delete("/contents/:id", deleteMarketContent);
+
+/**
+ * @swagger
+ * /api/markets/available/product-groups:
+ *   get:
+ *     summary: Get available product groups for market content
+ *     tags: [Markets]
+ *     parameters:
+ *       - in: query
+ *         name: language
+ *         schema:
+ *           type: string
+ *           enum: [tr, en, fr, de]
+ *         description: Language code for translations
+ *     responses:
+ *       200:
+ *         description: List of available product groups
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   slug:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   imageUrl:
+ *                     type: string
+ */
+router.get("/available/product-groups", getAvailableProductGroups);
+
+/**
+ * @swagger
+ * /api/markets/available/solutions:
+ *   get:
+ *     summary: Get available solutions for market content
+ *     tags: [Markets]
+ *     parameters:
+ *       - in: query
+ *         name: language
+ *         schema:
+ *           type: string
+ *           enum: [tr, en, fr, de]
+ *         description: Language code for translations
+ *     responses:
+ *       200:
+ *         description: List of available solutions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   slug:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   subtitle:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   imageUrl:
+ *                     type: string
+ */
+router.get("/available/solutions", getAvailableSolutions);
+
+/**
+ * @swagger
+ * /api/markets/{id}/image:
+ *   put:
+ *     summary: Update market image URL
+ *     tags: [Markets]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Market ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               imageUrl:
+ *                 type: string
+ *                 description: New image URL
+ *     responses:
+ *       200:
+ *         description: Market image updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 imageUrl:
+ *                   type: string
+ *       404:
+ *         description: Market not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id/image", updateMarketImage);
 
 export default router; 

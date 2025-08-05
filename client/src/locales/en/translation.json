@@ -100,6 +100,7 @@
   "market": {
     "mainContents": "Main Contents",
     "subContents": "Sub Contents",
+    "additionalResources": "Additional Resources",
     "viewDetails": "View Details",
     "noContents": "No Contents Available",
     "noContentsDesc": "This market currently has no content to display.",
