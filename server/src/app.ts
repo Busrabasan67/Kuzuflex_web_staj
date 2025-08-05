@@ -8,6 +8,7 @@ import solutionExtraContentRoutes from "./routes/solutionExtraContentRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import catalogRoutes from "./routes/catalogRoutes";
 import qmDocumentsAndCertificatesRoutes from "./routes/qmDocumentsAndCertificatesRoutes";
+import marketRoutes from "./routes/marketRoutes";
 
 const app = express();
 
@@ -21,7 +22,11 @@ app.use(cors({
 app.use(express.json());
 
 // Static dosya servisi
-app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
+app.use("/uploads", cors({
+  origin: "http://localhost:5173",
+  methods: ["GET"],
+  allowedHeaders: ["Content-Type"]
+}), express.static(path.join(__dirname, "../public/uploads")));
 
 // Route'lar
 app.use("/api/product-groups", productGroupRoutes);
@@ -31,5 +36,6 @@ app.use("/api/solution-extra-content", solutionExtraContentRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/catalogs", catalogRoutes);
 app.use("/api/qm-documents-and-certificates", qmDocumentsAndCertificatesRoutes);
+app.use("/api/markets", marketRoutes);
 
 export default app;

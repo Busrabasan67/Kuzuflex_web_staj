@@ -20,6 +20,7 @@ import SubProductPage from "./pages/SubProductPage";
 import SolutionPage from "./pages/SolutionPage";
 import AdminProductGroups from "./pages/AdminProductGroups";
 import QMDocuments from "./pages/QMDocuments";
+import MarketDetail from "./pages/MarketDetail";
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -46,6 +47,7 @@ function AppContent() {
             
             <Route path="/solutions/:slug" element={<SolutionPage />} /> 
             <Route path="/qm-documents" element={<QMDocuments />} />
+            <Route path="/markets/:slug" element={<MarketDetail />} />
 
             {/* Admin Login */}
             <Route

@@ -12,6 +12,9 @@ import { SolutionTranslation } from "./entity/SolutionTranslation";
 import { SolutionExtraContent } from "./entity/SolutionExtraContent";
 import { QMDocumentsAndCertificates } from "./entity/QMDocumentsAndCertificates";
 import { QMDocumentsAndCertificatesTranslations } from "./entity/QMDocumentsAndCertificatesTranslation";
+import { Market } from "./entity/Market";
+import { MarketContent } from "./entity/MarketContent";
+import { MarketTranslation } from "./entity/MarketTranslation";
 
 const AppDataSource = new DataSource({
   type: "mssql",
@@ -22,7 +25,7 @@ const AppDataSource = new DataSource({
   database: "KuzuflexDB",
   synchronize: false,
   logging: false,
-  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation, Solution, SolutionTranslation, SolutionExtraContent, QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslations],  
+  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation, Solution, SolutionTranslation, SolutionExtraContent, QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslations, Market, MarketContent, MarketTranslation],  
   migrations: [__dirname + "/migrations/*.ts"],
   options: {
     encrypt: true,

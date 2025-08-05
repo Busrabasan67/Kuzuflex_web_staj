@@ -1,5 +1,5 @@
 import express from "express";
-import { uploadImage, uploadQMDocumentsFile } from "../controllers/uploadController";
+import { uploadImage, uploadQMDocumentsFile, uploadMarketImage } from "../controllers/uploadController";
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *           enum: [product-group, solution, product]
+ *           enum: [product-group, solution, product, market]
  *         description: "Yükleme tipi (örn: product-group, solution)"
  *       - in: path
  *         name: id
@@ -53,6 +53,42 @@ const router = express.Router();
  */
 
 router.post("/image/:type/:id", uploadImage);
+
+/**
+ * @openapi
+ * /api/upload/market-image:
+ *   post:
+ *     summary: Market için resim yükler
+ *     tags: [Upload]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: "Market resmi başarıyla yüklendi"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                   example: "/uploads/images/Markets/market-169999999.webp"
+ *                 filename:
+ *                   type: string
+ *                 size:
+ *                   type: integer
+ *       400:
+ *         description: "Geçersiz istek ya da dosya"
+ */
+router.post("/market-image", uploadMarketImage);
 
 /**
  * @openapi

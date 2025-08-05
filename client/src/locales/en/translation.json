@@ -32,11 +32,13 @@
     "quickLinks": "Quick Links",
     "ourProducts": "Our Products",
     "contactInfo": "Contact Info",
+    "markets": "Markets",
     "allRightsReserved": "All rights reserved."
   },
   "loading": {
     "productInfo": "Loading product information...",
-    "solutionInfo": "Loading solution information..."
+    "solutionInfo": "Loading solution information...",
+    "marketInfo": "Loading market information..."
   },
   "error": {
     "title": "Error",
@@ -45,6 +47,7 @@
     "solutionNotFound": "Solution not found",
     "productNotFound": "Product not found",
     "productNotFoundDesc": "The product you are looking for does not exist or may have been removed.",
+    "marketNotFound": "Market not found",
     "generalError": "An error occurred"
   },
   "pages": {
@@ -93,5 +96,17 @@
     "loading": "Loading...",
     "error": "Error",
     "retry": "Retry"
+  },
+  "market": {
+    "mainContents": "Main Contents",
+    "subContents": "Sub Contents",
+    "viewDetails": "View Details",
+    "noContents": "No Contents Available",
+    "noContentsDesc": "This market currently has no content to display.",
+    "buttons": {
+      "certificates": "Certificates",
+      "aboutUs": "About Us",
+      "contactUs": "Contact Us"
+    }
   }
 }

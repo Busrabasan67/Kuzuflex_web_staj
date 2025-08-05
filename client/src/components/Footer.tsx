@@ -11,10 +11,19 @@ interface ProductGroupFooter {
   name: string;
 }
 
+// Markets için tip
+interface MarketFooter {
+  id: number;
+  slug: string;
+  name: string;
+  order: number;
+}
+
 const Footer = () => {
   const { t, i18n } = useTranslation();
   const { darkMode } = useContext(ThemeContext);
   const [productGroups, setProductGroups] = useState<ProductGroupFooter[]>([]);
+  const [markets, setMarkets] = useState<MarketFooter[]>([]);
 
   const quickLinks = [
     { key: "home", label: t('navbar.home'), to: "/" },
@@ -33,12 +42,27 @@ const Footer = () => {
         setProductGroups(groups);
       })
       .catch((err) => console.error("Footer ürün grupları alınamadı:", err));
+
+    // API'den markets'leri çek
+    fetch(`http://localhost:5000/api/markets?language=${i18n.language}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // Sadece gerekli alanları al
+        const marketsData = data.map((m: any) => ({ 
+          id: m.id, 
+          slug: m.slug, 
+          name: m.name, 
+          order: m.order 
+        }));
+        setMarkets(marketsData);
+      })
+      .catch((err) => console.error("Footer markets alınamadı:", err));
   }, [i18n.language]);
 
   return (
     <footer className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"} pt-12 pb-6 transition-colors duration-300`}>
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           {/* Company Info */}
           <div>
             <div className="flex items-center mb-4">
@@ -119,6 +143,23 @@ const Footer = () => {
                 {t('common.email')}
               </p>
             </div>
+          </div>
+          {/* Markets */}
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.markets')}</h3>
+            <ul className="space-y-2">
+              {markets.map((market) => (
+                <li key={market.id}>
+                  <Link 
+                    to={`/markets/${market.slug}`}
+                    className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
+                  >
+                    <ArrowRight className="h-3 w-3 mr-1" />
+                    {market.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
         

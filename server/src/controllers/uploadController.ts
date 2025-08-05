@@ -34,6 +34,20 @@ const solutionStorage = multer.diskStorage({
   }
 });
 
+// Market için storage
+const marketStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(BASE_UPLOAD_DIR, "images/Markets");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `market-${uniqueSuffix}${ext}`);
+  }
+});
+
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   if (file.mimetype.startsWith("image/")) cb(null, true);
   else cb(new Error("Sadece resim dosyaları yüklenebilir!"));
@@ -44,6 +58,9 @@ export const uploadProductGroup = multer({ storage: productGroupStorage, fileFil
 
 // Solution için upload middleware
 export const uploadSolution = multer({ storage: solutionStorage, fileFilter });
+
+// Market için upload middleware
+export const uploadMarket = multer({ storage: marketStorage, fileFilter });
 
 // QM Documents için storage
 const qmDocumentsStorage = multer.diskStorage({
@@ -162,6 +179,24 @@ export const uploadQMDocumentsFile = (req: Request, res: Response) => {
   }
 };
 
+// Market upload endpoint
+export const uploadMarketImage = (req: Request, res: Response) => {
+  uploadMarket.single("image")(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: "Dosya seçilmedi" });
+
+    const imageUrl = `/uploads/images/Markets/${req.file.filename}`;
+    const fullPath = `uploads/images/Markets/${req.file.filename}`;
+    
+    res.status(200).json({ 
+      url: imageUrl, 
+      filename: fullPath, // Tam yolu döndür (veritabanı için)
+      originalFilename: req.file.filename, // Sadece dosya adı
+      size: req.file.size 
+    });
+  });
+};
+
 // Dinamik upload middleware (farklı türler için)
 export const uploadImage = (req: Request, res: Response) => {
   const type = req.params.type || "other";
@@ -172,6 +207,7 @@ export const uploadImage = (req: Request, res: Response) => {
       if (type === "product-group") folder = "images/Products";
       else if (type === "solution") folder = "solutions";
       else if (type === "product") folder = "images/Products"; // Alt ürünler için
+      else if (type === "market") folder = "images/Markets"; // Market için
       const uploadDir = path.join(BASE_UPLOAD_DIR, folder);
       fs.mkdirSync(uploadDir, { recursive: true });
       cb(null, uploadDir);
@@ -193,6 +229,7 @@ export const uploadImage = (req: Request, res: Response) => {
     if (type === "product-group") folder = "images/Products";
     else if (type === "solution") folder = "solutions";
     else if (type === "product") folder = "images/Products"; // Alt ürünler için
+    else if (type === "market") folder = "images/Markets"; // Market için
 
     const imageUrl = `/uploads/${folder}/${req.file.filename}`;
     const fullPath = `uploads/${folder}/${req.file.filename}`;

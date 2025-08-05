@@ -1,6 +1,7 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { Product } from "./Product";
 import { ProductGroupTranslation } from "./ProductGroupTranslation";
+import { Market } from "./Market";
 
 // Ürün gruplarının ortak verilerini tutan ana tablo
 @Entity()
@@ -27,4 +28,8 @@ export class ProductGroup {
     cascade: true,
   })
   translations?: ProductGroupTranslation[];
+
+  // Her ürün grubu bir market'e ait olabilir (opsiyonel)
+  @ManyToOne(() => Market, (market) => market.productGroups, { nullable: true })
+  market?: Market;
 }

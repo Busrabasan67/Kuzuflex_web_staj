@@ -3,9 +3,11 @@ import {
     PrimaryGeneratedColumn,
     Column,
     OneToMany,
+    ManyToOne,
   } from "typeorm";
   import { SolutionTranslation } from "./SolutionTranslation";
   import { SolutionExtraContent } from "./SolutionExtraContent";
+  import { Market } from "./Market";
   
   @Entity()
   export class Solution {
@@ -26,5 +28,9 @@ import {
 
    @OneToMany(() => SolutionExtraContent, e => e.solution, { cascade: true })
    extraContents!: SolutionExtraContent[];
+
+   // Her çözüm bir market'e ait olabilir (opsiyonel)
+   @ManyToOne(() => Market, (market) => market.solutions, { nullable: true })
+   market?: Market;
   }
   

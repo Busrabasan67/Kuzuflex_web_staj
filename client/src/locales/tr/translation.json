@@ -32,11 +32,13 @@
     "quickLinks": "Hızlı Bağlantılar",
     "ourProducts": "Ürünlerimiz",
     "contactInfo": "İletişim Bilgileri",
+    "markets": "Pazarlar",
     "allRightsReserved": "Tüm hakları saklıdır."
   },
   "loading": {
     "productInfo": "Ürün bilgileri yükleniyor...",
-    "solutionInfo": "Çözüm bilgileri yükleniyor..."
+    "solutionInfo": "Çözüm bilgileri yükleniyor...",
+    "marketInfo": "Pazar bilgileri yükleniyor..."
   },
   "error": {
     "title": "Hata",
@@ -45,6 +47,7 @@
     "solutionNotFound": "Çözüm bulunamadı",
     "productNotFound": "Ürün bulunamadı",
     "productNotFoundDesc": "Aradığınız ürün mevcut değil veya kaldırılmış olabilir.",
+    "marketNotFound": "Pazar bulunamadı",
     "generalError": "Bir hata oluştu"
   },
   "pages": {
@@ -93,5 +96,17 @@
     "loading": "Yükleniyor...",
     "error": "Hata",
     "retry": "Tekrar Dene"
+  },
+  "market": {
+    "mainContents": "Ana İçerikler",
+    "subContents": "Alt İçerikler",
+    "viewDetails": "Detayları Görüntüle",
+    "noContents": "İçerik Bulunmuyor",
+    "noContentsDesc": "Bu pazarda şu anda görüntülenecek içerik bulunmuyor.",
+    "buttons": {
+      "certificates": "Sertifikalar",
+      "aboutUs": "Hakkımızda",
+      "contactUs": "İletişim"
+    }
   }
 }
