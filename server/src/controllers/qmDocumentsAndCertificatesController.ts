@@ -42,7 +42,7 @@ export const getAllQMDocumentsAndCertificates = async (req: Request, res: Respon
     });
 
     const formattedDocuments = documents.map((doc) => {
-      // Uluslararası sertifikalar için tüm dillerde göster
+      // Uluslararası sertifikalar için tüm dillerde göster - EN dosyalarını kullan
       if (doc.isInternational) {
         const translation = doc.translations?.find((t) => t.language === lang) || 
                           doc.translations?.find((t) => t.language === "en") ||
@@ -50,11 +50,10 @@ export const getAllQMDocumentsAndCertificates = async (req: Request, res: Respon
         
         return {
           id: doc.id,
-          slug: doc.slug,
           title: translation?.title || "Untitled",
           description: translation?.description || "",
-          imageUrl: lang === 'tr' ? doc.imageUrlTr : doc.imageUrlEn,
-          pdfUrl: lang === 'tr' ? doc.pdfUrlTr : doc.pdfUrlEn,
+          imageUrl: doc.imageUrlEn ? (doc.imageUrlEn.startsWith('/') ? doc.imageUrlEn : `/${doc.imageUrlEn}`) : null, // Uluslararası sertifikalar için her zaman EN dosyası
+          pdfUrl: doc.pdfUrlEn ? (doc.pdfUrlEn.startsWith('/') ? doc.pdfUrlEn : `/${doc.pdfUrlEn}`) : null,     // Uluslararası sertifikalar için her zaman EN dosyası
           type: doc.type,
           isInternational: doc.isInternational,
           createdAt: doc.createdAt,
@@ -67,11 +66,14 @@ export const getAllQMDocumentsAndCertificates = async (req: Request, res: Respon
           if (translation) {
             return {
               id: doc.id,
-              slug: doc.slug,
               title: translation.title || "Untitled",
               description: translation.description || "",
-              imageUrl: lang === 'tr' ? doc.imageUrlTr : doc.imageUrlEn,
-              pdfUrl: lang === 'tr' ? doc.pdfUrlTr : doc.pdfUrlEn,
+              imageUrl: lang === 'tr' ? 
+                (doc.imageUrlTr ? (doc.imageUrlTr.startsWith('/') ? doc.imageUrlTr : `/${doc.imageUrlTr}`) : null) : 
+                (doc.imageUrlEn ? (doc.imageUrlEn.startsWith('/') ? doc.imageUrlEn : `/${doc.imageUrlEn}`) : null),
+              pdfUrl: lang === 'tr' ? 
+                (doc.pdfUrlTr ? (doc.pdfUrlTr.startsWith('/') ? doc.pdfUrlTr : `/${doc.pdfUrlTr}`) : null) : 
+                (doc.pdfUrlEn ? (doc.pdfUrlEn.startsWith('/') ? doc.pdfUrlEn : `/${doc.pdfUrlEn}`) : null),
               type: doc.type,
               isInternational: doc.isInternational,
               createdAt: doc.createdAt,
@@ -84,11 +86,10 @@ export const getAllQMDocumentsAndCertificates = async (req: Request, res: Respon
           if (translation) {
             return {
               id: doc.id,
-              slug: doc.slug,
               title: translation.title || "Untitled",
               description: translation.description || "",
-              imageUrl: doc.imageUrlEn,
-              pdfUrl: doc.pdfUrlEn,
+              imageUrl: doc.imageUrlEn ? (doc.imageUrlEn.startsWith('/') ? doc.imageUrlEn : `/${doc.imageUrlEn}`) : null,
+              pdfUrl: doc.pdfUrlEn ? (doc.pdfUrlEn.startsWith('/') ? doc.pdfUrlEn : `/${doc.pdfUrlEn}`) : null,
               type: doc.type,
               isInternational: doc.isInternational,
               createdAt: doc.createdAt,
@@ -128,13 +129,16 @@ export const getQMDocumentAndCertificateById = async (req: Request, res: Respons
                       document.translations?.find((t) => t.language === "en") ||
                       document.translations?.[0];
 
+    // Uluslararası sertifikalar için her zaman EN dosyalarını kullan
+    const imageUrl = document.isInternational ? document.imageUrlEn : (lang === 'tr' ? document.imageUrlTr : document.imageUrlEn);
+    const pdfUrl = document.isInternational ? document.pdfUrlEn : (lang === 'tr' ? document.pdfUrlTr : document.pdfUrlEn);
+
     return res.json({
       id: document.id,
-      slug: document.slug,
       title: translation?.title || "Untitled",
       description: translation?.description || "",
-      imageUrl: lang === 'tr' ? document.imageUrlTr : document.imageUrlEn,
-      pdfUrl: lang === 'tr' ? document.pdfUrlTr : document.pdfUrlEn,
+      imageUrl: imageUrl,
+      pdfUrl: pdfUrl,
       type: document.type,
       isInternational: document.isInternational,
       createdAt: document.createdAt,
@@ -155,7 +159,6 @@ export const createQMDocumentAndCertificate = async (req: Request, res: Response
     const { title, description, type, isInternational, translations } = req.body;
 
     const newDocument = documentRepo.create({
-      slug: title?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
       type: type || 'document',
       isInternational: isInternational || false,
       imageUrlTr: req.body.imageUrlTr,
@@ -194,6 +197,10 @@ export const updateQMDocumentAndCertificate = async (req: Request, res: Response
   const { id } = req.params;
 
   try {
+    console.log('=== UPDATE REQUEST ===');
+    console.log('ID:', id);
+    console.log('Body:', req.body);
+
     const documentRepo = AppDataSource.getRepository(QMDocumentsAndCertificates);
     const translationRepo = AppDataSource.getRepository(QMDocumentsAndCertificatesTranslations);
 
@@ -206,13 +213,53 @@ export const updateQMDocumentAndCertificate = async (req: Request, res: Response
       return res.status(404).json({ message: "Doküman bulunamadı" });
     }
 
+    console.log('Current document:', {
+      imageUrlTr: document.imageUrlTr,
+      imageUrlEn: document.imageUrlEn,
+      pdfUrlTr: document.pdfUrlTr,
+      pdfUrlEn: document.pdfUrlEn
+    });
+
+    // Eski dosyaları sil
+    const oldImageUrlTr = document.imageUrlTr;
+    const oldImageUrlEn = document.imageUrlEn;
+    const oldPdfUrlTr = document.pdfUrlTr;
+    const oldPdfUrlEn = document.pdfUrlEn;
+
     // Ana doküman bilgilerini güncelle
     if (req.body.type !== undefined) document.type = req.body.type;
     if (req.body.isInternational !== undefined) document.isInternational = req.body.isInternational;
-    if (req.body.imageUrlTr !== undefined) document.imageUrlTr = req.body.imageUrlTr;
-    if (req.body.imageUrlEn !== undefined) document.imageUrlEn = req.body.imageUrlEn;
-    if (req.body.pdfUrlTr !== undefined) document.pdfUrlTr = req.body.pdfUrlTr;
-    if (req.body.pdfUrlEn !== undefined) document.pdfUrlEn = req.body.pdfUrlEn;
+    
+    // Dosya yollarını güncelle
+    console.log('Checking file paths in request body:');
+    console.log('imageUrlTr:', req.body.imageUrlTr, 'type:', typeof req.body.imageUrlTr);
+    console.log('imageUrlEn:', req.body.imageUrlEn, 'type:', typeof req.body.imageUrlEn);
+    console.log('pdfUrlTr:', req.body.pdfUrlTr, 'type:', typeof req.body.pdfUrlTr);
+    console.log('pdfUrlEn:', req.body.pdfUrlEn, 'type:', typeof req.body.pdfUrlEn);
+    
+    if (req.body.imageUrlTr !== undefined) {
+      console.log('Updating imageUrlTr from', document.imageUrlTr, 'to', req.body.imageUrlTr);
+      document.imageUrlTr = req.body.imageUrlTr;
+    }
+    if (req.body.imageUrlEn !== undefined) {
+      console.log('Updating imageUrlEn from', document.imageUrlEn, 'to', req.body.imageUrlEn);
+      document.imageUrlEn = req.body.imageUrlEn;
+    }
+    if (req.body.pdfUrlTr !== undefined) {
+      console.log('Updating pdfUrlTr from', document.pdfUrlTr, 'to', req.body.pdfUrlTr);
+      document.pdfUrlTr = req.body.pdfUrlTr;
+    }
+    if (req.body.pdfUrlEn !== undefined) {
+      console.log('Updating pdfUrlEn from', document.pdfUrlEn, 'to', req.body.pdfUrlEn);
+      document.pdfUrlEn = req.body.pdfUrlEn;
+    }
+
+    console.log('Updated document:', {
+      imageUrlTr: document.imageUrlTr,
+      imageUrlEn: document.imageUrlEn,
+      pdfUrlTr: document.pdfUrlTr,
+      pdfUrlEn: document.pdfUrlEn
+    });
 
     await documentRepo.save(document);
 
@@ -235,6 +282,20 @@ export const updateQMDocumentAndCertificate = async (req: Request, res: Response
           await translationRepo.save(newTranslation);
         }
       }
+    }
+
+    // Eski dosyaları sil (yeni dosya yüklendiyse)
+    if (req.body.imageUrlTr && oldImageUrlTr && req.body.imageUrlTr !== oldImageUrlTr) {
+      deleteFileIfExists(oldImageUrlTr);
+    }
+    if (req.body.imageUrlEn && oldImageUrlEn && req.body.imageUrlEn !== oldImageUrlEn) {
+      deleteFileIfExists(oldImageUrlEn);
+    }
+    if (req.body.pdfUrlTr && oldPdfUrlTr && req.body.pdfUrlTr !== oldPdfUrlTr) {
+      deleteFileIfExists(oldPdfUrlTr);
+    }
+    if (req.body.pdfUrlEn && oldPdfUrlEn && req.body.pdfUrlEn !== oldPdfUrlEn) {
+      deleteFileIfExists(oldPdfUrlEn);
     }
 
     return res.json({

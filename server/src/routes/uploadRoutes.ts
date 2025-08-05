@@ -56,25 +56,10 @@ router.post("/image/:type/:id", uploadImage);
 
 /**
  * @openapi
- * /api/upload/qm-documents/{language}/{documentType}:
+ * /api/upload/qm-documents:
  *   post:
  *     summary: QM Documents için dosya yükler (resim veya PDF)
  *     tags: [Upload]
- *     parameters:
- *       - in: path
- *         name: language
- *         required: true
- *         schema:
- *           type: string
- *           enum: [tr, en]
- *         description: "Dosya dili (tr veya en)"
- *       - in: path
- *         name: documentType
- *         required: true
- *         schema:
- *           type: string
- *           enum: [images, pdfs]
- *         description: "Dosya tipi (images veya pdfs)"
  *     requestBody:
  *       required: true
  *       content:
@@ -85,6 +70,15 @@ router.post("/image/:type/:id", uploadImage);
  *               file:
  *                 type: string
  *                 format: binary
+ *               documentType:
+ *                 type: string
+ *                 enum: [certificate, document]
+ *               language:
+ *                 type: string
+ *                 enum: [tr, en]
+ *               fileType:
+ *                 type: string
+ *                 enum: [image, pdf]
  *     responses:
  *       200:
  *         description: "Dosya başarıyla yüklendi"
@@ -96,17 +90,17 @@ router.post("/image/:type/:id", uploadImage);
  *                 url:
  *                   type: string
  *                   example: "/uploads/qm-documents-and-certificates/images/tr/qm-doc-169999999.jpg"
- *                 filename:
+ *                 fullPath:
  *                   type: string
  *                 size:
  *                   type: integer
  *                 language:
  *                   type: string
- *                 type:
+ *                 documentType:
  *                   type: string
  *       400:
  *         description: "Geçersiz istek ya da dosya"
  */
-router.post("/qm-documents/:language/:documentType", uploadQMDocumentsFile);
+router.post("/qm-documents", uploadQMDocumentsFile);
 
 export default router;

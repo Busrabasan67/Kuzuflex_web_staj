@@ -4,6 +4,7 @@ import SolutionManagement from "../components/SolutionManagement";
 import ExtraContentManagement from "../components/ExtraContentManagement";
 import AdminProductGroups from "./AdminProductGroups";
 import AdminProducts from "../components/AdminProducts";
+import QMDocumentsManagement from "../components/QMDocumentsManagement";
 import { 
   FiHome, 
   FiPackage, 
@@ -13,7 +14,8 @@ import {
   FiTrendingUp,
   FiFileText,
   FiTool,
-  FiEdit3
+  FiEdit3,
+  FiAward
 } from "react-icons/fi";
 
 const AdminPanel: React.FC = () => {
@@ -25,6 +27,7 @@ const AdminPanel: React.FC = () => {
     { id: "products", name: "Alt Ürünler", icon: FiGrid },
     { id: "solutions", name: "Çözümler", icon: FiTool },
     { id: "solution-extra-content", name: "Solution İçerik Ekle", icon: FiEdit3 },
+    { id: "qm-documents", name: "QM Documents & Certificates", icon: FiAward },
   ];
 
   const renderTabContent = () => {
@@ -58,6 +61,12 @@ const AdminPanel: React.FC = () => {
         return (
           <div className="p-6">
             <ExtraContentManagement />
+          </div>
+        );
+      case "qm-documents":
+        return (
+          <div className="p-6">
+            <QMDocumentsManagement />
           </div>
         );
       default:
