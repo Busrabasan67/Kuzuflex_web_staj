@@ -1,6 +1,6 @@
 import express from "express";
 
-import { getSubProduct, getProductBySlug, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct } from "../controllers/productController";
+import { getSubProduct, getProductBySlug, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct, updateProductImage } from "../controllers/productController";
 
 const router = express.Router();
 
@@ -220,5 +220,49 @@ router.put("/:id", updateProduct);
 
 // Alt ürün silme route'u
 router.delete("/:id", deleteProduct);
+
+/**
+ * @swagger
+ * /api/products/{id}/image:
+ *   put:
+ *     summary: Update product image URL
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               imageUrl:
+ *                 type: string
+ *                 description: New image URL
+ *     responses:
+ *       200:
+ *         description: Product image updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 imageUrl:
+ *                   type: string
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id/image", updateProductImage);
 
 export default router;

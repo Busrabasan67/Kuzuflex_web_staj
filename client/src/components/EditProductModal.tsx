@@ -179,29 +179,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, productId, 
       setSubmitLoading(true);
       setError(null);
 
-      // Resim güncellemesi varsa yükle
-      let imageUrl = productData?.imageUrl; // Mevcut resmi kullan
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-
-        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product/0`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error('Resim yüklenemedi');
-        }
-
-        const uploadResult = await uploadResponse.json();
-        imageUrl = uploadResult.filename;
-      }
-
-      // Alt ürün güncelle
+      // 1. Adım: Önce alt ürün güncelle (resim olmadan)
       const productUpdateData = {
         slug: form.slug,
-        imageUrl,
+        imageUrl: productData?.imageUrl || '', // Mevcut resim URL'si
         standard: form.standard || null,
         groupId: parseInt(form.groupId),
         translations: JSON.stringify(translations),
@@ -218,6 +199,43 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, productId, 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Alt ürün güncellenemedi');
+      }
+
+      console.log('✅ Product başarıyla güncellendi');
+
+      // 2. Adım: Eğer yeni resim seçilmişse, alt ürün güncellendikten sonra resmi yükle
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+
+        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product/${productId}`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          console.warn('⚠️ Resim yüklenemedi, alt ürün güncellendi ama resim olmadan');
+        } else {
+          const uploadResult = await uploadResponse.json();
+          console.log('✅ Resim başarıyla yüklendi:', uploadResult);
+
+          // Product'un imageUrl alanını güncelle
+          const updateResponse = await fetch(`${API_BASE}/api/products/${productId}/image`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageUrl: uploadResult.url
+            }),
+          });
+
+          if (updateResponse.ok) {
+            console.log('✅ Product imageUrl güncellendi');
+          } else {
+            console.warn('⚠️ Product imageUrl güncellenemedi');
+          }
+        }
       }
 
       // Başarılı
@@ -342,9 +360,17 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, productId, 
                 <div className="mb-3">
                   <p className="text-sm text-gray-600 mb-2">Mevcut resim:</p>
                   <img
-                    src={`${API_BASE}/${productData.imageUrl}`}
+                    src={`${API_BASE}${productData.imageUrl.startsWith('/') ? productData.imageUrl : `/${productData.imageUrl}`}`}
                     alt="Mevcut ürün resmi"
                     className="h-24 w-24 rounded-lg object-cover border border-gray-200"
+                    onError={(e) => {
+                      console.log('❌ Edit modal resim yüklenemedi:', productData.imageUrl);
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                    onLoad={() => {
+                      console.log('✅ Edit modal resim yüklendi:', productData.imageUrl);
+                    }}
                   />
                 </div>
               )}

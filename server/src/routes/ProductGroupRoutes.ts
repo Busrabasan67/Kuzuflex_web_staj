@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllGroups, getProductsByGroupId, getProductsByGroupSlug, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup } from "../controllers/productGroupController";
+import { getAllGroups, getProductsByGroupId, getProductsByGroupSlug, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup, updateProductGroupImage } from "../controllers/productGroupController";
 
 const router = Router();
 
@@ -179,5 +179,49 @@ router.put("/:id", updateProductGroup);
  *         description: Sunucu hatası
  */
 router.delete("/:id", deleteProductGroup);
+
+/**
+ * @swagger
+ * /api/product-groups/{id}/image:
+ *   put:
+ *     summary: Update product group image URL
+ *     tags: [Product Groups]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product Group ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               imageUrl:
+ *                 type: string
+ *                 description: New image URL
+ *     responses:
+ *       200:
+ *         description: Product group image updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 imageUrl:
+ *                   type: string
+ *       404:
+ *         description: Product group not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id/image", updateProductGroupImage);
 
 export default router;

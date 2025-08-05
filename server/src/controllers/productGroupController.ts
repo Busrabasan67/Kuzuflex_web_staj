@@ -393,3 +393,41 @@ export const getAdminProductGroups = async (req: Request, res: Response) => {
   }
 };
 
+// ProductGroup'un imageUrl alanını güncelle
+export const updateProductGroupImage = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl } = req.body;
+
+    const productGroup = await AppDataSource.getRepository(ProductGroup).findOne({
+      where: { id: parseInt(id) }
+    });
+
+    if (!productGroup) {
+      return res.status(404).json({ error: 'ProductGroup not found' });
+    }
+
+    // Eski resim dosyasını sil
+    if (productGroup.imageUrl && productGroup.imageUrl !== imageUrl) {
+      const oldImagePath = getPublicFilePath(productGroup.imageUrl);
+      const deleted = deleteFileIfExists(oldImagePath);
+      if (deleted) {
+        console.log(`🗑️ Eski resim silindi: ${oldImagePath}`);
+      }
+    }
+
+    // Yeni imageUrl'i kaydet
+    productGroup.imageUrl = imageUrl;
+    await AppDataSource.getRepository(ProductGroup).save(productGroup);
+
+    res.json({ 
+      success: true, 
+      message: 'ProductGroup image updated successfully',
+      imageUrl: productGroup.imageUrl 
+    });
+  } catch (error) {
+    console.error('Error updating product group image:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+

@@ -155,9 +155,10 @@ const SubProductPage = () => {
               }}
             ></div>
           )}
-          <img
-            src={`${API_BASE}/${product.imageUrl.startsWith('/') ? product.imageUrl.slice(1) : product.imageUrl}`}
-            alt={product.title}
+          {product.imageUrl && (
+            <img
+              src={`${API_BASE}/${product.imageUrl.startsWith('/') ? product.imageUrl.slice(1) : product.imageUrl}`}
+              alt={product.title}
             style={{ 
               width: "100%", 
               maxWidth: "400px", 
@@ -176,6 +177,7 @@ const SubProductPage = () => {
               setImageLoading(false);
             }}
           />
+          )}
         </div>
 
         {/* Product Info */}

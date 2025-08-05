@@ -9,6 +9,30 @@ import { Solution } from "../entity/Solution";
 import { getAllGroups } from "./productGroupController";
 import { getAllSolutions } from "./solutionController";
 import { In } from "typeorm";
+import * as fs from "fs";
+import * as path from "path";
+
+// Dosya silme yardımcı fonksiyonu
+const deleteFileIfExists = (filePath: string) => {
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`✅ Dosya silindi: ${filePath}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error(`❌ Dosya silinirken hata: ${filePath}`, error);
+    return false;
+  }
+};
+
+// Dosya yolu oluşturma yardımcı fonksiyonu
+const getPublicFilePath = (relativePath: string) => {
+  // __dirname: server/src/controllers
+  // İhtiyacımız: server/public
+  return path.join(__dirname, "../../public", relativePath);
+};
 
 const marketRepository = AppDataSource.getRepository(Market);
 const marketTranslationRepository = AppDataSource.getRepository(MarketTranslation);
@@ -540,6 +564,16 @@ export const updateMarketImage = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Market not found' });
     }
 
+    // Eski resim dosyasını sil
+    if (market.imageUrl && market.imageUrl !== imageUrl) {
+      const oldImagePath = getPublicFilePath(market.imageUrl);
+      const deleted = deleteFileIfExists(oldImagePath);
+      if (deleted) {
+        console.log(`🗑️ Eski resim silindi: ${oldImagePath}`);
+      }
+    }
+
+    // Yeni imageUrl'i kaydet
     market.imageUrl = imageUrl;
     await marketRepository.save(market);
 

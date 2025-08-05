@@ -199,6 +199,13 @@ export const uploadMarketImage = (req: Request, res: Response) => {
 
 // Dinamik upload middleware (farklı türler için)
 export const uploadImage = (req: Request, res: Response) => {
+  console.log('🔄 Upload Image Request:', {
+    type: req.params.type,
+    id: req.params.id,
+    url: req.url,
+    method: req.method
+  });
+  
   const type = req.params.type || "other";
   
   const dynamicStorage = multer.diskStorage({
@@ -222,6 +229,8 @@ export const uploadImage = (req: Request, res: Response) => {
   const dynamicUpload = multer({ storage: dynamicStorage, fileFilter }).single("image");
 
   dynamicUpload(req, res, (err) => {
+    console.log('📁 Dynamic Upload Callback:', { err: err?.message, file: req.file?.filename });
+    
     if (err) return res.status(400).json({ error: err.message });
     if (!req.file) return res.status(400).json({ error: "Dosya seçilmedi" });
 

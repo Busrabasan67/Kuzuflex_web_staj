@@ -103,8 +103,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
 
   // Dosya seçimi
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('📁 File input changed:', e.target.files);
     if (e.target.files && e.target.files[0]) {
+      console.log('✅ File selected:', e.target.files[0].name);
       setSelectedFile(e.target.files[0]);
+    } else {
+      console.log('❌ No file selected');
+      setSelectedFile(null);
     }
   };
 
@@ -128,30 +133,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
       setSubmitLoading(true);
       setError(null);
 
-             // Önce resim yükle (eğer varsa)
-       let imageUrl = null;
-       if (selectedFile) {
-         const formData = new FormData();
-         formData.append('image', selectedFile);
-
-         // Mevcut upload endpoint'ini kullan (product tipi için)
-         const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product/0`, {
-           method: 'POST',
-           body: formData,
-         });
-
-         if (!uploadResponse.ok) {
-           throw new Error('Resim yüklenemedi');
-         }
-
-                   const uploadResult = await uploadResponse.json();
-          imageUrl = uploadResult.filename; // Artık tam yol döndürülüyor
-       }
-
-      // Alt ürün oluştur
+      // 1. Adım: Önce alt ürün oluştur (resim olmadan)
       const productData = {
         slug: form.slug,
-        imageUrl,
+        imageUrl: '', // Başlangıçta boş
         standard: form.standard || null,
         groupId: parseInt(form.groupId),
         translations: JSON.stringify(translations),
@@ -168,6 +153,58 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Alt ürün eklenemedi');
+      }
+
+      const result = await response.json();
+      console.log('✅ Product başarıyla oluşturuldu:', result);
+             console.log('🔍 Result ID:', result.id);
+       console.log('🔍 Selected File:', selectedFile);
+       console.log('🔍 Selected File Type:', selectedFile?.type);
+       console.log('🔍 Selected File Size:', selectedFile?.size);
+
+       // 2. Adım: Eğer resim seçilmişse, alt ürün oluşturulduktan sonra resmi yükle
+       if (selectedFile && result.id) {
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+
+        console.log('🔄 Resim yükleniyor... URL:', `${API_BASE}/api/upload/image/product/${result.id}`);
+        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product/${result.id}`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        console.log('📤 Upload Response Status:', uploadResponse.status);
+        console.log('📤 Upload Response OK:', uploadResponse.ok);
+
+        if (!uploadResponse.ok) {
+          console.warn('⚠️ Resim yüklenemedi, alt ürün oluşturuldu ama resim olmadan');
+          const errorText = await uploadResponse.text();
+          console.error('❌ Upload Error:', errorText);
+        } else {
+          const uploadResult = await uploadResponse.json();
+          console.log('✅ Resim başarıyla yüklendi:', uploadResult);
+
+          // Product'un imageUrl alanını güncelle
+          const updateResponse = await fetch(`${API_BASE}/api/products/${result.id}/image`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              imageUrl: uploadResult.url
+            }),
+          });
+
+                     if (updateResponse.ok) {
+             console.log('✅ Product imageUrl güncellendi');
+             const updateResult = await updateResponse.json();
+             console.log('📋 Update Result:', updateResult);
+           } else {
+             console.warn('⚠️ Product imageUrl güncellenemedi');
+             const errorText = await updateResponse.text();
+             console.error('❌ Update Error:', errorText);
+           }
+        }
       }
 
       // Başarılı

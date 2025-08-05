@@ -422,11 +422,57 @@ export const createProduct = async (req: Request, res: Response) => {
     console.log("✅ Alt ürün başarıyla eklendi:", savedProduct.id);
     return res.status(201).json({
       message: "Alt ürün başarıyla eklendi.",
-      productId: savedProduct.id
+      id: savedProduct.id, // Frontend'in beklediği format
+      productId: savedProduct.id // Geriye uyumluluk için
     });
 
   } catch (error) {
     console.error("❌ Alt ürün ekleme hatası:", error);
     return res.status(500).json({ message: "Sunucu hatası." });
+  }
+};
+
+// Product'un imageUrl alanını güncelle
+export const updateProductImage = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl } = req.body;
+
+    const product = await AppDataSource.getRepository(Product).findOne({
+      where: { id: parseInt(id) }
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Eski resim dosyasını sil
+    if (product.imageUrl && product.imageUrl !== imageUrl) {
+      const oldImagePath = getPublicFilePath(product.imageUrl);
+      const deleted = deleteFileIfExists(oldImagePath);
+      if (deleted) {
+        console.log(`🗑️ Eski resim silindi: ${oldImagePath}`);
+      }
+    }
+
+        console.log('🔄 Product imageUrl güncelleniyor:', {
+      oldImageUrl: product.imageUrl,
+      newImageUrl: imageUrl
+    });
+
+    // Yeni imageUrl'i kaydet
+    product.imageUrl = imageUrl;
+    await AppDataSource.getRepository(Product).save(product);
+
+    console.log('✅ Product imageUrl güncellendi:', product.imageUrl);
+
+    res.json({
+      success: true,
+      message: 'Product image updated successfully',
+      imageUrl: product.imageUrl
+    });
+  } catch (error) {
+    console.error('Error updating product image:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -234,10 +234,12 @@ const handleCatalogClick = (productId: number) => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     {product.imageUrl ? (
                       <img
-                        src={`${API_BASE}/${product.imageUrl}`}
+                        src={`${API_BASE}${product.imageUrl.startsWith('/') ? product.imageUrl : `/${product.imageUrl}`}`}
                         alt={product.title}
                         className="h-12 w-12 rounded-lg object-cover"
+                        onLoad={() => console.log('✅ Admin panel resim yüklendi:', product.title)}
                         onError={(e) => {
+                          console.log('❌ Admin panel resim yüklenemedi:', product.title, product.imageUrl);
                           // Resim yüklenemezse placeholder göster
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
