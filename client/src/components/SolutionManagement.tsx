@@ -1,31 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import SolutionForm from './SolutionForm';
+import SolutionModal from './SolutionModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 interface Solution {
   id: number;
-  slug: string;
+  imageUrl: string;
   title: string;
+  slug: string;
+  description: string;
   hasExtraContent: boolean;
 }
 
 const SolutionManagement: React.FC = () => {
   const [solutions, setSolutions] = useState<Solution[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [editingSolution, setEditingSolution] = useState<Solution | null>(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'with-content' | 'without-content'>('all');
   
   // Modal state'leri
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [solutionToDelete, setSolutionToDelete] = useState<Solution | null>(null);
+  
+  // Toast state
+  const [toast, setToast] = useState<{
+    show: boolean;
+    type: 'success' | 'error' | 'info';
+    message: string;
+  }>({ show: false, type: 'info', message: '' });
 
   useEffect(() => {
     fetchSolutions();
   }, []);
+
+  const showToast = (type: 'success' | 'error' | 'info', message: string) => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast({ show: false, type: 'info', message: '' });
+    }, 4000);
+  };
 
   const fetchSolutions = async () => {
     try {
@@ -39,7 +54,7 @@ const SolutionManagement: React.FC = () => {
       const data = await response.json();
       setSolutions(data);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Solution\'lar yüklenirken hata oluştu' });
+      showToast('error', 'Solution\'lar yüklenirken hata oluştu');
       console.error('Error fetching solutions:', err);
     } finally {
       setLoading(false);
@@ -48,7 +63,6 @@ const SolutionManagement: React.FC = () => {
 
   const handleCreateSolution = async (formData: any) => {
     setSaving(true);
-    setMessage(null);
 
     try {
       const response = await fetch('http://localhost:5000/api/solutions', {
@@ -64,14 +78,11 @@ const SolutionManagement: React.FC = () => {
         throw new Error(errorData.message || 'Solution oluşturulurken hata oluştu');
       }
 
-      setMessage({ type: 'success', text: 'Solution başarıyla oluşturuldu!' });
-      setShowForm(false);
+      showToast('success', 'Solution başarıyla oluşturuldu!');
+      setShowModal(false);
       fetchSolutions(); // Listeyi yenile
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Bilinmeyen hata oluştu' 
-      });
+      showToast('error', error instanceof Error ? error.message : 'Bilinmeyen hata oluştu');
     } finally {
       setSaving(false);
     }
@@ -81,7 +92,6 @@ const SolutionManagement: React.FC = () => {
     if (!editingSolution) return;
 
     setSaving(true);
-    setMessage(null);
 
     try {
       const response = await fetch(`http://localhost:5000/api/solutions/${editingSolution.id}`, {
@@ -97,14 +107,12 @@ const SolutionManagement: React.FC = () => {
         throw new Error(errorData.message || 'Solution güncellenirken hata oluştu');
       }
 
-      setMessage({ type: 'success', text: 'Solution başarıyla güncellendi!' });
+      showToast('success', 'Solution başarıyla güncellendi!');
       setEditingSolution(null);
+      setShowModal(false);
       fetchSolutions(); // Listeyi yenile
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Bilinmeyen hata oluştu' 
-      });
+      showToast('error', error instanceof Error ? error.message : 'Bilinmeyen hata oluştu');
     } finally {
       setSaving(false);
     }
@@ -154,20 +162,14 @@ const SolutionManagement: React.FC = () => {
         }
       }
 
-      setMessage({ 
-        type: 'success', 
-        text: successMessage
-      });
+      showToast('success', successMessage);
       
       // Modal'ı kapat ve listeyi yenile
       setShowDeleteModal(false);
       setSolutionToDelete(null);
       fetchSolutions();
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Bilinmeyen hata oluştu' 
-      });
+      showToast('error', error instanceof Error ? error.message : 'Bilinmeyen hata oluştu');
       setShowDeleteModal(false);
       setSolutionToDelete(null);
     }
@@ -189,28 +191,25 @@ const SolutionManagement: React.FC = () => {
 
       const solutionData = await response.json();
       setEditingSolution(solutionData);
-      setShowForm(true);
+      setShowModal(true);
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: 'Solution detayları yüklenirken hata oluştu' 
-      });
+      showToast('error', 'Solution detayları yüklenirken hata oluştu');
       console.error('Error fetching solution details:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancelForm = () => {
-    setShowForm(false);
+  const handleCloseModal = () => {
+    setShowModal(false);
     setEditingSolution(null);
-    setMessage(null);
   };
 
   // Filtreleme ve arama
   const filteredSolutions = solutions.filter(solution => {
     const matchesSearch = solution.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         solution.slug.toLowerCase().includes(searchTerm.toLowerCase());
+                         solution.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (solution.description && solution.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesFilter = filterType === 'all' ||
                          (filterType === 'with-content' && solution.hasExtraContent) ||
@@ -253,7 +252,7 @@ const SolutionManagement: React.FC = () => {
             </div>
             
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => setShowModal(true)}
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,128 +365,190 @@ const SolutionManagement: React.FC = () => {
           </div>
         </div>
 
-        {/* Message */}
-        {message && (
-          <div className={`mb-6 p-4 rounded-2xl border-l-4 shadow-lg ${
-            message.type === 'success' 
-              ? 'bg-green-50 border-green-400 text-green-800' 
-              : 'bg-red-50 border-red-400 text-red-800'
-          }`}>
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                {message.type === 'success' ? (
-                  <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                ) : (
-                  <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium whitespace-pre-line">{message.text}</p>
-              </div>
-            </div>
+        {/* Solutions Table */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-900">Mevcut Solution'lar</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {filteredSolutions.length} solution bulundu
+            </p>
           </div>
-        )}
-
-        {/* Form */}
-        {showForm && (
-          <div className="mb-8">
-            <SolutionForm
-              onSubmit={editingSolution ? handleUpdateSolution : handleCreateSolution}
-              onCancel={handleCancelForm}
-              loading={saving}
-              initialData={editingSolution}
-            />
-          </div>
-        )}
-
-        {/* Solutions Grid */}
-        {!showForm && (
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">Mevcut Solution'lar</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                {filteredSolutions.length} solution bulundu
-              </p>
-            </div>
-            
-            <div className="p-6">
-              {filteredSolutions.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="mx-auto h-24 w-24 text-gray-300 mb-4">
-                    <svg fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {searchTerm || filterType !== 'all' ? 'Sonuç bulunamadı' : 'Henüz solution eklenmemiş'}
-                  </h3>
-                  <p className="text-gray-500">
-                    {searchTerm || filterType !== 'all' 
-                      ? 'Arama kriterlerinizi değiştirmeyi deneyin'
-                      : 'İlk solution\'ınızı eklemek için yukarıdaki butona tıklayın'
-                    }
-                  </p>
+          
+          <div className="overflow-x-auto">
+            {filteredSolutions.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="mx-auto h-24 w-24 text-gray-300 mb-4">
+                  <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {searchTerm || filterType !== 'all' ? 'Sonuç bulunamadı' : 'Henüz solution eklenmemiş'}
+                </h3>
+                <p className="text-gray-500">
+                  {searchTerm || filterType !== 'all' 
+                    ? 'Arama kriterlerinizi değiştirmeyi deneyin'
+                    : 'İlk solution\'ınızı eklemek için yukarıdaki butona tıklayın'
+                  }
+                </p>
+              </div>
+            ) : (
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Görsel
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Başlık
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Slug
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Açıklama
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Ekstra İçerik
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      İşlemler
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
                   {filteredSolutions.map((solution) => (
-                    <div
-                      key={solution.id}
-                      className="group bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-6 hover:shadow-xl hover:border-blue-200 transform hover:-translate-y-1 transition-all duration-300"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 text-lg mb-1 group-hover:text-blue-600 transition-colors">
-                            {solution.title}
-                          </h4>
-                          <p className="text-sm text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded-lg">
-                            {solution.slug}
-                          </p>
-                        </div>
-                        
-                        {solution.hasExtraContent && (
-                          <div className="flex-shrink-0 ml-3">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                              İçerik
-                            </span>
+                    <tr key={solution.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap w-16">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 font-mono">
+                          #{solution.id}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap w-20">
+                        {solution.imageUrl ? (
+                          <img 
+                            src={`http://localhost:5000${solution.imageUrl}`} 
+                            alt={solution.title}
+                            className="h-12 w-12 object-cover rounded-lg border border-gray-200"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
                           </div>
                         )}
-                      </div>
-                      
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEditSolution(solution)}
-                          className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
-                        >
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          Düzenle
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSolution(solution.id)}
-                          className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-xl hover:bg-red-600 transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap w-48">
+                        <div className="text-sm font-medium text-gray-900">
+                          {solution.title}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap w-32">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 font-mono">
+                          {solution.slug}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 w-64">
+                        <div className="max-w-xs">
+                          <p className="text-sm text-gray-900 line-clamp-2 leading-relaxed">
+                            {solution.description || 'Açıklama bulunmuyor'}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap w-24">
+                        {solution.hasExtraContent ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Var
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            Yok
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-32">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditSolution(solution)}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                          >
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Düzenle
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSolution(solution.id)}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                          >
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Sil
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </div>
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300 ${
+          toast.type === 'success' 
+            ? 'bg-green-500 text-white' 
+            : toast.type === 'error'
+            ? 'bg-red-500 text-white'
+            : 'bg-blue-500 text-white'
+        }`}>
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              {toast.type === 'success' ? (
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ) : toast.type === 'error' ? (
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
               )}
             </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium">{toast.message}</p>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Solution Modal */}
+      <SolutionModal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        onSubmit={editingSolution ? handleUpdateSolution : handleCreateSolution}
+        onError={(message) => showToast('error', message)}
+        loading={saving}
+        initialData={editingSolution}
+        isEdit={!!editingSolution}
+      />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
