@@ -9,6 +9,8 @@ interface ProductGroup {
   slug: string; // SEO dostu URL slug'ı
   imageUrl: string; // Grup görseli
   standard: string; // Grup standardı
+  createdAt: string; // Oluşturulma tarihi
+  updatedAt: string; // Güncellenme tarihi
   translations: {
     language: string; // Dil kodu
     name: string; // Grup adı (çeviri)
@@ -56,6 +58,13 @@ const AdminProductGroups = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   // Form gönderim sonrası mesaj
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  
+  // Toast states
+  const [toast, setToast] = useState<{
+    show: boolean;
+    type: 'success' | 'error' | 'info';
+    message: string;
+  }>({ show: false, type: 'info', message: '' });
 
   // Sayfa yüklendiğinde grupları getirir
   useEffect(() => {
@@ -81,6 +90,13 @@ const AdminProductGroups = () => {
     }
   };
 
+  const showToast = (type: 'success' | 'error' | 'info', message: string) => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast({ show: false, type: 'info', message: '' });
+    }, 4000);
+  };
+
   // Formdaki ortak alanlar değiştiğinde çalışır
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -90,17 +106,11 @@ const AdminProductGroups = () => {
   const handleTranslationChange = (idx: number, field: 'name' | 'description', value: string) => {
     setTranslations(prev => prev.map((tr, i) => i === idx ? { ...tr, [field]: value } : tr));
     
-    // Türkçe başlık değiştiğinde otomatik slug oluştur
-    if (field === 'name' && idx === 0) { // Türkçe (ilk dil)
-      const turkishName = value;
-      const autoSlug = turkishName
+    // İngilizce başlık değiştiğinde otomatik slug oluştur
+    if (field === 'name' && idx === 1) { // İngilizce (ikinci dil)
+      const englishName = value;
+      const autoSlug = englishName
         .toLowerCase()
-        .replace(/ğ/g, 'g')
-        .replace(/ü/g, 'u')
-        .replace(/ş/g, 's')
-        .replace(/ı/g, 'i')
-        .replace(/ö/g, 'o')
-        .replace(/ç/g, 'c')
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
@@ -201,13 +211,14 @@ const AdminProductGroups = () => {
       }
 
       await fetchGroups();
-      setSubmitMessage("Kategori başarıyla eklendi!");
+      showToast('success', 'Kategori başarıyla eklendi!');
       setForm({ slug: "", imageUrl: "", standard: "" });
       setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
       setSelectedFile(null);
       setShowModal(false);
     } catch (err) {
-      setSubmitMessage("Kategori eklenirken hata oluştu");
+      const errorMessage = err instanceof Error ? err.message : 'Kategori eklenirken hata oluştu';
+      showToast('error', errorMessage);
     } finally {
       setSubmitLoading(false);
     }
@@ -278,14 +289,15 @@ const AdminProductGroups = () => {
       }
 
       await fetchGroups();
-      setSubmitMessage("Kategori başarıyla güncellendi!");
+      showToast('success', 'Kategori başarıyla güncellendi!');
       setForm({ slug: "", imageUrl: "", standard: "" });
       setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
       setSelectedFile(null);
       setEditingGroup(null);
       setShowEditModal(false);
     } catch (err) {
-      setSubmitMessage("Kategori güncellenirken hata oluştu");
+      const errorMessage = err instanceof Error ? err.message : 'Kategori güncellenirken hata oluştu';
+      showToast('error', errorMessage);
     } finally {
       setSubmitLoading(false);
     }
@@ -308,11 +320,12 @@ const AdminProductGroups = () => {
       }
 
       await fetchGroups();
-      setSubmitMessage("Kategori başarıyla silindi!");
+      showToast('success', 'Kategori başarıyla silindi!');
       setDeletingGroup(null);
       setShowDeleteDialog(false);
     } catch (err: any) {
-      alert(err.message || "Kategori silinirken hata oluştu");
+      const errorMessage = err.message || "Kategori silinirken hata oluştu";
+      showToast('error', errorMessage);
     } finally {
       setSubmitLoading(false);
     }
@@ -378,8 +391,9 @@ const AdminProductGroups = () => {
 
       {/* Modal: Yeni Kategori Ekle */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 relative">
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
               onClick={() => setShowModal(false)}
@@ -390,19 +404,19 @@ const AdminProductGroups = () => {
             <h2 className="text-xl font-bold mb-4">Yeni Üst Kategori Ekle</h2>
             <form onSubmit={handleSubmit}>
               {/* Ortak Alanlar */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL) <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  name="slug"
-                  value={form.slug}
-                  onChange={handleFormChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
-                  placeholder="metal-hortumlar"
-                  required
-                />
-                <p className="text-xs text-gray-500">SEO dostu URL kısmı (zorunlu)</p>
-              </div>
+                             <div className="mb-4">
+                 <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL) <span className="text-red-500">*</span></label>
+                 <input
+                   type="text"
+                   name="slug"
+                   value={form.slug}
+                   onChange={handleFormChange}
+                   className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+                   placeholder="metal-hortumlar"
+                   required
+                 />
+                 <p className="text-xs text-gray-500">SEO dostu URL kısmı (zorunlu) - İngilizce başlığa göre otomatik oluşturulur</p>
+               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Görsel Yolu</label>
                 <input
@@ -423,7 +437,7 @@ const AdminProductGroups = () => {
                 )}
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Standart</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Standart <span className="text-gray-400">(Opsiyonel)</span></label>
                 <input
                   type="text"
                   name="standard"
@@ -431,7 +445,6 @@ const AdminProductGroups = () => {
                   onChange={handleFormChange}
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   placeholder="ISO 9001"
-                  required
                 />
               </div>
               {/* 4 Dil için Çeviri Alanları */}
@@ -481,20 +494,25 @@ const AdminProductGroups = () => {
                 <div className="mt-3 text-center text-sm text-red-600">{submitMessage}</div>
               )}
             </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Edit Modal: Kategori Düzenle */}
       {showEditModal && editingGroup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 relative">
             <button
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
               onClick={() => {
                 setShowEditModal(false);
                 setEditingGroup(null);
                 setSelectedFile(null);
+                // Form state'lerini temizle
+                setForm({ slug: "", imageUrl: "", standard: "" });
+                setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
               }}
               aria-label="Kapat"
             >
@@ -503,19 +521,19 @@ const AdminProductGroups = () => {
             <h2 className="text-xl font-bold mb-4">✏️ Kategori Düzenle</h2>
             <form onSubmit={handleEditSubmit}>
               {/* Ortak Alanlar */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL)</label>
-                <input
-                  type="text"
-                  name="slug"
-                  value={form.slug}
-                  onChange={handleFormChange}
-                  className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
-                  placeholder="metal-hortumlar"
-                  required
-                />
-                <p className="text-xs text-gray-500">SEO dostu URL kısmı</p>
-              </div>
+                             <div className="mb-4">
+                 <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL) <span className="text-red-500">*</span></label>
+                 <input
+                   type="text"
+                   name="slug"
+                   value={form.slug}
+                   onChange={handleFormChange}
+                   className="w-full border border-gray-300 rounded px-3 py-2 mb-2"
+                   placeholder="metal-hortumlar"
+                   required
+                 />
+                 <p className="text-xs text-gray-500">SEO dostu URL kısmı (zorunlu) - İngilizce başlığa göre otomatik oluşturulur</p>
+               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mevcut Görsel</label>
                 {form.imageUrl && (
@@ -543,7 +561,7 @@ const AdminProductGroups = () => {
                 )}
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Standart</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Standart <span className="text-gray-400">(Opsiyonel)</span></label>
                 <input
                   type="text"
                   name="standard"
@@ -551,7 +569,6 @@ const AdminProductGroups = () => {
                   onChange={handleFormChange}
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   placeholder="ISO 9001"
-                  required
                 />
               </div>
               {/* 4 Dil için Çeviri Alanları */}
@@ -588,6 +605,9 @@ const AdminProductGroups = () => {
                     setShowEditModal(false);
                     setEditingGroup(null);
                     setSelectedFile(null);
+                    // Form state'lerini temizle
+                    setForm({ slug: "", imageUrl: "", standard: "" });
+                    setTranslations(LANGUAGES.map(l => ({ language: l.code, name: "", description: "" })));
                   }}
                 >
                   İptal
@@ -605,6 +625,7 @@ const AdminProductGroups = () => {
                 <div className="mt-3 text-center text-sm text-red-600">{submitMessage}</div>
               )}
             </form>
+            </div>
           </div>
         </div>
       )}
@@ -681,6 +702,12 @@ const AdminProductGroups = () => {
                   Çeviri
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                  Oluşturulma
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                  Güncellenme
+                </th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                   İşlemler
                 </th>
               </tr>
@@ -736,6 +763,28 @@ const AdminProductGroups = () => {
                       {group.translations.length}
                     </span>
                   </td>
+                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="text-xs">
+                      {group.createdAt ? new Date(group.createdAt).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : '-'}
+                    </div>
+                  </td>
+                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="text-xs">
+                      {group.updatedAt ? new Date(group.updatedAt).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : '-'}
+                    </div>
+                  </td>
                   <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">
                       <button 
@@ -765,6 +814,50 @@ const AdminProductGroups = () => {
           </div>
         )}
       </div>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`rounded-lg shadow-lg p-4 max-w-sm transform transition-all duration-300 ${
+            toast.type === 'success' 
+              ? 'bg-green-500 text-white' 
+              : toast.type === 'error' 
+              ? 'bg-red-500 text-white' 
+              : 'bg-blue-500 text-white'
+          }`}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                {toast.type === 'success' ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : toast.type === 'error' ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium">{toast.message}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  onClick={() => setToast({ show: false, type: 'info', message: '' })}
+                  className="inline-flex text-white hover:text-gray-200 focus:outline-none"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

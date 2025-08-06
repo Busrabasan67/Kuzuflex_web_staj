@@ -16,6 +16,8 @@ interface Product {
   groupName: string;
   hasCatalog?: boolean;
   catalogCount?: number;
+  createdAt: string; // Oluşturulma tarihi
+  updatedAt: string; // Güncellenme tarihi
 }
 
 const AdminProducts = () => {
@@ -33,6 +35,13 @@ const AdminProducts = () => {
   // Katalog yönetimi için state'ler ekle
 const [showCatalogModal, setShowCatalogModal] = useState(false);
 const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+
+// Toast states
+const [toast, setToast] = useState<{
+  show: boolean;
+  type: 'success' | 'error' | 'info';
+  message: string;
+}>({ show: false, type: 'info', message: '' });
 
 // Katalog modal'ını aç
 const handleCatalogClick = (productId: number) => {
@@ -69,9 +78,17 @@ const handleCatalogClick = (productId: number) => {
     }
   };
 
+  const showToast = (type: 'success' | 'error' | 'info', message: string) => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast({ show: false, type: 'info', message: '' });
+    }, 4000);
+  };
+
   // Modal başarılı olduğunda ürünleri yeniden yükle
   const handleAddSuccess = () => {
     fetchProducts();
+    showToast('success', 'Ürün başarıyla eklendi!');
   };
 
   // Düzenleme modal'ını aç
@@ -83,6 +100,7 @@ const handleCatalogClick = (productId: number) => {
   // Düzenleme başarılı olduğunda ürünleri yeniden yükle
   const handleEditSuccess = () => {
     fetchProducts();
+    showToast('success', 'Ürün başarıyla güncellendi!');
   };
 
   // Düzenleme modal'ını kapat
@@ -114,12 +132,14 @@ const handleCatalogClick = (productId: number) => {
 
       // Başarılı silme sonrası listeyi yenile
       await fetchProducts();
+      showToast('success', 'Ürün başarıyla silindi!');
       setShowDeleteDialog(false);
       setDeletingProduct(null);
       
     } catch (err) {
       console.error('❌ Ürün silme hatası:', err);
-      alert(err instanceof Error ? err.message : 'Ürün silinirken hata oluştu');
+      const errorMessage = err instanceof Error ? err.message : 'Ürün silinirken hata oluştu';
+      showToast('error', errorMessage);
     } finally {
       setDeleteLoading(false);
     }
@@ -224,6 +244,12 @@ const handleCatalogClick = (productId: number) => {
                   Katalog
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Oluşturulma
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Güncellenme
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   İşlemler
                 </th>
               </tr>
@@ -282,6 +308,28 @@ const handleCatalogClick = (productId: number) => {
                         Katalog yok
                       </span>
                     )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="text-xs">
+                      {product.createdAt ? new Date(product.createdAt).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : '-'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="text-xs">
+                      {product.updatedAt ? new Date(product.updatedAt).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : '-'}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
@@ -402,7 +450,52 @@ const handleCatalogClick = (productId: number) => {
         onSuccess={() => {
           fetchProducts(); // Ürünleri yeniden yükle
         }}
+        showToast={showToast}
       />
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`rounded-lg shadow-lg p-4 max-w-sm transform transition-all duration-300 ${
+            toast.type === 'success' 
+              ? 'bg-green-500 text-white' 
+              : toast.type === 'error' 
+              ? 'bg-red-500 text-white' 
+              : 'bg-blue-500 text-white'
+          }`}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                {toast.type === 'success' ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : toast.type === 'error' ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium">{toast.message}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  onClick={() => setToast({ show: false, type: 'info', message: '' })}
+                  className="inline-flex text-white hover:text-gray-200 focus:outline-none"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

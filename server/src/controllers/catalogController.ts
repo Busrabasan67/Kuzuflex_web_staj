@@ -158,13 +158,8 @@ export const updateCatalog = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Geçerli bir katalog ID'si gerekli" });
   }
 
-  // PDF dosyası zorunlu
-  if (!file) {
-    return res.status(400).json({ message: "PDF dosyası gerekli" });
-  }
-
-  // PDF format kontrolü
-  if (file.mimetype !== "application/pdf") {
+  // PDF format kontrolü (sadece dosya varsa)
+  if (file && file.mimetype !== "application/pdf") {
     return res.status(400).json({ 
       message: `Sadece PDF dosyası yüklenebilir. Seçtiğiniz dosya: ${file.originalname} (${file.mimetype})` 
     });
@@ -180,12 +175,14 @@ export const updateCatalog = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Katalog bulunamadı" });
     }
 
-    // Eski dosyayı sil ve yeni dosyayı kaydet
-    if (catalog.filePath) {
-      const absPath = getPublicFilePath(catalog.filePath);
-      deleteFileIfExists(absPath);
+    // Eski dosyayı sil ve yeni dosyayı kaydet (sadece yeni dosya varsa)
+    if (file) {
+      if (catalog.filePath) {
+        const absPath = getPublicFilePath(catalog.filePath);
+        deleteFileIfExists(absPath);
+      }
+      catalog.filePath = `uploads/catalogs/${file.filename}`;
     }
-    catalog.filePath = `uploads/catalogs/${file.filename}`;
 
     // Çevirileri güncelle
     let parsedTranslations;

@@ -19,6 +19,12 @@ export class Product {
   @Column({ nullable: true })
   standard?: string;
 
+  @Column({ type: 'datetime', default: () => 'GETDATE()' })
+  createdAt!: Date;
+
+  @Column({ type: 'datetime', default: () => 'GETDATE()', onUpdate: 'GETDATE()' })
+  updatedAt!: Date;
+
   //Bir ürün, bir ProductGroup'a ait olabilir. (isteğe bağlı ✅)
   @ManyToOne(() => ProductGroup, group => group.products, { nullable: true, onDelete: 'SET NULL' })
   group?: ProductGroup;

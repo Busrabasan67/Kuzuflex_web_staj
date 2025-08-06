@@ -19,6 +19,12 @@ export class ProductGroup {
   @Column({ nullable: true })
   standard?: string; // Grup ile ilgili standart bilgisi (isteğe bağlı)
 
+  @Column({ type: 'datetime', default: () => 'GETDATE()' })
+  createdAt!: Date;
+
+  @Column({ type: 'datetime', default: () => 'GETDATE()', onUpdate: 'GETDATE()' })
+  updatedAt!: Date;
+
   // Her grup birden fazla ürüne sahip olabilir
   @OneToMany(() => Product, (product) => product.group)
   products!: Product[];

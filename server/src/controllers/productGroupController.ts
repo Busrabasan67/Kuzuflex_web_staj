@@ -249,6 +249,7 @@ export const updateProductGroup = async (req: Request, res: Response) => {
     existingGroup.imageUrl = imageUrl;
     existingGroup.standard = standard;
     existingGroup.slug = slug;
+    existingGroup.updatedAt = new Date(); // Manuel olarak updatedAt'i güncelle
 
     // Güncellenmiş grubu kaydet
     await groupRepo.save(existingGroup);
@@ -382,6 +383,8 @@ export const getAdminProductGroups = async (req: Request, res: Response) => {
       slug: group.slug, // SEO dostu URL slug'ı
       imageUrl: group.imageUrl, // Grup görseli
       standard: group.standard, // Grup standardı
+      createdAt: group.createdAt, // Oluşturulma tarihi
+      updatedAt: group.updatedAt, // Güncellenme tarihi
       translations: group.translations || [], // Çeviri dizisi
       productCount: group.products?.length || 0 // Alt ürün sayısı
     }));
@@ -418,6 +421,7 @@ export const updateProductGroupImage = async (req: Request, res: Response) => {
 
     // Yeni imageUrl'i kaydet
     productGroup.imageUrl = imageUrl;
+    productGroup.updatedAt = new Date(); // updatedAt'i güncelle
     await AppDataSource.getRepository(ProductGroup).save(productGroup);
 
     res.json({ 

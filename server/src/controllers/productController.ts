@@ -165,6 +165,8 @@ export const getAllProducts = async (req: Request, res: Response) => {
       groupName: product.group?.translations?.[0]?.name || "Grup yok",
       hasCatalog: product.catalogs && product.catalogs.length > 0,
       catalogCount: product.catalogs?.length || 0,
+      createdAt: product.createdAt, // Oluşturulma tarihi
+      updatedAt: product.updatedAt, // Güncellenme tarihi
     }));
 
     // Eğer sadece katalogu olan ürünler isteniyorsa filtrele
@@ -274,6 +276,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     product.standard = standard || null;
     product.slug = slug;
     product.group = group;
+    product.updatedAt = new Date(); //updatedAt'i güncelle
 
     // Ürünü kaydet
     const savedProduct = await productRepo.save(product);
@@ -462,6 +465,7 @@ export const updateProductImage = async (req: Request, res: Response) => {
 
     // Yeni imageUrl'i kaydet
     product.imageUrl = imageUrl;
+    product.updatedAt = new Date(); // Manuel olarak updatedAt'i güncelle
     await AppDataSource.getRepository(Product).save(product);
 
     console.log('✅ Product imageUrl güncellendi:', product.imageUrl);

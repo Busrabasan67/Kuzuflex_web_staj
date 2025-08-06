@@ -18,13 +18,15 @@ interface CatalogManagementModalProps {
   productId: number | null;
   onClose: () => void;
   onSuccess: () => void;
+  showToast: (type: 'success' | 'error' | 'info', message: string) => void;
 }
 
 const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
   isOpen,
   productId,
   onClose,
-  onSuccess
+  onSuccess,
+  showToast
 }) => {
   const [catalogs, setCatalogs] = useState<Catalog[]>([]);
   const [loading, setLoading] = useState(false);
@@ -39,6 +41,14 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
     { language: 'fr', name: '' }
   ]);
   const [errorModal, setErrorModal] = useState({ isOpen: false, message: '' });
+
+  // Silme modal'ı için state'ler
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingCatalog, setDeletingCatalog] = useState<Catalog | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Toast states
+
 
   // Katalogları getir
   const fetchCatalogs = async () => {
@@ -56,6 +66,8 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
       setLoading(false);
     }
   };
+
+
 
   useEffect(() => {
     if (isOpen && productId) {
@@ -82,14 +94,8 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
       return;
     }
 
-    // PDF dosyası zorunlu
-    if (!selectedFile) {
-      setErrorModal({ isOpen: true, message: 'Lütfen bir PDF dosyası seçin' });
-      return;
-    }
-
-    // PDF format kontrolü
-    if (selectedFile.type !== "application/pdf") {
+    // PDF format kontrolü (sadece yeni dosya seçildiyse)
+    if (selectedFile && selectedFile.type !== "application/pdf") {
       setErrorModal({ 
         isOpen: true, 
         message: "Lütfen sadece PDF dosyası seçin. Seçtiğiniz dosya: " + selectedFile.name 
@@ -142,13 +148,12 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
 
       // Katalogları yeniden yükle
       await fetchCatalogs();
+      showToast('success', 'Katalog başarıyla güncellendi!');
       onSuccess();
     } catch (error) {
       console.error('Katalog güncelleme hatası:', error);
-      setErrorModal({ 
-        isOpen: true, 
-        message: error instanceof Error ? error.message : 'Katalog güncellenirken hata oluştu' 
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Katalog güncellenirken hata oluştu';
+      showToast('error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -228,38 +233,53 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
 
       // Katalogları yeniden yükle
       await fetchCatalogs();
+      showToast('success', 'Katalog başarıyla eklendi!');
       onSuccess();
     } catch (error) {
       console.error('Katalog ekleme hatası:', error);
-      setErrorModal({ 
-        isOpen: true, 
-        message: error instanceof Error ? error.message : 'Katalog eklenirken hata oluştu' 
-      });
+      const errorMessage = error instanceof Error ? error.message : 'Katalog eklenirken hata oluştu';
+      showToast('error', errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Katalog sil
-  const handleDeleteCatalog = async (catalogId: number) => {
-    if (!confirm('Bu katalogu silmek istediğinizden emin misiniz?')) return;
+  // Katalog silme modal'ını aç
+  const handleDeleteClick = (catalog: Catalog) => {
+    setDeletingCatalog(catalog);
+    setShowDeleteModal(true);
+  };
+
+  // Katalog silme işlemini gerçekleştir
+  const handleDeleteConfirm = async () => {
+    if (!deletingCatalog) return;
 
     try {
-      setLoading(true);
-      const response = await fetch(`${API_BASE}/api/catalogs/${catalogId}`, {
+      setDeleteLoading(true);
+      const response = await fetch(`${API_BASE}/api/catalogs/${deletingCatalog.id}`, {
         method: 'DELETE'
       });
 
       if (!response.ok) throw new Error('Katalog silinemedi');
 
       await fetchCatalogs();
+      showToast('success', 'Katalog başarıyla silindi!');
       onSuccess();
+      setShowDeleteModal(false);
+      setDeletingCatalog(null);
     } catch (error) {
       console.error('Katalog silme hatası:', error);
-      setErrorModal({ isOpen: true, message: 'Katalog silinirken hata oluştu' });
+      const errorMessage = error instanceof Error ? error.message : 'Katalog silinirken hata oluştu';
+      showToast('error', errorMessage);
     } finally {
-      setLoading(false);
+      setDeleteLoading(false);
     }
+  };
+
+  // Silme modal'ını kapat
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setDeletingCatalog(null);
   };
 
   if (!isOpen) return null;
@@ -272,6 +292,69 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
         message={errorModal.message} 
         onClose={() => setErrorModal({ isOpen: false, message: '' })} 
       />
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && deletingCatalog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4">
+              <div className="flex items-center mb-4">
+                <div className="flex-shrink-0">
+                  <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-medium text-gray-900">Katalogu Sil</h3>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <div>
+                    <p className="font-medium text-gray-900">{deletingCatalog.name}</p>
+                    <p className="text-sm text-gray-500">{deletingCatalog.filePath}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  "<span className="font-semibold">{deletingCatalog.name}</span>" katalogunu silmek istediğinizden emin misiniz?
+                </p>
+                <p className="text-sm text-gray-600 mt-2">
+                  Bu işlem geri alınamaz ve katalog dosyası kalıcı olarak silinecektir.
+                </p>
+              </div>
+              
+              <div className="flex items-center justify-end space-x-3">
+                <button
+                  onClick={handleDeleteCancel}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleteLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Siliniyor...</span>
+                    </div>
+                  ) : (
+                    'Evet, Sil'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="px-6 py-4 border-b border-gray-200">
@@ -382,11 +465,16 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
             <div className="mb-6 p-4 border border-gray-200 rounded-lg">
               <h4 className="text-md font-medium mb-4">Katalog Düzenle</h4>
               
-                             {/* PDF Dosyası Seçimi (Zorunlu) */}
+                             {/* PDF Dosyası Seçimi (Opsiyonel - Düzenleme) */}
                <div className="mb-4">
                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                   PDF Dosyası <span className="text-red-500">*</span>
+                   PDF Dosyası <span className="text-gray-400">(Opsiyonel)</span>
                  </label>
+                 <div className="mb-2">
+                   <p className="text-sm text-gray-600 mb-2">
+                     Mevcut dosya: <span className="font-medium">{editingCatalog?.filePath}</span>
+                   </p>
+                 </div>
                  <input
                    type="file"
                    accept=".pdf"
@@ -411,7 +499,7 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                  />
                  <p className="text-xs text-gray-500 mt-1">
-                   PDF formatında dosya seçin
+                   Yeni PDF dosyası seçmezseniz mevcut dosya korunacaktır
                  </p>
                </div>
 
@@ -493,7 +581,7 @@ const CatalogManagementModal: React.FC<CatalogManagementModalProps> = ({
                         Düzenle
                       </button>
                       <button
-                        onClick={() => handleDeleteCatalog(catalog.id)}
+                        onClick={() => handleDeleteClick(catalog)}
                         className="text-red-600 hover:text-red-800 text-sm"
                       >
                         Sil
