@@ -7,7 +7,6 @@ import { Link, useNavigate } from "react-router-dom";
 interface MarketContent {
   id: number;
   type: string;
-  level: string;
   name: string;
   targetUrl: string;
   order: number;
@@ -34,6 +33,7 @@ const MarketDetail = () => {
     const fetchMarket = async () => {
       try {
         setLoading(true);
+        console.log('🔍 Market verileri getiriliyor:', { slug, language: i18n.language });
         const response = await fetch(`http://localhost:5000/api/markets/${slug}?language=${i18n.language}`);
         
         if (!response.ok) {
@@ -41,8 +41,11 @@ const MarketDetail = () => {
         }
         
         const data = await response.json();
+        console.log('📦 Market verileri alındı:', data);
+        console.log('📦 Market içerikleri:', data.contents);
         setMarket(data);
       } catch (err) {
+        console.error('❌ Market verileri alınamadı:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
@@ -88,8 +91,8 @@ const MarketDetail = () => {
     );
   }
 
-     // Group contents by type and level
-   const mainContents = market.contents.filter(content => content.level === 'main');
+     // Group contents by type
+   const mainContents = market.contents;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">

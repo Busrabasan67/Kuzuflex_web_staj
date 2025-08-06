@@ -11,6 +11,7 @@ import {
   FiSettings
 } from "react-icons/fi";
 import AddMarketModal from "./AddMarketModal";
+import EditMarketModal from "./EditMarketModal";
 
 interface Market {
   id: number;
@@ -41,6 +42,8 @@ const MarketsManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingMarketId, setEditingMarketId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchMarkets();
@@ -70,17 +73,26 @@ const MarketsManagement: React.FC = () => {
     }
 
     try {
+      console.log('🗑️ Market silme isteği gönderiliyor, ID:', id);
+      
       const response = await fetch(`http://localhost:5000/api/markets/${id}`, {
         method: 'DELETE',
       });
 
+      console.log('📤 Response status:', response.status);
+      console.log('📤 Response ok:', response.ok);
+
       if (!response.ok) {
-        throw new Error('Failed to delete market');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete market');
       }
 
+      console.log('✅ Market başarıyla silindi');
+      
       // Silinen market'i listeden kaldır
       setMarkets(markets.filter(market => market.id !== id));
     } catch (err) {
+      console.error('❌ Market silme hatası:', err);
       setError(err instanceof Error ? err.message : 'Delete failed');
     }
   };
@@ -108,6 +120,22 @@ const MarketsManagement: React.FC = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Update failed');
     }
+  };
+
+  const handleEditMarket = (marketId: number) => {
+    setEditingMarketId(marketId);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditModalOpen(false);
+    setEditingMarketId(null);
+    fetchMarkets(); // Listeyi yenile
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setEditingMarketId(null);
   };
 
   if (loading) {
@@ -297,7 +325,10 @@ const MarketsManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <button 
+                        onClick={() => handleEditMarket(market.id)}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
                         <FiEdit className="w-4 h-4" />
                       </button>
                       <button 
@@ -331,6 +362,14 @@ const MarketsManagement: React.FC = () => {
           setIsAddModalOpen(false);
           fetchMarkets(); // Listeyi yenile
         }}
+      />
+
+      {/* Edit Market Modal */}
+      <EditMarketModal
+        isOpen={isEditModalOpen}
+        marketId={editingMarketId}
+        onClose={handleEditClose}
+        onSuccess={handleEditSuccess}
       />
     </div>
   );

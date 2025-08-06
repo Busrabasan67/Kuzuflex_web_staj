@@ -2,15 +2,18 @@ import { Router } from "express";
 import { 
   getAllMarkets, 
   getMarketBySlug, 
+  getMarketById,
   createMarket, 
   updateMarket, 
   deleteMarket,
   createMarketContent,
   updateMarketContent,
   deleteMarketContent,
+  getMarketContents,
   getAvailableProductGroups,
   getAvailableSolutions,
-  updateMarketImage
+  updateMarketImage,
+  clearMarketContents
 } from "../controllers/marketController";
 
 /**
@@ -134,6 +137,32 @@ const router = Router();
  *                 $ref: '#/components/schemas/Market'
  */
 router.get("/", getAllMarkets);
+
+/**
+ * @swagger
+ * /api/markets/id/{id}:
+ *   get:
+ *     summary: Get market by ID
+ *     tags: [Markets]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Market ID
+ *     responses:
+ *       200:
+ *         description: Market details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Market'
+ *       404:
+ *         description: Market not found
+ */
+router.get("/id/:id", getMarketById);
+router.get("/:marketId/contents", getMarketContents);
 
 /**
  * @swagger
@@ -539,5 +568,37 @@ router.get("/available/solutions", getAvailableSolutions);
  *         description: Internal server error
  */
 router.put("/:id/image", updateMarketImage);
+
+/**
+ * @swagger
+ * /api/markets/{marketId}/contents/clear:
+ *   delete:
+ *     summary: Clear all contents of a market
+ *     tags: [Market Contents]
+ *     parameters:
+ *       - in: path
+ *         name: marketId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Market ID
+ *     responses:
+ *       200:
+ *         description: Market contents cleared successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 deletedCount:
+ *                   type: integer
+ *       404:
+ *         description: Market not found
+ */
+router.delete("/:marketId/contents/clear", clearMarketContents);
 
 export default router; 

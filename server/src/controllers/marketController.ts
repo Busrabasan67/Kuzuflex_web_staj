@@ -34,6 +34,13 @@ const getPublicFilePath = (relativePath: string) => {
   return path.join(__dirname, "../../public", relativePath);
 };
 
+// URL'den solution ID'sini çıkar
+const extractSolutionIdFromUrl = (url: string | undefined): number | null => {
+  if (!url) return null;
+  const match = url.match(/\/solutions\/(\d+)/);
+  return match ? parseInt(match[1]) : null;
+};
+
 const marketRepository = AppDataSource.getRepository(Market);
 const marketTranslationRepository = AppDataSource.getRepository(MarketTranslation);
 const marketContentRepository = AppDataSource.getRepository(MarketContent);
@@ -54,7 +61,7 @@ export const getAllMarkets = async (req: Request, res: Response) => {
       const translation = market.translations.find((t: MarketTranslation) => t.language === language);
       
       const contents = await Promise.all(market.contents.map(async (content: MarketContent) => {
-        let name = content.name || '';
+        let name = '';
 
         // Eğer productGroupId varsa, ProductGroup'tan isim al
         if (content.productGroupId) {
@@ -83,7 +90,6 @@ export const getAllMarkets = async (req: Request, res: Response) => {
         return {
           id: content.id,
           type: content.type,
-          level: content.level,
           name: name,
           targetUrl: content.targetUrl,
           order: content.order
@@ -116,6 +122,8 @@ export const getMarketBySlug = async (req: Request, res: Response) => {
     const { slug } = req.params;
     const { language = 'en' } = req.query;
 
+    console.log('🔍 Market getiriliyor:', { slug, language });
+
     const market = await marketRepository.findOne({
       where: { slug, isActive: true },
       relations: ['translations', 'contents', 'productGroups', 'solutions']
@@ -126,9 +134,18 @@ export const getMarketBySlug = async (req: Request, res: Response) => {
     }
 
     const translation = market.translations.find((t: MarketTranslation) => t.language === language);
+    console.log('📦 Market bulundu:', { id: market.id, slug: market.slug });
+    console.log('📦 Market çevirisi:', translation);
     
     const contents = await Promise.all(market.contents.map(async (content: MarketContent) => {
-      let name = content.name || '';
+      let name = '';
+
+      console.log('🔍 İçerik işleniyor:', { 
+        id: content.id, 
+        type: content.type, 
+        productGroupId: content.productGroupId, 
+        productId: content.productId 
+      });
 
       // Eğer productGroupId varsa, ProductGroup'tan isim al
       if (content.productGroupId) {
@@ -139,6 +156,11 @@ export const getMarketBySlug = async (req: Request, res: Response) => {
         if (productGroup) {
           const productGroupTranslation = productGroup.translations?.find((t: any) => t.language === language);
           name = productGroupTranslation?.name || '';
+          console.log('📦 ProductGroup çevirisi:', { 
+            groupId: content.productGroupId, 
+            translation: productGroupTranslation, 
+            finalName: name 
+          });
         }
       }
 
@@ -151,13 +173,43 @@ export const getMarketBySlug = async (req: Request, res: Response) => {
         if (product) {
           const productTranslation = product.translations?.find((t: any) => t.language === language);
           name = productTranslation?.title || '';
+          console.log('📦 Product çevirisi:', { 
+            productId: content.productId, 
+            translation: productTranslation, 
+            finalName: name 
+          });
+        }
+      }
+
+      // Eğer solution ise, Solution'tan isim al
+      if (content.type === 'solution') {
+        let solutionId = content.solutionId;
+        
+        // Eğer solutionId yoksa, URL'den çıkar
+        if (!solutionId) {
+          solutionId = extractSolutionIdFromUrl(content.targetUrl) || undefined;
+        }
+        
+        if (solutionId) {
+          const solution = await AppDataSource.getRepository(Solution).findOne({
+            where: { id: solutionId },
+            relations: ['translations']
+          });
+          if (solution) {
+            const solutionTranslation = solution.translations?.find((t: any) => t.language === language);
+            name = solutionTranslation?.title || '';
+            console.log('📦 Solution çevirisi:', { 
+              solutionId, 
+              translation: solutionTranslation, 
+              finalName: name 
+            });
+          }
         }
       }
 
       return {
         id: content.id,
         type: content.type,
-        level: content.level,
         name: name,
         targetUrl: content.targetUrl,
         order: content.order
@@ -186,10 +238,53 @@ export const getMarketBySlug = async (req: Request, res: Response) => {
   }
 };
 
+// Market ID ile getirme endpoint'i
+export const getMarketById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const market = await marketRepository.findOne({
+      where: { id: parseInt(id) },
+      relations: ['translations']
+    });
+
+    if (!market) {
+      return res.status(404).json({ error: 'Market not found' });
+    }
+
+    // Market verilerini hazırla
+    const marketData = {
+      id: market.id,
+      slug: market.slug,
+      imageUrl: market.imageUrl ? (market.imageUrl.startsWith('/') ? market.imageUrl : `/${market.imageUrl}`) : null,
+      order: market.order,
+      isActive: market.isActive,
+      hasProducts: market.hasProducts,
+      hasSolutions: market.hasSolutions,
+      hasCertificates: market.hasCertificates,
+      translations: market.translations || []
+    };
+
+    res.json(marketData);
+  } catch (error) {
+    console.error('Error getting market by ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Market oluşturma sonrası otomatik içerik ekleme
 const createDefaultMarketContents = async (marketId: number, hasProducts: boolean, hasSolutions: boolean, hasCertificates: boolean, selectedProductGroups?: number[], selectedProducts?: number[], selectedSolutions?: number[]) => {
   try {
     console.log('🔧 Market için otomatik içerikler oluşturuluyor...');
+    console.log('📊 Parametreler:', {
+      marketId,
+      hasProducts,
+      hasSolutions,
+      hasCertificates,
+      selectedProductGroups,
+      selectedProducts,
+      selectedSolutions
+    });
     
     const contents = [];
     let order = 1;
@@ -198,8 +293,6 @@ const createDefaultMarketContents = async (marketId: number, hasProducts: boolea
     if (hasCertificates) {
       contents.push({
         type: 'certificate',
-        level: 'main',
-        name: 'Certificates',
         targetUrl: '/qm-documents',
         order: order++
       });
@@ -208,8 +301,6 @@ const createDefaultMarketContents = async (marketId: number, hasProducts: boolea
     // İletişim her zaman eklenir
     contents.push({
       type: 'contact',
-      level: 'main',
-      name: 'Contact Us',
       targetUrl: '/iletisim',
       order: order++
     });
@@ -238,8 +329,6 @@ const createDefaultMarketContents = async (marketId: number, hasProducts: boolea
         if (translation) {
           contents.push({
             type: 'product',
-            level: 'main',
-            name: translation.name,
             targetUrl: `/products/${group.slug}`,
             productGroupId: group.id,
             order: order++
@@ -249,24 +338,42 @@ const createDefaultMarketContents = async (marketId: number, hasProducts: boolea
 
       // Alt ürünler varsa ekle
       if (selectedProducts && selectedProducts.length > 0) {
+        console.log('🔍 Alt ürünler işleniyor:', selectedProducts);
+        
         const products = await productRepository.find({
           where: { id: In(selectedProducts) },
-          relations: ['translations']
+          relations: ['translations', 'group']
         });
 
+        console.log('📦 Bulunan ürünler:', products.length);
+        
         for (const product of products) {
           const translation = product.translations?.find(t => t.language === 'en');
-          if (translation) {
+          console.log('🔍 Ürün işleniyor:', {
+            id: product.id,
+            slug: product.slug,
+            groupSlug: product.group?.slug,
+            translation: translation?.title
+          });
+          
+          if (translation && product.group?.slug && product.slug) {
             contents.push({
               type: 'product',
-              level: 'sub',
-              name: translation.title,
-              targetUrl: `/products/${product.group?.slug}/${product.slug}`,
+              targetUrl: `/products/${product.group.slug}/${product.slug}`,
               productId: product.id,
               order: order++
             });
+            console.log('✅ Ürün içeriği eklendi:', product.slug);
+          } else {
+            console.log('❌ Ürün eklenmedi - eksik veri:', {
+              hasTranslation: !!translation,
+              hasGroupSlug: !!product.group?.slug,
+              hasSlug: !!product.slug
+            });
           }
         }
+      } else {
+        console.log('⚠️ Alt ürün seçimi yok veya boş');
       }
     }
 
@@ -292,9 +399,8 @@ const createDefaultMarketContents = async (marketId: number, hasProducts: boolea
         if (translation) {
           contents.push({
             type: 'solution',
-            level: 'main',
-            name: translation.title,
             targetUrl: `/solutions/${solution.slug}`,
+            solutionId: solution.id,
             order: order++
           });
         }
@@ -305,15 +411,21 @@ const createDefaultMarketContents = async (marketId: number, hasProducts: boolea
     for (const contentData of contents) {
       const content = new MarketContent();
       content.type = contentData.type;
-      content.level = contentData.level;
-      content.name = contentData.name;
       content.targetUrl = contentData.targetUrl;
       content.productGroupId = contentData.productGroupId;
+      content.productId = contentData.productId;
+      content.solutionId = contentData.solutionId;
       content.order = contentData.order;
       content.market = { id: marketId } as Market;
 
       await marketContentRepository.save(content);
-      console.log(`✅ İçerik eklendi: ${contentData.name}`);
+      console.log(`✅ İçerik eklendi: ${contentData.type}`, {
+        type: contentData.type,
+        productGroupId: contentData.productGroupId,
+        productId: contentData.productId,
+        solutionId: contentData.solutionId,
+        targetUrl: contentData.targetUrl
+      });
     }
 
     console.log(`✅ Toplam ${contents.length} içerik eklendi`);
@@ -386,7 +498,17 @@ export const createMarket = async (req: Request, res: Response) => {
 export const updateMarket = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { slug, imageUrl, order, hasProducts, hasSolutions, hasCertificates, translations } = req.body;
+    const { slug, imageUrl, order, hasProducts, hasSolutions, hasCertificates, translations, selectedProductGroups, selectedProducts, selectedSolutions } = req.body;
+
+    console.log('📥 Market güncelleme isteği:', {
+      id,
+      hasProducts,
+      hasSolutions,
+      hasCertificates,
+      selectedProductGroups,
+      selectedProducts,
+      selectedSolutions
+    });
 
     const market = await marketRepository.findOne({
       where: { id: parseInt(id) },
@@ -420,6 +542,26 @@ export const updateMarket = async (req: Request, res: Response) => {
     }
 
     const updatedMarket = await marketRepository.save(market);
+
+    // İçerik seçimleri varsa, mevcut içerikleri sil ve yenilerini oluştur
+    if (selectedProductGroups !== undefined || selectedProducts !== undefined || selectedSolutions !== undefined) {
+      console.log('🔄 Market içerikleri güncelleniyor...');
+      
+      // Mevcut içerikleri sil
+      await marketContentRepository.delete({ market: { id: market.id } });
+      
+      // Yeni içerikleri oluştur
+      await createDefaultMarketContents(
+        market.id,
+        hasProducts,
+        hasSolutions,
+        hasCertificates,
+        selectedProductGroups,
+        selectedProducts,
+        selectedSolutions
+      );
+    }
+
     res.json(updatedMarket);
   } catch (error) {
     console.error('Error updating market:', error);
@@ -431,18 +573,46 @@ export const deleteMarket = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
+    console.log('🗑️ Market silme işlemi başlatıldı, ID:', id);
+    
     const market = await marketRepository.findOne({
-      where: { id: parseInt(id) }
+      where: { id: parseInt(id) },
+      relations: ['translations', 'contents']
     });
 
     if (!market) {
       return res.status(404).json({ error: 'Market not found' });
     }
 
+    console.log('🔍 Market bulundu:', market.id, market.slug);
+
+    // 1. Önce market translations'ları sil
+    if (market.translations && market.translations.length > 0) {
+      console.log('🗑️ Market translations siliniyor...');
+      await marketTranslationRepository.delete({ market: { id: market.id } });
+    }
+
+    // 2. Market contents'leri sil
+    if (market.contents && market.contents.length > 0) {
+      console.log('🗑️ Market contents siliniyor...');
+      await marketContentRepository.delete({ market: { id: market.id } });
+    }
+
+    // 3. Market resmini sil (eğer varsa)
+    if (market.imageUrl) {
+      console.log('🗑️ Market resmi siliniyor:', market.imageUrl);
+      const imagePath = getPublicFilePath(market.imageUrl);
+      deleteFileIfExists(imagePath);
+    }
+
+    // 4. Market'i sil
+    console.log('🗑️ Market siliniyor...');
     await marketRepository.remove(market);
+    
+    console.log('✅ Market başarıyla silindi');
     res.json({ message: 'Market deleted successfully' });
   } catch (error) {
-    console.error('Error deleting market:', error);
+    console.error('❌ Market silme hatası:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -451,7 +621,7 @@ export const deleteMarket = async (req: Request, res: Response) => {
 export const createMarketContent = async (req: Request, res: Response) => {
   try {
     const { marketId } = req.params;
-    const { type, level, name, targetUrl, productGroupId, productId, order } = req.body;
+    const { type, targetUrl, productGroupId, productId, order } = req.body;
 
     const market = await marketRepository.findOne({
       where: { id: parseInt(marketId) }
@@ -463,8 +633,6 @@ export const createMarketContent = async (req: Request, res: Response) => {
 
     const content = new MarketContent();
     content.type = type;
-    content.level = level;
-    content.name = name;
     content.targetUrl = targetUrl;
     content.productGroupId = productGroupId;
     content.productId = productId;
@@ -482,7 +650,7 @@ export const createMarketContent = async (req: Request, res: Response) => {
 export const updateMarketContent = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { type, level, name, targetUrl, productGroupId, productId, order } = req.body;
+    const { type, targetUrl, productGroupId, productId, order } = req.body;
 
     const content = await marketContentRepository.findOne({
       where: { id: parseInt(id) }
@@ -493,8 +661,6 @@ export const updateMarketContent = async (req: Request, res: Response) => {
     }
 
     content.type = type || content.type;
-    content.level = level || content.level;
-    content.name = name || content.name;
     content.targetUrl = targetUrl || content.targetUrl;
     content.productGroupId = productGroupId || content.productGroupId;
     content.productId = productId || content.productId;
@@ -527,6 +693,23 @@ export const deleteMarketContent = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 }; 
+
+// Market içeriklerini getir
+export const getMarketContents = async (req: Request, res: Response) => {
+  try {
+    const { marketId } = req.params;
+    
+    const contents = await marketContentRepository.find({
+      where: { market: { id: parseInt(marketId) } },
+      order: { order: 'ASC' }
+    });
+
+    res.json(contents);
+  } catch (error) {
+    console.error('Error fetching market contents:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 // Mevcut ürün gruplarını getir - Mevcut controller fonksiyonunu kullan
 export const getAvailableProductGroups = async (req: Request, res: Response) => {
@@ -584,6 +767,31 @@ export const updateMarketImage = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error updating market image:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Market içeriklerini temizleme endpoint'i
+export const clearMarketContents = async (req: Request, res: Response) => {
+  try {
+    const { marketId } = req.params;
+    
+    console.log('🗑️ Market içerikleri temizleniyor, Market ID:', marketId);
+    
+    // Belirli market'in tüm içeriklerini sil
+    const deletedCount = await marketContentRepository.delete({
+      market: { id: parseInt(marketId) }
+    });
+    
+    console.log(`✅ ${deletedCount.affected} adet market içeriği silindi`);
+    
+    res.json({
+      success: true,
+      message: `Market içerikleri başarıyla temizlendi. ${deletedCount.affected} adet içerik silindi.`,
+      deletedCount: deletedCount.affected
+    });
+  } catch (error) {
+    console.error('❌ Market içerikleri temizlenirken hata:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }; 
