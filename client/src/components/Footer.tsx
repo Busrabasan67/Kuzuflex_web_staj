@@ -17,6 +17,7 @@ interface MarketFooter {
   slug: string;
   name: string;
   order: number;
+  isActive: boolean;
 }
 
 const Footer = () => {
@@ -47,13 +48,16 @@ const Footer = () => {
     fetch(`http://localhost:5000/api/markets?language=${i18n.language}`)
       .then((res) => res.json())
       .then((data) => {
-        // Sadece gerekli alanları al
-        const marketsData = data.map((m: any) => ({ 
-          id: m.id, 
-          slug: m.slug, 
-          name: m.name, 
-          order: m.order 
-        }));
+        // Sadece gerekli alanları al ve sadece aktif marketleri filtrele
+        const marketsData = data
+          .filter((m: any) => m.isActive) // Sadece aktif marketleri al
+          .map((m: any) => ({ 
+            id: m.id, 
+            slug: m.slug, 
+            name: m.name, 
+            order: m.order,
+            isActive: m.isActive
+          }));
         setMarkets(marketsData);
       })
       .catch((err) => console.error("Footer markets alınamadı:", err));

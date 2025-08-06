@@ -163,10 +163,15 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
           selectedProducts.push(content.productId);
         }
         if (content.type === 'solution') {
-          // Solution ID'sini URL'den çıkar
-          const solutionId = extractSolutionIdFromUrl(content.targetUrl);
-          if (solutionId) {
-            selectedSolutions.push(solutionId);
+          // Artık solutionId alanı var, URL'den çıkarmaya gerek yok
+          if (content.solutionId) {
+            selectedSolutions.push(content.solutionId);
+          } else {
+            // Fallback: URL'den çıkar (eski veriler için)
+            const solutionId = extractSolutionIdFromUrl(content.targetUrl);
+            if (solutionId) {
+              selectedSolutions.push(solutionId);
+            }
           }
         }
       });
@@ -285,25 +290,6 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
   // Çeviri alanları değişikliklerini handle et
   const handleTranslationChange = (idx: number, field: 'name' | 'description', value: string) => {
     setTranslations(prev => prev.map((tr, i) => i === idx ? { ...tr, [field]: value } : tr));
-    
-    // Türkçe başlık değiştiğinde otomatik slug oluştur
-    if (field === 'name' && idx === 0) { // Türkçe (ilk dil)
-      const turkishName = value;
-      const autoSlug = turkishName
-        .toLowerCase()
-        .replace(/ğ/g, 'g')
-        .replace(/ü/g, 'u')
-        .replace(/ş/g, 's')
-        .replace(/ı/g, 'i')
-        .replace(/ö/g, 'o')
-        .replace(/ç/g, 'c')
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-      
-      setForm(prev => ({ ...prev, slug: autoSlug }));
-    }
   };
 
   // Dosya seçimi
@@ -531,7 +517,7 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">SEO dostu URL kısmı (otomatik oluşturulur)</p>
+              <p className="text-xs text-gray-500 mt-1">SEO dostu URL kısmı (zorunlu)</p>
             </div>
 
             {/* Sıra */}

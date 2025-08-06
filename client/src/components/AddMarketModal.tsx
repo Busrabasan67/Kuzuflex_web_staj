@@ -118,10 +118,6 @@ const AddMarketModal: React.FC<AddMarketModalProps> = ({ isOpen, onClose, onMark
     const newTranslations = [...translations];
     newTranslations[index] = { ...newTranslations[index], [field]: value };
     setTranslations(newTranslations);
-
-    if (field === 'name' && newTranslations[index].language === 'tr') {
-      setForm(prev => ({ ...prev, slug: generateSlug(value) }));
-    }
   };
 
   // Dosya seçimi
@@ -162,13 +158,20 @@ const AddMarketModal: React.FC<AddMarketModalProps> = ({ isOpen, onClose, onMark
   // Form gönderimi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Slug validasyonu
+    if (!form.slug.trim()) {
+      setError("Slug alanı zorunludur!");
+      return;
+    }
+    
     setIsSubmitting(true);
     setError(null);
 
     try {
       // Önce market'i oluştur (resim olmadan)
       const marketData = {
-        slug: form.slug,
+        slug: form.slug.trim(),
         imageUrl: '', // Başlangıçta boş
         order: parseInt(form.order.toString()),
         hasProducts: form.hasProducts,
@@ -300,20 +303,7 @@ const AddMarketModal: React.FC<AddMarketModalProps> = ({ isOpen, onClose, onMark
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Market Adı (Türkçe) *
-                </label>
-                <input
-                  type="text"
-                  placeholder="Örn: Gaz Uygulamaları"
-                  value={translations.find(t => t.language === 'tr')?.name || ''}
-                  onChange={(e) => handleTranslationChange(0, 'name', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  URL Slug *
+                  URL Slug <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -323,10 +313,8 @@ const AddMarketModal: React.FC<AddMarketModalProps> = ({ isOpen, onClose, onMark
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">SEO dostu URL kısmı (zorunlu)</p>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Sıralama
@@ -338,6 +326,9 @@ const AddMarketModal: React.FC<AddMarketModalProps> = ({ isOpen, onClose, onMark
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Market Görseli
@@ -357,6 +348,9 @@ const AddMarketModal: React.FC<AddMarketModalProps> = ({ isOpen, onClose, onMark
                     </span>
                   </label>
                 </div>
+              </div>
+              <div>
+                {/* Boş alan - gelecekte başka bir alan eklenebilir */}
               </div>
             </div>
           </div>

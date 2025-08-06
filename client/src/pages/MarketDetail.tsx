@@ -18,6 +18,7 @@ interface MarketDetail {
   name: string;
   description: string;
   imageUrl?: string;
+  isActive: boolean;
   contents: MarketContent[];
 }
 
@@ -43,6 +44,7 @@ const MarketDetail = () => {
         const data = await response.json();
         console.log('📦 Market verileri alındı:', data);
         console.log('📦 Market içerikleri:', data.contents);
+        
         setMarket(data);
       } catch (err) {
         console.error('❌ Market verileri alınamadı:', err);

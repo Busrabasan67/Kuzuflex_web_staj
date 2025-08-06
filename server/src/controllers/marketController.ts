@@ -51,8 +51,11 @@ export const getAllMarkets = async (req: Request, res: Response) => {
   try {
     const { language = 'en' } = req.query;
     
+    // Admin paneli için tüm marketleri getir (isActive filtresi olmadan)
+    const isAdmin = req.query.admin === 'true';
+    
     const markets = await marketRepository.find({
-      where: { isActive: true },
+      where: isAdmin ? {} : { isActive: true },
       relations: ['translations', 'contents'],
       order: { order: 'ASC' }
     });
@@ -101,6 +104,7 @@ export const getAllMarkets = async (req: Request, res: Response) => {
         slug: market.slug,
         imageUrl: market.imageUrl ? (market.imageUrl.startsWith('/') ? market.imageUrl : `/${market.imageUrl}`) : null,
         order: market.order,
+        isActive: market.isActive,
         hasProducts: market.hasProducts,
         hasSolutions: market.hasSolutions,
         hasCertificates: market.hasCertificates,
@@ -125,7 +129,7 @@ export const getMarketBySlug = async (req: Request, res: Response) => {
     console.log('🔍 Market getiriliyor:', { slug, language });
 
     const market = await marketRepository.findOne({
-      where: { slug, isActive: true },
+      where: { slug },
       relations: ['translations', 'contents', 'productGroups', 'solutions']
     });
 
@@ -498,7 +502,7 @@ export const createMarket = async (req: Request, res: Response) => {
 export const updateMarket = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { slug, imageUrl, order, hasProducts, hasSolutions, hasCertificates, translations, selectedProductGroups, selectedProducts, selectedSolutions } = req.body;
+    const { slug, imageUrl, order, isActive, hasProducts, hasSolutions, hasCertificates, translations, selectedProductGroups, selectedProducts, selectedSolutions } = req.body;
 
     console.log('📥 Market güncelleme isteği:', {
       id,
@@ -522,6 +526,7 @@ export const updateMarket = async (req: Request, res: Response) => {
     market.slug = slug || market.slug;
     market.imageUrl = imageUrl || market.imageUrl;
     market.order = order !== undefined ? order : market.order;
+    market.isActive = isActive !== undefined ? isActive : market.isActive;
     market.hasProducts = hasProducts !== undefined ? hasProducts : market.hasProducts;
     market.hasSolutions = hasSolutions !== undefined ? hasSolutions : market.hasSolutions;
     market.hasCertificates = hasCertificates !== undefined ? hasCertificates : market.hasCertificates;
@@ -703,6 +708,15 @@ export const getMarketContents = async (req: Request, res: Response) => {
       where: { market: { id: parseInt(marketId) } },
       order: { order: 'ASC' }
     });
+
+    console.log(' Market contents fetched:', contents.map(c => ({
+      id: c.id,
+      type: c.type,
+      productGroupId: c.productGroupId,
+      productId: c.productId,
+      solutionId: c.solutionId,
+      targetUrl: c.targetUrl
+    })));
 
     res.json(contents);
   } catch (error) {

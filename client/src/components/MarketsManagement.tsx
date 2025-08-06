@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import AddMarketModal from "./AddMarketModal";
 import EditMarketModal from "./EditMarketModal";
+import DeleteMarketModal from "./DeleteMarketModal";
 
 interface Market {
   id: number;
@@ -43,7 +44,17 @@ const MarketsManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editingMarketId, setEditingMarketId] = useState<number | null>(null);
+  const [deletingMarket, setDeletingMarket] = useState<Market | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Toast states
+  const [toast, setToast] = useState<{
+    show: boolean;
+    type: 'success' | 'error' | 'info';
+    message: string;
+  }>({ show: false, type: 'info', message: '' });
 
   useEffect(() => {
     fetchMarkets();
@@ -52,13 +63,15 @@ const MarketsManagement: React.FC = () => {
   const fetchMarkets = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/markets?language=${i18n.language}`);
+      const response = await fetch(`http://localhost:5000/api/markets?language=${i18n.language}&admin=true`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch markets');
       }
       
       const data = await response.json();
+      console.log(' API\'den gelen market verileri:', data);
+      console.log(' İlk market örneği:', data[0]);
       setMarkets(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -67,15 +80,26 @@ const MarketsManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteMarket = async (id: number) => {
-    if (!window.confirm('Bu market\'i silmek istediğinizden emin misiniz?')) {
-      return;
-    }
+  const showToast = (type: 'success' | 'error' | 'info', message: string) => {
+    setToast({ show: true, type, message });
+    setTimeout(() => {
+      setToast({ show: false, type: 'info', message: '' });
+    }, 4000);
+  };
+
+  const handleDeleteMarket = (market: Market) => {
+    setDeletingMarket(market);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingMarket) return;
 
     try {
-      console.log('🗑️ Market silme isteği gönderiliyor, ID:', id);
+      setIsDeleting(true);
+      console.log('🗑️ Market silme isteği gönderiliyor, ID:', deletingMarket.id);
       
-      const response = await fetch(`http://localhost:5000/api/markets/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/markets/${deletingMarket.id}`, {
         method: 'DELETE',
       });
 
@@ -89,16 +113,34 @@ const MarketsManagement: React.FC = () => {
 
       console.log('✅ Market başarıyla silindi');
       
+      // Toast bildirimi
+      showToast("success", `${deletingMarket.name} market'i başarıyla silindi.`);
+      
       // Silinen market'i listeden kaldır
-      setMarkets(markets.filter(market => market.id !== id));
+      setMarkets(markets.filter(market => market.id !== deletingMarket.id));
+      
+      // Modal'ı kapat
+      setIsDeleteModalOpen(false);
+      setDeletingMarket(null);
     } catch (err) {
       console.error('❌ Market silme hatası:', err);
-      setError(err instanceof Error ? err.message : 'Delete failed');
+      const errorMessage = err instanceof Error ? err.message : 'Delete failed';
+      setError(errorMessage);
+      showToast("error", `Market silinirken hata oluştu: ${errorMessage}`);
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false);
+    setDeletingMarket(null);
   };
 
   const handleToggleActive = async (id: number, currentStatus: boolean) => {
     try {
+      console.log('🔄 Market durumu değiştiriliyor:', { id, currentStatus, newStatus: !currentStatus });
+      
       const response = await fetch(`http://localhost:5000/api/markets/${id}`, {
         method: 'PUT',
         headers: {
@@ -109,16 +151,30 @@ const MarketsManagement: React.FC = () => {
         }),
       });
 
+      console.log('📤 Response status:', response.status);
+      console.log('📤 Response ok:', response.ok);
+
       if (!response.ok) {
-        throw new Error('Failed to update market');
+        const errorData = await response.json();
+        console.error('❌ API Error:', errorData);
+        throw new Error(errorData.message || 'Failed to update market');
       }
+
+      const result = await response.json();
+      console.log('✅ Market güncellendi:', result);
 
       // Market'i güncelle
       setMarkets(markets.map(market => 
         market.id === id ? { ...market, isActive: !currentStatus } : market
       ));
+      
+      // Toast bildirimi
+      showToast("success", `Market başarıyla ${!currentStatus ? 'aktif' : 'pasif'} hale getirildi.`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Update failed');
+      console.error('❌ Toggle hatası:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Update failed';
+      setError(errorMessage);
+      showToast("error", `Market durumu güncellenirken hata oluştu: ${errorMessage}`);
     }
   };
 
@@ -131,6 +187,7 @@ const MarketsManagement: React.FC = () => {
     setIsEditModalOpen(false);
     setEditingMarketId(null);
     fetchMarkets(); // Listeyi yenile
+    showToast("success", "Market başarıyla güncellendi.");
   };
 
   const handleEditClose = () => {
@@ -303,6 +360,7 @@ const MarketsManagement: React.FC = () => {
                         </>
                       )}
                     </button>
+
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div className="flex space-x-2">
@@ -332,7 +390,7 @@ const MarketsManagement: React.FC = () => {
                         <FiEdit className="w-4 h-4" />
                       </button>
                       <button 
-                        onClick={() => handleDeleteMarket(market.id)}
+                        onClick={() => handleDeleteMarket(market)}
                         className="text-red-600 hover:text-red-900"
                       >
                         <FiTrash2 className="w-4 h-4" />
@@ -361,6 +419,7 @@ const MarketsManagement: React.FC = () => {
         onMarketAdded={() => {
           setIsAddModalOpen(false);
           fetchMarkets(); // Listeyi yenile
+          showToast("success", "Yeni market başarıyla eklendi.");
         }}
       />
 
@@ -371,6 +430,59 @@ const MarketsManagement: React.FC = () => {
         onClose={handleEditClose}
         onSuccess={handleEditSuccess}
       />
+
+      {/* Delete Market Modal */}
+      <DeleteMarketModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        market={deletingMarket}
+        isLoading={isDeleting}
+      />
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`rounded-lg shadow-lg p-4 max-w-sm transform transition-all duration-300 ${
+            toast.type === 'success' 
+              ? 'bg-green-500 text-white' 
+              : toast.type === 'error' 
+              ? 'bg-red-500 text-white' 
+              : 'bg-blue-500 text-white'
+          }`}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                {toast.type === 'success' ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : toast.type === 'error' ? (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium">{toast.message}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  onClick={() => setToast({ show: false, type: 'info', message: '' })}
+                  className="inline-flex text-white hover:text-gray-200 focus:outline-none"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

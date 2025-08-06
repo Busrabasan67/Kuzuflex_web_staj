@@ -391,7 +391,7 @@ const AdminProductGroups = () => {
             <form onSubmit={handleSubmit}>
               {/* Ortak Alanlar */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL) <span className="text-red-500">*</span></label>
                 <input
                   type="text"
                   name="slug"
@@ -401,7 +401,7 @@ const AdminProductGroups = () => {
                   placeholder="metal-hortumlar"
                   required
                 />
-                <p className="text-xs text-gray-500">SEO dostu URL kısmı (otomatik oluşturulur)</p>
+                <p className="text-xs text-gray-500">SEO dostu URL kısmı (zorunlu)</p>
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Görsel Yolu</label>
