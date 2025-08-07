@@ -9,6 +9,8 @@ interface Solution {
   slug: string;
   description: string;
   hasExtraContent: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const SolutionManagement: React.FC = () => {
@@ -372,7 +374,7 @@ const SolutionManagement: React.FC = () => {
             </p>
           </div>
           
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-w-full">
             {filteredSolutions.length === 0 ? (
               <div className="text-center py-12">
                 <div className="mx-auto h-24 w-24 text-gray-300 mb-4">
@@ -391,28 +393,34 @@ const SolutionManagement: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="w-full divide-y divide-gray-200 table-fixed">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                       ID
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                       Görsel
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56">
                       Başlık
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
                       Slug
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-80">
                       Açıklama
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                       Ekstra İçerik
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
+                      Oluşturulma
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
+                      Güncelleme
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
                       İşlemler
                     </th>
                   </tr>
@@ -420,44 +428,44 @@ const SolutionManagement: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredSolutions.map((solution) => (
                     <tr key={solution.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap w-16">
+                      <td className="px-4 py-4 whitespace-nowrap w-20">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 font-mono">
                           #{solution.id}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap w-20">
+                      <td className="px-4 py-4 whitespace-nowrap w-24">
                         {solution.imageUrl ? (
                           <img 
                             src={`http://localhost:5000${solution.imageUrl}`} 
                             alt={solution.title}
-                            className="h-12 w-12 object-cover rounded-lg border border-gray-200"
+                            className="h-14 w-14 object-cover rounded-lg border border-gray-200"
                           />
                         ) : (
-                          <div className="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="h-14 w-14 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <svg className="h-7 w-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap w-48">
+                      <td className="px-4 py-4 whitespace-nowrap w-56">
                         <div className="text-sm font-medium text-gray-900">
                           {solution.title}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap w-32">
+                      <td className="px-4 py-4 whitespace-nowrap w-40">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 font-mono">
                           {solution.slug}
                         </span>
                       </td>
-                      <td className="px-6 py-4 w-64">
-                        <div className="max-w-xs">
+                      <td className="px-4 py-4 w-80">
+                        <div className="max-w-full">
                           <p className="text-sm text-gray-900 line-clamp-2 leading-relaxed">
                             {solution.description || 'Açıklama bulunmuyor'}
                           </p>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap w-24">
+                      <td className="px-4 py-4 whitespace-nowrap w-28">
                         {solution.hasExtraContent ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -474,7 +482,33 @@ const SolutionManagement: React.FC = () => {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-32">
+                      <td className="px-4 py-4 whitespace-nowrap w-36">
+                        <div className="text-xs text-gray-600">
+                          <div className="font-medium">
+                            {new Date(solution.createdAt).toLocaleDateString('tr-TR')}
+                          </div>
+                          <div className="text-gray-500">
+                            {new Date(solution.createdAt).toLocaleTimeString('tr-TR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap w-36">
+                        <div className="text-xs text-gray-600">
+                          <div className="font-medium">
+                            {new Date(solution.updatedAt).toLocaleDateString('tr-TR')}
+                          </div>
+                          <div className="text-gray-500">
+                            {new Date(solution.updatedAt).toLocaleTimeString('tr-TR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium w-36">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEditSolution(solution)}

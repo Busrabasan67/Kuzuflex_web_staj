@@ -4,6 +4,8 @@ import {
     Column,
     OneToMany,
     ManyToOne,
+    CreateDateColumn,
+    UpdateDateColumn,
   } from "typeorm";
   import { SolutionTranslation } from "./SolutionTranslation";
   import { SolutionExtraContent } from "./SolutionExtraContent";
@@ -32,5 +34,11 @@ import {
    // Her çözüm bir market'e ait olabilir (opsiyonel)
    @ManyToOne(() => Market, (market) => market.solutions, { nullable: true })
    market?: Market;
+
+   @CreateDateColumn({ type: "datetime" })
+   createdAt!: Date;
+
+   @UpdateDateColumn({ type: "datetime" })
+   updatedAt!: Date;
   }
   

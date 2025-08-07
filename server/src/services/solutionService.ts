@@ -106,6 +106,8 @@ export class SolutionService {
         description: item.description,
         imageUrl: item.solution.imageUrl,
         hasExtraContent: item.solution.hasExtraContent,
+        createdAt: item.solution.createdAt,
+        updatedAt: item.solution.updatedAt,
       }));
     } catch (error) {
       throw new Error(`Admin solution'ları getirilemedi: ${error instanceof Error ? error.message : String(error)}`);
@@ -241,6 +243,7 @@ export class SolutionService {
       solution.slug = data.slug || solution.slug;
       solution.imageUrl = data.imageUrl || solution.imageUrl;
       solution.hasExtraContent = data.hasExtraContent !== undefined ? data.hasExtraContent : solution.hasExtraContent;
+      solution.updatedAt = new Date(); // Manuel olarak güncelle
 
       await this.solutionRepo.save(solution);
 

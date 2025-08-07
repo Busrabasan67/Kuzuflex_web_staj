@@ -21,7 +21,8 @@ import {
 } from "react-icons/fi";
 
 const AdminPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");  // admin panelinin başlangıçta hangi taba açılacağını belirler. 
+  const [activeTab, setActiveTab] = useState("dashboard");  // admin panelinin başlangıçta hangi taba açılacağını belirler.
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar açık/kapalı durumu 
 
   const tabs = [
     { id: "dashboard", name: "Dashboard", icon: FiHome },
@@ -37,47 +38,23 @@ const AdminPanel: React.FC = () => {
     switch (activeTab) {
       case "dashboard":
         return (
-          <div className="p-6">
+          <div>
             <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
             <p>Hoş geldiniz! Buradan sitenizi yönetebilirsiniz.</p>
           </div>
         );
       case "markets":
-        return (
-          <div className="p-6">
-            <MarketsManagement />
-          </div>
-        );
+        return <MarketsManagement />;
       case "products":
-        return (
-          <div className="p-6">
-            <AdminProducts />
-          </div>
-        );
+        return <AdminProducts />;
       case "product-groups":
-        return (
-          <div className="p-6">
-            <AdminProductGroups />
-          </div>
-        );
+        return <AdminProductGroups />;
       case "solutions":
-        return (
-          <div className="p-6">
-            <SolutionManagement />
-          </div>
-        );
+        return <SolutionManagement />;
       case "solution-extra-content":
-        return (
-          <div className="p-6">
-            <ExtraContentManagement />
-          </div>
-        );
+        return <ExtraContentManagement />;
       case "qm-documents":
-        return (
-          <div className="p-6">
-            <QMDocumentsManagement />
-          </div>
-        );
+        return <QMDocumentsManagement />;
       default:
         return null;
     }
@@ -86,45 +63,81 @@ const AdminPanel: React.FC = () => {
   return (
     <div className="flex h-full">
       {/* Tab Menüsü - Mavi Renk */}
-      <div className="w-64 bg-gradient-to-b from-blue-900 to-blue-800 text-white shadow-xl">
-        <div className="p-6 border-b border-blue-700">
-          <div className="flex items-center space-x-3">
-            <div className="bg-white/10 p-2 rounded-lg">
-              <span className="text-xl">📦</span>
+      <div className={`${
+        sidebarOpen ? 'w-64' : 'w-16'
+      } bg-gradient-to-b from-blue-900 to-blue-800 text-white shadow-xl transition-all duration-300 overflow-hidden`}>
+        <div className={`${sidebarOpen ? 'p-4' : 'p-2'} border-b border-blue-700`}>
+          <div className={`flex items-center ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
+            <div className="flex items-center space-x-3">
+              <div className="bg-white/10 p-2 rounded-lg">
+                <span className="text-xl">📦</span>
+              </div>
+              {sidebarOpen && (
+                <div>
+                  <h2 className="text-lg font-bold">Kuzuflex</h2>
+                  <p className="text-blue-200 text-xs">Admin Panel</p>
+                </div>
+              )}
             </div>
-            <div>
-              <h2 className="text-xl font-bold">Kuzuflex</h2>
-              <p className="text-blue-200 text-xs">Admin Panel</p>
-            </div>
+            
+            {/* Toggle Button - Sidebar içinde */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className={`${sidebarOpen ? '' : 'mt-1'} p-2 rounded-lg hover:bg-white/10 transition-all duration-200`}
+              title={sidebarOpen ? 'Sidebar\'ı daralt' : 'Sidebar\'ı genişlet'}
+            >
+              {sidebarOpen ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
         
-        <div className="p-4">
-          <nav className="space-y-2">
-                         {tabs.map((tab) => {
-               const Icon = tab.icon;
-               return (
-                 <button
-                   key={tab.id}
-                   onClick={() => setActiveTab(tab.id)}
-                   className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 ${
-                     activeTab === tab.id
-                       ? "bg-white/20 text-white shadow-lg"
-                       : "text-blue-100 hover:bg-white/10 hover:text-white"
-                   }`}
-                 >
-                   <Icon className="mr-3 text-lg" />
-                   <span className="font-medium">{tab.name}</span>
-                 </button>
-               );
-             })}
+        <div className={`${sidebarOpen ? 'p-3' : 'p-2'}`}>
+          <nav className="space-y-1">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center ${
+                    sidebarOpen ? 'px-3 py-2.5' : 'px-2 py-2.5 justify-center'
+                  } text-left rounded-lg transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? "bg-white/20 text-white shadow-md"
+                      : "text-blue-100 hover:bg-white/10 hover:text-white"
+                  }`}
+                  title={sidebarOpen ? '' : tab.name}
+                >
+                  <Icon className={`${sidebarOpen ? 'mr-3' : ''} text-lg ${!sidebarOpen ? 'hover:scale-110 transition-transform' : ''}`} />
+                  {sidebarOpen && <span className="font-medium text-sm">{tab.name}</span>}
+                </button>
+              );
+            })}
           </nav>
         </div>
       </div>
 
       {/* Tab İçeriği */}
-      <div className="flex-1 bg-white">
-        {renderTabContent()}
+      <div className={`flex-1 bg-white transition-all duration-300 ${
+        sidebarOpen ? 'ml-0' : 'ml-0'
+      }`}>
+        <div className={`transition-all duration-300 ${
+          sidebarOpen ? 'ml-0' : 'ml-0'
+        }`}>
+          <div className={`transition-all duration-300 ${
+            sidebarOpen ? 'px-6' : 'px-4'
+          }`}>
+            {renderTabContent()}
+          </div>
+        </div>
       </div>
     </div>
   );
