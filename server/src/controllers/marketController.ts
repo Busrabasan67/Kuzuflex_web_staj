@@ -30,7 +30,7 @@ export const getMarketBySlug = async (req: Request, res: Response) => {
     if (error instanceof Error && error.message === 'Market not found') {
       res.status(404).json({ error: 'Market not found' });
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
     }
   }
 };
@@ -45,7 +45,7 @@ export const getMarketById = async (req: Request, res: Response) => {
     if (error instanceof Error && error.message === 'Market not found') {
       res.status(404).json({ error: 'Market not found' });
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
     }
   }
 };
@@ -123,7 +123,7 @@ export const updateMarket = async (req: Request, res: Response) => {
 
     // Sadece isActive değişikliği kontrolü
     const isOnlyActiveChange = Object.keys(req.body).length === 1 && req.body.isActive !== undefined;
-    
+
     console.log('📥 Market güncelleme isteği:', {
       id,
       rawIsActive: req.body.isActive,
@@ -142,9 +142,9 @@ export const updateMarket = async (req: Request, res: Response) => {
       imageUrl,
       order,
       isActive,
-      hasProducts,
-      hasSolutions,
-      hasCertificates,
+        hasProducts,
+        hasSolutions,
+        hasCertificates,
       newImageFile: req.file
     };
 
@@ -152,11 +152,11 @@ export const updateMarket = async (req: Request, res: Response) => {
       parseInt(id),
       updateData,
       translations,
-      selectedProductGroups,
-      selectedProducts,
+        selectedProductGroups,
+        selectedProducts,
       selectedSolutions,
       isOnlyActiveChange
-    );
+      );
 
     res.json(updatedMarket);
   } catch (error) {
@@ -164,7 +164,7 @@ export const updateMarket = async (req: Request, res: Response) => {
     if (error instanceof Error && error.message === 'Market not found') {
       res.status(404).json({ error: 'Market not found' });
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
     }
   }
 };
@@ -179,7 +179,7 @@ export const deleteMarket = async (req: Request, res: Response) => {
     if (error instanceof Error && error.message === 'Market not found') {
       res.status(404).json({ error: 'Market not found' });
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
     }
   }
 };

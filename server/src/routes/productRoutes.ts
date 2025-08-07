@@ -1,6 +1,30 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 
-import { getSubProduct, getProductBySlug, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct, updateProductImage } from "../controllers/productController";
+import { getSubProduct, getProductBySlug, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct } from "../controllers/productController";
+
+// Product için storage
+const productStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/uploads/images/Products/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const uploadProduct = multer({
+  storage: productStorage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Sadece resim dosyaları kabul edilir!'));
+    }
+  }
+});
 
 const router = express.Router();
 
@@ -124,8 +148,8 @@ router.get("/all", getAllProducts);
  *         description: Sunucu hatası
  */
 
-// Alt ürün ekleme route'u
-router.post("/", createProduct);
+// Alt ürün ekleme route'u (resim dahil)
+router.post("/", uploadProduct.single("image"), createProduct);
 
 /**
  * @swagger
@@ -193,8 +217,8 @@ router.get("/:id", getProductById);
  *         description: Sunucu hatası
  */
 
-// Alt ürün güncelleme route'u
-router.put("/:id", updateProduct);
+// Alt ürün güncelleme route'u (resim dahil)
+router.put("/:id", uploadProduct.single("image"), updateProduct);
 
 /**
  * @swagger
@@ -221,48 +245,6 @@ router.put("/:id", updateProduct);
 // Alt ürün silme route'u
 router.delete("/:id", deleteProduct);
 
-/**
- * @swagger
- * /api/products/{id}/image:
- *   put:
- *     summary: Update product image URL
- *     tags: [Products]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Product ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               imageUrl:
- *                 type: string
- *                 description: New image URL
- *     responses:
- *       200:
- *         description: Product image updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 imageUrl:
- *                   type: string
- *       404:
- *         description: Product not found
- *       500:
- *         description: Internal server error
- */
-router.put("/:id/image", updateProductImage);
+
 
 export default router;

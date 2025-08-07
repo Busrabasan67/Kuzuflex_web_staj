@@ -123,25 +123,28 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
       return;
     }
 
+    // Resim validasyonu
+    if (!selectedFile) {
+      setError('Ürün resmi zorunludur. Lütfen bir resim seçin.');
+      return;
+    }
+
     try {
       setSubmitLoading(true);
       setError(null);
 
-      // 1. Adım: Önce alt ürün oluştur (resim olmadan)
-      const productData = {
-        slug: form.slug,
-        imageUrl: '', // Başlangıçta boş
-        standard: form.standard || null,
-        groupId: parseInt(form.groupId),
-        translations: JSON.stringify(translations),
-      };
+      // FormData ile tek endpoint'te oluştur (resim dahil)
+      const formData = new FormData();
+      formData.append('slug', form.slug);
+      formData.append('imageUrl', ''); // Başlangıçta boş
+      formData.append('standard', form.standard || '');
+      formData.append('groupId', form.groupId);
+      formData.append('translations', JSON.stringify(translations));
+      formData.append('image', selectedFile);
 
       const response = await fetch(`${API_BASE}/api/products`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData),
+        body: formData, // Content-Type header'ı otomatik olarak multipart/form-data olacak
       });
 
       if (!response.ok) {
@@ -151,55 +154,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onSu
 
       const result = await response.json();
       console.log('✅ Product başarıyla oluşturuldu:', result);
-             console.log('🔍 Result ID:', result.id);
-       console.log('🔍 Selected File:', selectedFile);
-       console.log('🔍 Selected File Type:', selectedFile?.type);
-       console.log('🔍 Selected File Size:', selectedFile?.size);
-
-       // 2. Adım: Eğer resim seçilmişse, alt ürün oluşturulduktan sonra resmi yükle
-       if (selectedFile && result.id) {
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-
-        console.log('🔄 Resim yükleniyor... URL:', `${API_BASE}/api/upload/image/product/${result.id}`);
-        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product/${result.id}`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        console.log('📤 Upload Response Status:', uploadResponse.status);
-        console.log('📤 Upload Response OK:', uploadResponse.ok);
-
-        if (!uploadResponse.ok) {
-          console.warn('⚠️ Resim yüklenemedi, alt ürün oluşturuldu ama resim olmadan');
-          const errorText = await uploadResponse.text();
-          console.error('❌ Upload Error:', errorText);
-        } else {
-          const uploadResult = await uploadResponse.json();
-          console.log('✅ Resim başarıyla yüklendi:', uploadResult);
-
-          // Product'un imageUrl alanını güncelle
-          const updateResponse = await fetch(`${API_BASE}/api/products/${result.id}/image`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageUrl: uploadResult.url
-            }),
-          });
-
-                     if (updateResponse.ok) {
-             console.log('✅ Product imageUrl güncellendi');
-             const updateResult = await updateResponse.json();
-             console.log('📋 Update Result:', updateResult);
-           } else {
-             console.warn('⚠️ Product imageUrl güncellenemedi');
-             const errorText = await updateResponse.text();
-             console.error('❌ Update Error:', errorText);
-           }
-        }
-      }
 
       // Başarılı
       console.log('✅ Alt ürün başarıyla eklendi');

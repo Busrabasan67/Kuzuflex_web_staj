@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { MarketTranslation } from "./MarketTranslation";
 import { ProductGroup } from "./ProductGroup";
 import { Solution } from "./Solution";
@@ -29,6 +29,12 @@ export class Market {
 
   @Column({ default: false })
   hasCertificates!: boolean; // Bu market'in sertifikaları var mı?
+
+  @Column({ type: 'datetime', default: () => 'GETDATE()' })
+  createdAt!: Date; // Oluşturulma tarihi
+
+  @Column({ type: 'datetime', default: () => 'GETDATE()', onUpdate: 'GETDATE()' })
+  updatedAt!: Date; // Güncellenme tarihi
 
   // Her market birden fazla dilde çeviriye sahip olabilir
   @OneToMany(() => MarketTranslation, (translation) => translation.market, {

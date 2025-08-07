@@ -1,5 +1,29 @@
 import { Router } from "express";
-import { getAllGroups, getProductsByGroupId, getProductsByGroupSlug, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup, updateProductGroupImage } from "../controllers/productGroupController";
+import { getAllGroups, getProductsByGroupId, getProductsByGroupSlug, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup } from "../controllers/productGroupController";
+import multer from "multer";
+import path from "path";
+
+// ProductGroup için storage konfigürasyonu
+const productGroupStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/uploads/images/Products/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const uploadProductGroup = multer({ 
+  storage: productGroupStorage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Sadece resim dosyaları kabul edilir!'));
+    }
+  }
+});
 
 const router = Router();
 
@@ -114,7 +138,7 @@ router.get("/admin", getAdminProductGroups);
  *       500:
  *         description: Sunucu hatası
  */
-router.post("/formdata", createProductGroupWithFormData);
+router.post("/formdata", uploadProductGroup.single("image"), createProductGroupWithFormData);
 
 /**
  * @swagger
@@ -132,10 +156,14 @@ router.post("/formdata", createProductGroupWithFormData);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Grup görseli (opsiyonel)
  *               imageUrl:
  *                 type: string
  *               standard:
@@ -153,7 +181,7 @@ router.post("/formdata", createProductGroupWithFormData);
  *       500:
  *         description: Sunucu hatası
  */
-router.put("/:id", updateProductGroup);
+router.put("/:id", uploadProductGroup.single("image"), updateProductGroup);
 
 /**
  * @swagger
@@ -180,48 +208,6 @@ router.put("/:id", updateProductGroup);
  */
 router.delete("/:id", deleteProductGroup);
 
-/**
- * @swagger
- * /api/product-groups/{id}/image:
- *   put:
- *     summary: Update product group image URL
- *     tags: [Product Groups]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Product Group ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               imageUrl:
- *                 type: string
- *                 description: New image URL
- *     responses:
- *       200:
- *         description: Product group image updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 imageUrl:
- *                   type: string
- *       404:
- *         description: Product group not found
- *       500:
- *         description: Internal server error
- */
-router.put("/:id/image", updateProductGroupImage);
+
 
 export default router;

@@ -4,30 +4,11 @@ import { Product } from "../entity/Product";
 import { ProductTranslation } from "../entity/ProductTranslation";
 import { ProductGroup } from "../entity/ProductGroup";
 import { Catalog } from "../entity/Catalog";
-import * as fs from "fs";
-import * as path from "path";
+import { ProductService } from "../services/productService";
 
-// Dosya silme yardımcı fonksiyonu
-const deleteFileIfExists = (filePath: string) => {
-  try {
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`✅ Dosya silindi: ${filePath}`);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error(`❌ Dosya silinirken hata: ${filePath}`, error);
-    return false;
-  }
-};
+const productService = new ProductService();
 
-// Dosya yolu oluşturma yardımcı fonksiyonu
-const getPublicFilePath = (relativePath: string) => {
-  // __dirname: server/src/controllers
-  // İhtiyacımız: server/public
-  return path.join(__dirname, "../../public", relativePath);
-};
+
 
 // Belirli bir ürünün detayını çekmek için tasarlanmış fonksiyondur.
 export const getSubProduct = async (req: Request, res: Response) => {
@@ -140,43 +121,13 @@ export const getProductBySlug = async (req: Request, res: Response) => {
 
 // Tüm ürünleri listeleyen fonksiyon (admin paneli için)
 export const getAllProducts = async (req: Request, res: Response) => {
-  const lang = (req.query.lang as string) || "tr";
-  const hasCatalog = req.query.hasCatalog === "true"; // Katalogu olan ürünleri filtrele
+  const hasCatalog = req.query.hasCatalog === "true";
 
   try {
-    let query = AppDataSource.getRepository(Product)
-      .createQueryBuilder("product")
-      .leftJoinAndSelect("product.group", "group")
-      .leftJoinAndSelect("group.translations", "groupTranslation", "groupTranslation.language = :lang", { lang })
-      .leftJoinAndSelect("product.translations", "translation", "translation.language = :lang", { lang })
-      .leftJoinAndSelect("product.catalogs", "catalog"); // Her zaman katalog bilgilerini al
-
-    const products = await query.getMany();
-
-    const result = products.map((product) => ({
-      id: product.id,
-      slug: product.slug,
-      title: product.translations?.[0]?.title || "Başlık yok",
-      description: product.translations?.[0]?.description || "Açıklama yok",
-      imageUrl: product.imageUrl,
-      standard: product.standard,
-      groupId: product.group?.id || null,
-      groupSlug: product.group?.slug || null,
-      groupName: product.group?.translations?.[0]?.name || "Grup yok",
-      hasCatalog: product.catalogs && product.catalogs.length > 0,
-      catalogCount: product.catalogs?.length || 0,
-      createdAt: product.createdAt, // Oluşturulma tarihi
-      updatedAt: product.updatedAt, // Güncellenme tarihi
-    }));
-
-    // Eğer sadece katalogu olan ürünler isteniyorsa filtrele
-    const filteredResult = hasCatalog 
-      ? result.filter(product => product.hasCatalog)
-      : result;
-
-    return res.status(200).json(filteredResult);
-  } catch (err) {
-    console.error("Ürün listesi API hatası:", err);
+    const result = await productService.getAllProductsForAdmin(hasCatalog);
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("❌ Ürün listesi alınamadı:", error);
     return res.status(500).json({ message: "Sunucu hatası" });
   }
 };
@@ -185,31 +136,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const productId = parseInt(req.params.id);
-    
-    const productRepo = AppDataSource.getRepository(Product);
-    const product = await productRepo.findOne({
-      where: { id: productId },
-      relations: ['translations', 'group', 'group.translations']
-    });
-
-    if (!product) {
-      return res.status(404).json({ message: "Ürün bulunamadı." });
-    }
-
-    const result = {
-      id: product.id,
-      slug: product.slug, // SEO dostu URL slug'ı
-      imageUrl: product.imageUrl,
-      standard: product.standard,
-      groupId: product.group?.id || null,
-      groupName: product.group?.translations?.[0]?.name || "Grup yok",
-      translations: product.translations?.map(t => ({
-        language: t.language,
-        title: t.title,
-        description: t.description
-      })) || []
-    };
-
+    const result = await productService.getProductById(productId);
     return res.status(200).json(result);
   } catch (error) {
     console.error("❌ Ürün getirme hatası:", error);
@@ -217,22 +144,29 @@ export const getProductById = async (req: Request, res: Response) => {
   }
 };
 
-// Alt ürün güncelleme fonksiyonu
+// Alt ürün güncelleme fonksiyonu (resim dahil)
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const productId = parseInt(req.params.id);
     console.log("📥 Gelen güncelleme verisi:", req.body, "ID:", productId);
+    console.log("📁 Dosya var mı:", !!req.file);
 
     if (!req.body) {
       return res.status(400).json({ message: "Form verileri alınamadı." });
     }
 
-    const { imageUrl, standard, groupId, translations, slug } = req.body;
+    // FormData'dan gelen verileri al
+    const updateData = {
+      imageUrl: req.body.imageUrl || '',
+      standard: req.body.standard || null,
+      groupId: parseInt(req.body.groupId),
+      slug: req.body.slug
+    };
 
     // 🔒 Güvenli parse
     let parsedTranslations;
     try {
-      parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
+      parsedTranslations = typeof req.body.translations === 'string' ? JSON.parse(req.body.translations) : req.body.translations;
     } catch (error) {
       console.error("❌ Translations parse hatası:", error);
       return res.status(400).json({ message: "Çeviri verileri hatalı format." });
@@ -243,65 +177,12 @@ export const updateProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Çeviri verileri eksik veya hatalı." });
     }
 
-    if (!groupId) {
+    if (!updateData.groupId) {
       return res.status(400).json({ message: "Üst kategori seçimi zorunludur." });
     }
 
-    // Mevcut ürünü bul
-    const productRepo = AppDataSource.getRepository(Product);
-    const product = await productRepo.findOne({ 
-      where: { id: productId },
-      relations: ['translations', 'group']
-    });
-
-    if (!product) {
-      return res.status(404).json({ message: "Ürün bulunamadı." });
-    }
-
-    // Üst kategori kontrolü
-    const productGroupRepo = AppDataSource.getRepository(ProductGroup);
-    const group = await productGroupRepo.findOne({ where: { id: groupId } });
-    if (!group) {
-      return res.status(400).json({ message: "Seçilen üst kategori bulunamadı." });
-    }
-
-    // Eski resmi sil (eğer yeni resim yüklendiyse)
-    if (product.imageUrl && product.imageUrl !== imageUrl) {
-      const oldImagePath = getPublicFilePath(product.imageUrl);
-      deleteFileIfExists(oldImagePath);
-    }
-
-    // Ürün bilgilerini güncelle
-    product.imageUrl = imageUrl || product.imageUrl; // Resim değişmediyse eskisini kullan
-    product.standard = standard || null;
-    product.slug = slug;
-    product.group = group;
-    product.updatedAt = new Date(); //updatedAt'i güncelle
-
-    // Ürünü kaydet
-    const savedProduct = await productRepo.save(product);
-
-    // Mevcut çevirileri sil
-    const translationRepo = AppDataSource.getRepository(ProductTranslation);
-    await translationRepo.delete({ product: { id: productId } });
-
-    // Yeni çevirileri oluştur ve kaydet
-    const translationPromises = parsedTranslations.map((translation: any) => {
-      const newTranslation = new ProductTranslation();
-      newTranslation.language = translation.language;
-      newTranslation.title = translation.title;
-      newTranslation.description = translation.description;
-      newTranslation.product = savedProduct;
-      return translationRepo.save(newTranslation);
-    });
-
-    await Promise.all(translationPromises);
-
-    console.log("✅ Alt ürün başarıyla güncellendi:", savedProduct.id);
-    return res.status(200).json({
-      message: "Alt ürün başarıyla güncellendi.",
-      productId: savedProduct.id
-    });
+    const result = await productService.updateProduct(productId, updateData, parsedTranslations, req.file);
+    return res.status(200).json(result);
 
   } catch (error) {
     console.error("❌ Alt ürün güncelleme hatası:", error);
@@ -313,70 +194,36 @@ export const updateProduct = async (req: Request, res: Response) => {
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const productId = parseInt(req.params.id);
-    
-    const productRepo = AppDataSource.getRepository(Product);
-    const product = await productRepo.findOne({
-      where: { id: productId },
-      relations: ['translations', 'catalogs']
-    });
-
-    if (!product) {
-      return res.status(404).json({ message: "Ürün bulunamadı." });
-    }
-
-    // Katalogları ve dosyalarını sil
-    if (product.catalogs && product.catalogs.length > 0) {
-      console.log(`🗑️ ${product.catalogs.length} adet katalog silinecek`);
-      
-      for (const catalog of product.catalogs) {
-        if (catalog.filePath) {
-          const catalogFilePath = getPublicFilePath(catalog.filePath);
-          deleteFileIfExists(catalogFilePath);
-        }
-      }
-      
-      // Katalogları sil (CASCADE ile çevirileri de silinir)
-      const catalogRepo = AppDataSource.getRepository(Catalog);
-      await catalogRepo.remove(product.catalogs);
-      
-      console.log("✅ Kataloglar silindi");
-    }
-
-    // Ürün resmini sil
-    if (product.imageUrl) {
-      const productImagePath = getPublicFilePath(product.imageUrl);
-      deleteFileIfExists(productImagePath);
-    }
-
-    // Ürünü sil (CASCADE olduğu için çeviriler de silinir)
-    await productRepo.remove(product);
-
-    console.log("✅ Alt ürün başarıyla silindi:", productId);
-    return res.status(200).json({
-      message: "Alt ürün başarıyla silindi."
-    });
-
+    const result = await productService.deleteProduct(productId);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("❌ Alt ürün silme hatası:", error);
     return res.status(500).json({ message: "Sunucu hatası." });
   }
 };
 
-// Alt ürün ekleme fonksiyonu
+// Alt ürün ekleme fonksiyonu (resim dahil)
 export const createProduct = async (req: Request, res: Response) => {
   try {
     console.log("📥 Gelen body:", req.body);
+    console.log("📁 Dosya var mı:", !!req.file);
 
     if (!req.body) {
       return res.status(400).json({ message: "Form verileri alınamadı." });
     }
 
-    const { imageUrl, standard, groupId, translations, slug } = req.body;
+    // FormData'dan gelen verileri al
+    const productData = {
+      imageUrl: req.body.imageUrl || '',
+      standard: req.body.standard || null,
+      groupId: parseInt(req.body.groupId),
+      slug: req.body.slug
+    };
 
     // 🔒 Güvenli parse
     let parsedTranslations;
     try {
-      parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
+      parsedTranslations = typeof req.body.translations === 'string' ? JSON.parse(req.body.translations) : req.body.translations;
     } catch (error) {
       console.error("❌ Translations parse hatası:", error);
       return res.status(400).json({ message: "Çeviri verileri hatalı format." });
@@ -387,47 +234,12 @@ export const createProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Çeviri verileri eksik veya hatalı." });
     }
 
-    if (!groupId) {
+    if (!productData.groupId) {
       return res.status(400).json({ message: "Üst kategori seçimi zorunludur." });
     }
 
-    // Üst kategori kontrolü
-    const productGroupRepo = AppDataSource.getRepository(ProductGroup);
-    const group = await productGroupRepo.findOne({ where: { id: groupId } });
-    if (!group) {
-      return res.status(400).json({ message: "Seçilen üst kategori bulunamadı." });
-    }
-
-    // Yeni ürün oluştur
-    const productRepo = AppDataSource.getRepository(Product);
-    const newProduct = new Product();
-    newProduct.imageUrl = imageUrl || null;
-    newProduct.standard = standard || null;
-    newProduct.slug = slug;
-    newProduct.group = group;
-
-    // Ürünü kaydet
-    const savedProduct = await productRepo.save(newProduct);
-
-    // Çevirileri oluştur ve kaydet
-    const translationRepo = AppDataSource.getRepository(ProductTranslation);
-    const translationPromises = parsedTranslations.map((translation: any) => {
-      const newTranslation = new ProductTranslation();
-      newTranslation.language = translation.language;
-      newTranslation.title = translation.title;
-      newTranslation.description = translation.description;
-      newTranslation.product = savedProduct;
-      return translationRepo.save(newTranslation);
-    });
-
-    await Promise.all(translationPromises);
-
-    console.log("✅ Alt ürün başarıyla eklendi:", savedProduct.id);
-    return res.status(201).json({
-      message: "Alt ürün başarıyla eklendi.",
-      id: savedProduct.id, // Frontend'in beklediği format
-      productId: savedProduct.id // Geriye uyumluluk için
-    });
+    const result = await productService.createProduct(productData, parsedTranslations, req.file);
+    return res.status(201).json(result);
 
   } catch (error) {
     console.error("❌ Alt ürün ekleme hatası:", error);
@@ -435,48 +247,4 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-// Product'un imageUrl alanını güncelle
-export const updateProductImage = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { imageUrl } = req.body;
 
-    const product = await AppDataSource.getRepository(Product).findOne({
-      where: { id: parseInt(id) }
-    });
-
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    // Eski resim dosyasını sil
-    if (product.imageUrl && product.imageUrl !== imageUrl) {
-      const oldImagePath = getPublicFilePath(product.imageUrl);
-      const deleted = deleteFileIfExists(oldImagePath);
-      if (deleted) {
-        console.log(`🗑️ Eski resim silindi: ${oldImagePath}`);
-      }
-    }
-
-        console.log('🔄 Product imageUrl güncelleniyor:', {
-      oldImageUrl: product.imageUrl,
-      newImageUrl: imageUrl
-    });
-
-    // Yeni imageUrl'i kaydet
-    product.imageUrl = imageUrl;
-    product.updatedAt = new Date(); // Manuel olarak updatedAt'i güncelle
-    await AppDataSource.getRepository(Product).save(product);
-
-    console.log('✅ Product imageUrl güncellendi:', product.imageUrl);
-
-    res.json({
-      success: true,
-      message: 'Product image updated successfully',
-      imageUrl: product.imageUrl
-    });
-  } catch (error) {
-    console.error('Error updating product image:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};

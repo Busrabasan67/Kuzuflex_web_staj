@@ -154,61 +154,30 @@ const AdminProductGroups = () => {
     setSubmitMessage(null);
 
     try {
-      // 1. Adım: Önce kategori oluştur (resim olmadan)
-      const categoryData = {
-        slug: form.slug,
-        imageUrl: '', // Başlangıçta boş
-        standard: form.standard,
-        translations: JSON.stringify(translations)
-      };
+      // FormData ile kategori oluştur (resim dahil)
+      const formData = new FormData();
+      formData.append('slug', form.slug);
+      formData.append('imageUrl', ''); // Başlangıçta boş
+      formData.append('standard', form.standard);
+      formData.append('translations', JSON.stringify(translations));
+      
+      // Resim seçilmişse ekle
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
 
       const response = await fetch(`${API_BASE}/api/product-groups/formdata`, {
         method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(categoryData),
+        body: formData, // Content-Type header'ı otomatik olarak multipart/form-data olacak
       });
 
-      if (!response.ok) throw new Error("Kategori eklenemedi");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Kategori eklenemedi");
+      }
 
       const result = await response.json();
       console.log('✅ ProductGroup başarıyla oluşturuldu:', result);
-
-      // 2. Adım: Eğer resim seçilmişse, kategori oluşturulduktan sonra resmi yükle
-      if (selectedFile && result.id) {
-        const imageFormData = new FormData();
-        imageFormData.append("image", selectedFile);
-
-        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product-group/${result.id}`, {
-          method: 'POST',
-          body: imageFormData,
-        });
-
-        if (!uploadResponse.ok) {
-          console.warn('⚠️ Resim yüklenemedi, kategori oluşturuldu ama resim olmadan');
-        } else {
-          const uploadResult = await uploadResponse.json();
-          console.log('✅ Resim başarıyla yüklendi:', uploadResult);
-
-          // ProductGroup'un imageUrl alanını güncelle
-          const updateResponse = await fetch(`${API_BASE}/api/product-groups/${result.id}/image`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageUrl: uploadResult.url
-            }),
-          });
-
-          if (updateResponse.ok) {
-            console.log('✅ ProductGroup imageUrl güncellendi');
-          } else {
-            console.warn('⚠️ ProductGroup imageUrl güncellenemedi');
-          }
-        }
-      }
 
       await fetchGroups();
       showToast('success', 'Kategori başarıyla eklendi!');
@@ -233,60 +202,30 @@ const AdminProductGroups = () => {
     setSubmitMessage(null);
 
     try {
-      // 1. Adım: Önce kategori güncelle (resim olmadan)
-      const categoryData = {
-        slug: form.slug,
-        imageUrl: form.imageUrl, // Mevcut resim URL'si
-        standard: form.standard,
-        translations: JSON.stringify(translations)
-      };
+      // FormData ile kategori güncelle (resim dahil)
+      const formData = new FormData();
+      formData.append('slug', form.slug);
+      formData.append('imageUrl', form.imageUrl); // Mevcut resim URL'si
+      formData.append('standard', form.standard);
+      formData.append('translations', JSON.stringify(translations));
+      
+      // Yeni resim seçilmişse ekle
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
 
       const response = await fetch(`${API_BASE}/api/product-groups/${editingGroup.id}`, {
         method: "PUT",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(categoryData),
+        body: formData, // Content-Type header'ı otomatik olarak multipart/form-data olacak
       });
 
-      if (!response.ok) throw new Error("Kategori güncellenemedi");
-
-      console.log('✅ ProductGroup başarıyla güncellendi');
-
-      // 2. Adım: Eğer yeni resim seçilmişse, kategori güncellendikten sonra resmi yükle
-      if (selectedFile) {
-        const imageFormData = new FormData();
-        imageFormData.append("image", selectedFile);
-
-        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/product-group/${editingGroup.id}`, {
-          method: 'POST',
-          body: imageFormData,
-        });
-
-        if (!uploadResponse.ok) {
-          console.warn('⚠️ Resim yüklenemedi, kategori güncellendi ama resim olmadan');
-        } else {
-          const uploadResult = await uploadResponse.json();
-          console.log('✅ Resim başarıyla yüklendi:', uploadResult);
-
-          // ProductGroup'un imageUrl alanını güncelle
-          const updateResponse = await fetch(`${API_BASE}/api/product-groups/${editingGroup.id}/image`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageUrl: uploadResult.url
-            }),
-          });
-
-          if (updateResponse.ok) {
-            console.log('✅ ProductGroup imageUrl güncellendi');
-          } else {
-            console.warn('⚠️ ProductGroup imageUrl güncellenemedi');
-          }
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Kategori güncellenemedi");
       }
+
+      const result = await response.json();
+      console.log('✅ ProductGroup başarıyla güncellendi:', result);
 
       await fetchGroups();
       showToast('success', 'Kategori başarıyla güncellendi!');
