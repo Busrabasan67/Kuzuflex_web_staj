@@ -12,9 +12,10 @@ import {
   getMarketContents,
   getAvailableProductGroups,
   getAvailableSolutions,
-  updateMarketImage,
   clearMarketContents
 } from "../controllers/marketController";
+import { uploadMarket } from "../controllers/uploadController";
+
 
 /**
  * @swagger
@@ -240,7 +241,7 @@ router.get("/:slug", getMarketBySlug);
  *             schema:
  *               $ref: '#/components/schemas/Market'
  */
-router.post("/", createMarket);
+router.post("/", uploadMarket.single("image"), createMarket);
 
 /**
  * @swagger
@@ -294,7 +295,7 @@ router.post("/", createMarket);
  *       404:
  *         description: Market not found
  */
-router.put("/:id", updateMarket);
+router.put("/:id", uploadMarket.single("image"), updateMarket);
 
 /**
  * @swagger
@@ -525,49 +526,7 @@ router.get("/available/product-groups", getAvailableProductGroups);
  */
 router.get("/available/solutions", getAvailableSolutions);
 
-/**
- * @swagger
- * /api/markets/{id}/image:
- *   put:
- *     summary: Update market image URL
- *     tags: [Markets]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Market ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               imageUrl:
- *                 type: string
- *                 description: New image URL
- *     responses:
- *       200:
- *         description: Market image updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 imageUrl:
- *                   type: string
- *       404:
- *         description: Market not found
- *       500:
- *         description: Internal server error
- */
-router.put("/:id/image", updateMarketImage);
+
 
 /**
  * @swagger

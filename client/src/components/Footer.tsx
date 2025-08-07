@@ -33,18 +33,8 @@ const Footer = () => {
     { key: "contact", label: t('navbar.contact'), to: "/iletisim" },
   ];
 
-  useEffect(() => {
-    // API'den ürün gruplarını çek
-    fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`)
-      .then((res) => res.json())
-      .then((data) => {
-        // Sadece id ve name al
-        const groups = data.map((g: any) => ({ id: g.id, name: g.name }));
-        setProductGroups(groups);
-      })
-      .catch((err) => console.error("Footer ürün grupları alınamadı:", err));
-
-    // API'den markets'leri çek
+  // Market verilerini yükleme fonksiyonu
+  const fetchMarketData = () => {
     fetch(`http://localhost:5000/api/markets?language=${i18n.language}`)
       .then((res) => res.json())
       .then((data) => {
@@ -61,7 +51,22 @@ const Footer = () => {
         setMarkets(marketsData);
       })
       .catch((err) => console.error("Footer markets alınamadı:", err));
-  }, [i18n.language]);
+  };
+
+  useEffect(() => {
+    // API'den ürün gruplarını çek
+    fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // Sadece id ve name al
+        const groups = data.map((g: any) => ({ id: g.id, name: g.name }));
+        setProductGroups(groups);
+      })
+      .catch((err) => console.error("Footer ürün grupları alınamadı:", err));
+
+    // Market verilerini yükle
+    fetchMarketData();
+  }, [i18n.language, t]); // t dependency'si eklendi çünkü t değiştiğinde de yeniden yükle
 
   return (
     <footer className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"} pt-12 pb-6 transition-colors duration-300`}>

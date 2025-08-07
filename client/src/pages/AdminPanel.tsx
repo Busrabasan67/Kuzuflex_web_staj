@@ -125,20 +125,14 @@ const AdminPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Tab İçeriği */}
-      <div className={`flex-1 bg-white transition-all duration-300 ${
-        sidebarOpen ? 'ml-0' : 'ml-0'
-      }`}>
-        <div className={`transition-all duration-300 ${
-          sidebarOpen ? 'ml-0' : 'ml-0'
-        }`}>
-          <div className={`transition-all duration-300 ${
-            sidebarOpen ? 'px-6' : 'px-4'
-          }`}>
-            {renderTabContent()}
-          </div>
-        </div>
-      </div>
+             {/* Tab İçeriği */}
+       <div className="flex-1 bg-white transition-all duration-300 overflow-auto">
+         <div className={`transition-all duration-300 ${
+           sidebarOpen ? 'px-4 py-2' : 'px-3 py-2'
+         }`}>
+           {renderTabContent()}
+         </div>
+       </div>
     </div>
   );
 };

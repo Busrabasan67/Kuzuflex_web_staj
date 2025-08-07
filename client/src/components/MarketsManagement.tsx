@@ -38,7 +38,7 @@ interface MarketContent {
 }
 
 const MarketsManagement: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [markets, setMarkets] = useState<Market[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,22 +58,37 @@ const MarketsManagement: React.FC = () => {
 
   useEffect(() => {
     fetchMarkets();
-  }, [i18n.language]);
+  }, []); // Sadece component mount olduğunda çalışsın
 
   const fetchMarkets = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/markets?language=${i18n.language}&admin=true`);
+      const url = `http://localhost:5000/api/markets?language=tr&admin=true`; // Admin panelinde sabit Türkçe kullan
+      console.log(' Market verileri getiriliyor:', url);
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error('Failed to fetch markets');
       }
       
       const data = await response.json();
-      console.log(' API\'den gelen market verileri:', data);
-      console.log(' İlk market örneği:', data[0]);
+      console.log('📦 API\'den gelen market verileri:', data);
+      console.log('📦 Market sayısı:', data.length);
+      
+      if (data.length > 0) {
+        console.log('📦 İlk market örneği:', {
+          id: data[0].id,
+          name: data[0].name,
+          isActive: data[0].isActive,
+          slug: data[0].slug,
+          contents: data[0].contents
+        });
+      }
+      
       setMarkets(data);
     } catch (err) {
+      console.error('❌ Market verileri alınırken hata:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -116,8 +131,8 @@ const MarketsManagement: React.FC = () => {
       // Toast bildirimi
       showToast("success", `${deletingMarket.name} market'i başarıyla silindi.`);
       
-      // Silinen market'i listeden kaldır
-      setMarkets(markets.filter(market => market.id !== deletingMarket.id));
+      // Market verilerini yeniden yükle
+      await fetchMarkets();
       
       // Modal'ı kapat
       setIsDeleteModalOpen(false);
@@ -141,14 +156,13 @@ const MarketsManagement: React.FC = () => {
     try {
       console.log('🔄 Market durumu değiştiriliyor:', { id, currentStatus, newStatus: !currentStatus });
       
+      // FormData ile sadece isActive değerini gönder
+      const formData = new FormData();
+      formData.append('isActive', (!currentStatus).toString());
+      
       const response = await fetch(`http://localhost:5000/api/markets/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          isActive: !currentStatus
-        }),
+        body: formData, // Content-Type header'ı otomatik olarak multipart/form-data olacak
       });
 
       console.log('📤 Response status:', response.status);
@@ -163,10 +177,8 @@ const MarketsManagement: React.FC = () => {
       const result = await response.json();
       console.log('✅ Market güncellendi:', result);
 
-      // Market'i güncelle
-      setMarkets(markets.map(market => 
-        market.id === id ? { ...market, isActive: !currentStatus } : market
-      ));
+      // Market verilerini yeniden yükle (Footer'da da güncellensin)
+      await fetchMarkets();
       
       // Toast bildirimi
       showToast("success", `Market başarıyla ${!currentStatus ? 'aktif' : 'pasif'} hale getirildi.`);
@@ -183,10 +195,10 @@ const MarketsManagement: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleEditSuccess = () => {
+  const handleEditSuccess = async () => {
     setIsEditModalOpen(false);
     setEditingMarketId(null);
-    fetchMarkets(); // Listeyi yenile
+    await fetchMarkets(); // Listeyi yenile
     showToast("success", "Market başarıyla güncellendi.");
   };
 
@@ -363,20 +375,26 @@ const MarketsManagement: React.FC = () => {
 
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div className="flex space-x-2">
-                      {market.hasProducts && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          Ürünler
-                        </span>
+                    <div className="flex flex-wrap gap-1">
+                      {/* Gerçek içerikleri göster */}
+                      {market.contents && market.contents.length > 0 ? (
+                        market.contents.slice(0, 3).map((content, index) => (
+                          <span 
+                            key={content.id} 
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                            title={content.name}
+                          >
+                            {content.name || content.type}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-gray-400 text-xs">İçerik yok</span>
                       )}
-                      {market.hasSolutions && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          Çözümler
-                        </span>
-                      )}
-                      {market.hasCertificates && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Sertifikalar
+                      
+                      {/* Toplam içerik sayısını göster */}
+                      {market.contents && market.contents.length > 3 && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          +{market.contents.length - 3} daha
                         </span>
                       )}
                     </div>
@@ -416,9 +434,9 @@ const MarketsManagement: React.FC = () => {
       <AddMarketModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onMarketAdded={() => {
+        onMarketAdded={async () => {
           setIsAddModalOpen(false);
-          fetchMarkets(); // Listeyi yenile
+          await fetchMarkets(); // Listeyi yenile
           showToast("success", "Yeni market başarıyla eklendi.");
         }}
       />

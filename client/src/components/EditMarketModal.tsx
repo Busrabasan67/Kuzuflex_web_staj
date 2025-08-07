@@ -17,6 +17,7 @@ interface MarketData {
   slug: string;
   imageUrl: string;
   order: number;
+  isActive: boolean;
   hasProducts: boolean;
   hasSolutions: boolean;
   hasCertificates: boolean;
@@ -86,6 +87,7 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
   // Market verileri yüklendiğinde içerikleri getir
   useEffect(() => {
     if (marketData && isOpen) {
+      console.log('🔄 Market verileri yüklendi, içerikler getiriliyor...');
       fetchMarketContents();
     }
   }, [marketData, isOpen]);
@@ -111,9 +113,18 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
       setForm({
         slug: data.slug || '',
         order: data.order || 1,
-        hasProducts: data.hasProducts || true,
-        hasSolutions: data.hasSolutions || true,
-        hasCertificates: data.hasCertificates || true,
+        hasProducts: data.hasProducts ?? true,
+        hasSolutions: data.hasSolutions ?? true,
+        hasCertificates: data.hasCertificates ?? true,
+      });
+      
+      console.log('📦 Market form verileri yüklendi:', {
+        slug: data.slug,
+        order: data.order,
+        isActive: data.isActive,
+        hasProducts: data.hasProducts,
+        hasSolutions: data.hasSolutions,
+        hasCertificates: data.hasCertificates
       });
       
       // Çevirileri doldur
@@ -156,20 +167,26 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
       const selectedSolutions: number[] = [];
       
       contents.forEach((content: any) => {
+        console.log('🔍 İçerik işleniyor:', content);
+        
         if (content.productGroupId) {
+          console.log('✅ Ürün grubu eklendi:', content.productGroupId);
           selectedGroups.push(content.productGroupId);
         }
         if (content.productId) {
+          console.log('✅ Ürün eklendi:', content.productId);
           selectedProducts.push(content.productId);
         }
         if (content.type === 'solution') {
           // Artık solutionId alanı var, URL'den çıkarmaya gerek yok
           if (content.solutionId) {
+            console.log('✅ Çözüm eklendi (solutionId):', content.solutionId);
             selectedSolutions.push(content.solutionId);
           } else {
             // Fallback: URL'den çıkar (eski veriler için)
             const solutionId = extractSolutionIdFromUrl(content.targetUrl);
             if (solutionId) {
+              console.log('✅ Çözüm eklendi (URL\'den):', solutionId);
               selectedSolutions.push(solutionId);
             }
           }
@@ -186,11 +203,31 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
       setSelectedProductGroups(selectedGroups);
       setSelectedProducts(selectedProducts);
       setSelectedSolutions(selectedSolutions);
-      console.log('✅ State\'ler güncellendi:', {
+      console.log(' State\'ler güncellendi:', {
         productGroups: selectedGroups,
         products: selectedProducts,
         solutions: selectedSolutions
       });
+      
+      // Market özelliklerini içeriklere göre güncelle
+      const hasProductGroups = selectedGroups.length > 0;
+      const hasProducts = selectedProducts.length > 0;
+      const hasSolutions = selectedSolutions.length > 0;
+      
+      console.log(' Market özellikleri güncelleniyor:', {
+        hasProductGroups,
+        hasProducts,
+        hasSolutions,
+        hasCertificates: true // Sertifikalar her zaman true
+      });
+      
+      // Form state'ini güncelle
+      setForm(prev => ({
+        ...prev,
+        hasProducts: hasProductGroups || hasProducts,
+        hasSolutions: hasSolutions,
+        hasCertificates: true // Sertifikalar her zaman true
+      }));
       
     } catch (err) {
       console.error('❌ Market içerikleri alınamadı:', err);
@@ -355,10 +392,69 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Slug validasyonu
+    if (!form.slug.trim()) {
+      setError('Slug alanı zorunludur!');
+      // Hata mesajını görmek için sayfayı yukarı scroll et
+      setTimeout(() => {
+        const modal = document.querySelector('.bg-white.rounded-lg');
+        if (modal) {
+          modal.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+      return;
+    }
+
+    // Resim validasyonu - mevcut resim varsa veya yeni resim seçilmişse
+    if (!marketData?.imageUrl && !selectedFile) {
+      setError('Market görseli zorunludur!');
+      // Hata mesajını görmek için sayfayı yukarı scroll et
+      setTimeout(() => {
+        const modal = document.querySelector('.bg-white.rounded-lg');
+        if (modal) {
+          modal.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+      return;
+    }
+
     // Çeviri validasyonu
     const hasValidTranslations = translations.some(tr => tr.name.trim() && tr.description.trim());
     if (!hasValidTranslations) {
       setError('En az bir dilde başlık ve açıklama girmelisiniz');
+      // Hata mesajını görmek için sayfayı yukarı scroll et
+      setTimeout(() => {
+        const modal = document.querySelector('.bg-white.rounded-lg');
+        if (modal) {
+          modal.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+      return;
+    }
+
+    // Ürünler seçiliyse en az bir ürün grubu veya alt ürün seçilmeli
+    if (form.hasProducts && selectedProductGroups.length === 0 && selectedProducts.length === 0) {
+      setError('Ürünler seçiliyse en az bir ürün grubu veya alt ürün seçmelisiniz!');
+      // Hata mesajını görmek için sayfayı yukarı scroll et
+      setTimeout(() => {
+        const modal = document.querySelector('.bg-white.rounded-lg');
+        if (modal) {
+          modal.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+      return;
+    }
+
+    // Çözümler seçiliyse en az bir çözüm seçilmeli
+    if (form.hasSolutions && selectedSolutions.length === 0) {
+      setError('Çözümler seçiliyse en az bir çözüm seçmelisiniz!');
+      // Hata mesajını görmek için sayfayı yukarı scroll et
+      setTimeout(() => {
+        const modal = document.querySelector('.bg-white.rounded-lg');
+        if (modal) {
+          modal.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
       return;
     }
 
@@ -366,26 +462,26 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
       setSubmitLoading(true);
       setError(null);
 
-      // 1. Adım: Önce market güncelle (resim olmadan)
-      const marketUpdateData = {
-        slug: form.slug,
-        imageUrl: marketData?.imageUrl || '', // Mevcut resim URL'si
-        order: parseInt(form.order.toString()),
-        hasProducts: form.hasProducts,
-        hasSolutions: form.hasSolutions,
-        hasCertificates: form.hasCertificates,
-        translations: translations.filter(t => t.name.trim() !== '' || t.description.trim() !== ''),
-        selectedProductGroups: selectedProductGroups,
-        selectedProducts: selectedProducts,
-        selectedSolutions: selectedSolutions,
-      };
+      // FormData ile market güncelle (resim dahil)
+      const formData = new FormData();
+      formData.append('slug', form.slug);
+      formData.append('order', form.order.toString());
+      formData.append('isActive', marketData?.isActive?.toString() || 'true'); // isActive değerini ekle
+      formData.append('hasProducts', form.hasProducts.toString());
+      formData.append('hasSolutions', form.hasSolutions.toString());
+      formData.append('hasCertificates', form.hasCertificates.toString());
+      formData.append('translations', JSON.stringify(translations.filter(t => t.name.trim() !== '' || t.description.trim() !== '')));
+      formData.append('selectedProductGroups', JSON.stringify(selectedProductGroups));
+      formData.append('selectedProducts', JSON.stringify(selectedProducts));
+      formData.append('selectedSolutions', JSON.stringify(selectedSolutions));
+      
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
 
       const response = await fetch(`${API_BASE}/api/markets/${marketId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(marketUpdateData),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -394,41 +490,6 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
       }
 
       console.log('✅ Market başarıyla güncellendi');
-
-      // 2. Adım: Eğer yeni resim seçilmişse, market güncellendikten sonra resmi yükle
-      if (selectedFile) {
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-
-        const uploadResponse = await fetch(`${API_BASE}/api/upload/image/market/${marketId}`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          console.warn('⚠️ Resim yüklenemedi, market güncellendi ama resim olmadan');
-        } else {
-          const uploadResult = await uploadResponse.json();
-          console.log('✅ Resim başarıyla yüklendi:', uploadResult);
-
-          // Market'in imageUrl alanını güncelle
-          const updateResponse = await fetch(`${API_BASE}/api/markets/${marketId}/image`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              imageUrl: uploadResult.url
-            }),
-          });
-
-          if (updateResponse.ok) {
-            console.log('✅ Market imageUrl güncellendi');
-          } else {
-            console.warn('⚠️ Market imageUrl güncellenemedi');
-          }
-        }
-      }
 
       // Başarılı
       console.log('✅ Market başarıyla güncellendi');
@@ -537,49 +598,169 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
               <p className="text-xs text-gray-500 mt-1">Footer'da görünme sırası</p>
             </div>
 
-            {/* Özellikler */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Market Özellikleri
-              </label>
-              <div className="space-y-3">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="hasProducts"
-                    checked={form.hasProducts}
-                    onChange={handleFormChange}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Ürünler</span>
+            {/* Market Özellikleri ve İçerik Seçimi - Yan Yana */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Market Özellikleri */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Market Özellikleri
                 </label>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="hasSolutions"
-                    checked={form.hasSolutions}
-                    onChange={handleFormChange}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Çözümler</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="hasCertificates"
-                    checked={form.hasCertificates}
-                    onChange={handleFormChange}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Sertifikalar</span>
-                </label>
+                <div className="space-y-3">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="hasProducts"
+                      checked={form.hasProducts}
+                      onChange={(e) => {
+                        handleFormChange(e);
+                        // Ürünler kapatılırsa seçili ürün grupları ve alt ürünleri temizle
+                        if (!e.target.checked) {
+                          setSelectedProductGroups([]);
+                          setSelectedProducts([]);
+                        }
+                      }}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Ürünler</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="hasSolutions"
+                      checked={form.hasSolutions}
+                      onChange={(e) => {
+                        handleFormChange(e);
+                        // Çözümler kapatılırsa seçili çözümleri temizle
+                        if (!e.target.checked) {
+                          setSelectedSolutions([]);
+                        }
+                      }}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Çözümler</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="hasCertificates"
+                      checked={form.hasCertificates}
+                      onChange={handleFormChange}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Sertifikalar</span>
+                  </label>
+                </div>
               </div>
+
+              {/* İçerik Seçimleri */}
+              {(form.hasProducts || form.hasSolutions) && (
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">İçerik Seçimleri (Opsiyonel)</h3>
+                  
+                  {/* Ürün Grupları */}
+                  {form.hasProducts && (
+                    <div className="mb-6">
+                      <h4 className="text-md font-medium text-gray-700 mb-3">Ürün Grupları (Üst Ürünler)</h4>
+                      {loadingContent ? (
+                        <div className="text-sm text-gray-500">Yükleniyor...</div>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-3 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                          {availableProductGroups.map((group) => {
+                            const isChecked = selectedProductGroups.includes(group.id);
+                            return (
+                              <label key={`group-${group.id}-${isChecked}`} className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={(e) => handleProductGroupChange(group.id, e.target.checked)}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">
+                                  {group.translation?.name || group.name || 'İsimsiz'}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Alt Ürünler */}
+                  {form.hasProducts && (
+                    <div className="mb-6">
+                      <h4 className="text-md font-medium text-gray-700 mb-3">Alt Ürünler</h4>
+                      {loadingContent ? (
+                        <div className="text-sm text-gray-500">Yükleniyor...</div>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-3 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                          {availableProducts.map((product) => {
+                            const isChecked = selectedProducts.includes(product.id);
+                            return (
+                              <label key={`product-${product.id}-${isChecked}`} className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={(e) => handleProductChange(product.id, e.target.checked)}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">
+                                  {product.title || product.groupName || 'İsimsiz'}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Çözümler */}
+                  {form.hasSolutions && (
+                    <div className="mb-6">
+                      <h4 className="text-md font-medium text-gray-700 mb-3">Çözümler</h4>
+                      {loadingContent ? (
+                        <div className="text-sm text-gray-500">Yükleniyor...</div>
+                      ) : (
+                        <div className="grid grid-cols-1 gap-3 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
+                          {availableSolutions.map((solution) => {
+                            const isChecked = selectedSolutions.includes(solution.id);
+                            return (
+                              <label key={`solution-${solution.id}-${isChecked}`} className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={(e) => handleSolutionChange(solution.id, e.target.checked)}
+                                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">{solution.title || 'İsimsiz'}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Sertifikalar Bilgisi */}
+                  {form.hasCertificates && (
+                    <div className="mb-6">
+                      <h4 className="text-md font-medium text-gray-700 mb-3">Sertifikalar</h4>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <p className="text-sm text-blue-700">
+                          Sertifikalar otomatik olarak eklenir ve tüm marketlerde görünür.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Mevcut Resim ve Yeni Resim Yükleme */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Market Resmi
+                Market Resmi <span className="text-red-500">*</span>
               </label>
               
               {/* Mevcut resim */}
@@ -634,7 +815,7 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
 
             {/* Çeviriler */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Çeviriler</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Çeviriler <span className="text-red-500">*</span></h3>
               <div className="space-y-4">
                 {translations.map((translation, idx) => (
                   <div key={translation.language} className="border border-gray-200 rounded-lg p-4">
@@ -674,107 +855,7 @@ const EditMarketModal: React.FC<EditMarketModalProps> = ({ isOpen, marketId, onC
               </div>
             </div>
 
-            {/* İçerik Seçimleri */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">İçerik Seçimleri</h3>
-              
-              {/* Ürün Grupları */}
-              {form.hasProducts && (
-                <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-700 mb-3">Ürün Grupları (Üst Ürünler)</h4>
-                  {loadingContent ? (
-                    <div className="text-sm text-gray-500">Yükleniyor...</div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                      {availableProductGroups.map((group) => {
-                        const isChecked = selectedProductGroups.includes(group.id);
-                        return (
-                          <label key={`group-${group.id}-${isChecked}`} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => handleProductGroupChange(group.id, e.target.checked)}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">
-                              {group.translation?.name || group.name || 'İsimsiz'}
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
 
-              {/* Alt Ürünler */}
-              {form.hasProducts && (
-                <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-700 mb-3">Alt Ürünler</h4>
-                  {loadingContent ? (
-                    <div className="text-sm text-gray-500">Yükleniyor...</div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                      {availableProducts.map((product) => {
-                        const isChecked = selectedProducts.includes(product.id);
-                        return (
-                          <label key={`product-${product.id}-${isChecked}`} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => handleProductChange(product.id, e.target.checked)}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">
-                              {product.title || product.groupName || 'İsimsiz'}
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Çözümler */}
-              {form.hasSolutions && (
-                <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-700 mb-3">Çözümler</h4>
-                  {loadingContent ? (
-                    <div className="text-sm text-gray-500">Yükleniyor...</div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-3">
-                      {availableSolutions.map((solution) => {
-                        const isChecked = selectedSolutions.includes(solution.id);
-                        return (
-                          <label key={`solution-${solution.id}-${isChecked}`} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => handleSolutionChange(solution.id, e.target.checked)}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span className="text-sm text-gray-700">{solution.title || 'İsimsiz'}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Sertifikalar Bilgisi */}
-              {form.hasCertificates && (
-                <div className="mb-6">
-                  <h4 className="text-md font-medium text-gray-700 mb-3">Sertifikalar</h4>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-sm text-blue-700">
-                      Sertifikalar otomatik olarak eklenir ve tüm marketlerde görünür.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
 
             {/* Butonlar */}
             <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
