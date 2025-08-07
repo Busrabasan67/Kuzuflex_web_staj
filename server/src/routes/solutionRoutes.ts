@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { 
   getAllSolutions, 
   getSolutionBySlug, 
@@ -8,6 +9,7 @@ import {
   updateSolution,
   deleteSolution
 } from "../controllers/solutionController";
+import { uploadSolution } from "../controllers/uploadController";
 
 const router = express.Router();
 
@@ -34,42 +36,27 @@ router.get("/", getAllSolutions);
  * @openapi
  * /api/solutions:
  *   post:
- *     summary: Yeni çözüm oluşturur
+ *     summary: Yeni çözüm oluşturur (resim yükleme ile birlikte)
  *     tags: [Solutions]
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               slug:
+ *               image:
  *                 type: string
- *                 description: "URL için slug"
- *               imageUrl:
+ *                 format: binary
+ *                 description: "Çözüm resmi (opsiyonel)"
+ *               data:
  *                 type: string
- *                 description: "Çözüm resmi URL'i"
- *               hasExtraContent:
- *                 type: boolean
- *                 description: "Ekstra içerik var mı?"
- *               translations:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     language:
- *                       type: string
- *                     title:
- *                       type: string
- *                     subtitle:
- *                       type: string
- *                     description:
- *                       type: string
+ *                 description: "JSON formatında çözüm verileri"
  *     responses:
  *       201:
  *         description: "Çözüm başarıyla oluşturuldu"
  */
-router.post("/", createSolution);
+router.post("/", uploadSolution.single('image'), createSolution);
 
 /**
  * @openapi
@@ -131,7 +118,7 @@ router.get("/:slug", getSolutionBySlug);
  * @openapi
  * /api/solutions/{id}:
  *   put:
- *     summary: Çözümü günceller
+ *     summary: Çözümü günceller (resim yükleme ile birlikte)
  *     tags: [Solutions]
  *     parameters:
  *       - name: id
@@ -142,25 +129,22 @@ router.get("/:slug", getSolutionBySlug);
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
- *               slug:
+ *               image:
  *                 type: string
- *               imageUrl:
+ *                 format: binary
+ *                 description: "Çözüm resmi (opsiyonel)"
+ *               data:
  *                 type: string
- *               hasExtraContent:
- *                 type: boolean
- *               translations:
- *                 type: array
- *                 items:
- *                   type: object
+ *                 description: "JSON formatında çözüm verileri"
  *     responses:
  *       200:
  *         description: "Çözüm başarıyla güncellendi"
  */
-router.put("/:id", updateSolution);
+router.put("/:id", uploadSolution.single('image'), updateSolution);
 
 /**
  * @openapi

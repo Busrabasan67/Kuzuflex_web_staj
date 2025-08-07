@@ -52,6 +52,10 @@ const SolutionManagement: React.FC = () => {
       }
 
       const data = await response.json();
+      console.log('📋 SOLUTION MANAGEMENT - API\'den gelen veriler:', data);
+      if (data.length > 0) {
+        console.log('📋 SOLUTION MANAGEMENT - İlk solution örneği:', data[0]);
+      }
       setSolutions(data);
     } catch (err) {
       showToast('error', 'Solution\'lar yüklenirken hata oluştu');
@@ -65,23 +69,17 @@ const SolutionManagement: React.FC = () => {
     setSaving(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/solutions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Solution oluşturulurken hata oluştu');
-      }
-
-      showToast('success', 'Solution başarıyla oluşturuldu!');
+      console.log('🔄 SOLUTION MANAGEMENT - handleCreateSolution çağrıldı:', formData);
+      
+      // Modal'ı kapat
       setShowModal(false);
-      fetchSolutions(); // Listeyi yenile
+      
+      // Listeyi yenile
+      await fetchSolutions();
+      
+      showToast('success', 'Solution başarıyla oluşturuldu!');
     } catch (error) {
+      console.error('❌ SOLUTION MANAGEMENT - Hata:', error);
       showToast('error', error instanceof Error ? error.message : 'Bilinmeyen hata oluştu');
     } finally {
       setSaving(false);

@@ -35,6 +35,7 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || '');
   const [hasExtraContent, setHasExtraContent] = useState(initialData?.hasExtraContent || false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [modalToast, setModalToast] = useState<{
     show: boolean;
     type: 'success' | 'error' | 'info';
@@ -71,6 +72,7 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
       setSlug('');
       setImageUrl('');
       setHasExtraContent(false);
+      setSelectedImage(null);
       setTranslations([
         { language: 'tr', title: '', subtitle: '', description: '' },
         { language: 'en', title: '', subtitle: '', description: '' },
@@ -91,31 +93,75 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
     return names[code] || code;
   };
 
-  // Resim yükleme
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Resim seçme (henüz yükleme yok)
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('🖼️ IMAGE SELECT - Seçilen dosya:', file.name, file.size);
+    setSelectedImage(file);
+    
+    // Resim önizlemesi için URL oluştur
+    const previewUrl = URL.createObjectURL(file);
+    console.log('🖼️ IMAGE SELECT - Preview URL:', previewUrl);
+    setImageUrl(previewUrl);
+  };
+
+  // Tek endpoint ile solution oluşturma/güncelleme (resim dahil)
+  const submitSolutionWithImage = async (file: File, solutionData: any): Promise<any> => {
     setImageUploading(true);
     try {
+      console.log('🚀 SUBMIT SOLUTION - Başlangıç:', { file, solutionData });
+      
       const formData = new FormData();
       formData.append('image', file);
+      formData.append('data', JSON.stringify(solutionData));
 
-      const response = await fetch('http://localhost:5000/api/upload/image/solution/0', {
-        method: 'POST',
-        body: formData,
-      });
+      console.log('📦 SUBMIT SOLUTION - FormData hazırlandı');
 
-      if (!response.ok) {
-        throw new Error('Resim yükleme hatası');
+      // Yeni solution oluşturma
+      if (!solutionData.id) {
+        console.log('🆕 SUBMIT SOLUTION - Yeni solution oluşturma');
+        const response = await fetch('http://localhost:5000/api/solutions', {
+          method: 'POST',
+          body: formData,
+        });
+
+        console.log('📡 SUBMIT SOLUTION - Response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ SUBMIT SOLUTION - Response error:', errorText);
+          throw new Error('Solution oluşturma hatası');
+        }
+
+        const result = await response.json();
+        console.log('✅ SUBMIT SOLUTION - Başarılı:', result);
+        return result;
+      } else {
+        // Mevcut solution güncelleme
+        console.log('🔄 SUBMIT SOLUTION - Solution güncelleme');
+        const response = await fetch(`http://localhost:5000/api/solutions/${solutionData.id}`, {
+          method: 'PUT',
+          body: formData,
+        });
+
+        console.log('📡 SUBMIT SOLUTION - Response status:', response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ SUBMIT SOLUTION - Response error:', errorText);
+          throw new Error('Solution güncelleme hatası');
+        }
+
+        const result = await response.json();
+        console.log('✅ SUBMIT SOLUTION - Başarılı:', result);
+        return result;
       }
-
-      const result = await response.json();
-      setImageUrl(result.url);
-         } catch (error) {
-       console.error('Resim yükleme hatası:', error);
-       // Hata mesajı inline olarak gösterilecek
-     } finally {
+    } catch (error) {
+      console.error('❌ SUBMIT SOLUTION - Hata:', error);
+      throw error;
+    } finally {
       setImageUploading(false);
     }
   };
@@ -139,7 +185,7 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
   };
 
   // Form gönderme
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validasyon - Sadece inline hata mesajları göster
@@ -160,12 +206,42 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
       return;
     }
 
-    onSubmit({
-      slug: slug.trim(),
-      imageUrl: imageUrl.trim(),
-      hasExtraContent,
-      translations: translations
-    });
+    try {
+      // Tek endpoint ile resim yükleme ve solution güncelleme
+      if (selectedImage) {
+        const solutionData = {
+          id: initialData?.id || null,
+          slug: slug.trim(),
+          hasExtraContent,
+          translations: translations
+        };
+        
+        const result = await submitSolutionWithImage(selectedImage, solutionData);
+        console.log('✅ FORM SUBMIT - Solution başarıyla oluşturuldu:', result);
+        
+        // Modal'ı kapatmak için onSubmit callback'ini çağır
+        onSubmit({
+          slug: slug.trim(),
+          imageUrl: result.solution.imageUrl, // Backend'den gelen resim URL'i
+          hasExtraContent,
+          translations: translations
+        });
+      } else {
+        // Resim yoksa normal güncelleme
+        onSubmit({
+          slug: slug.trim(),
+          imageUrl: imageUrl,
+          hasExtraContent,
+          translations: translations
+        });
+      }
+    } catch (error) {
+      console.error('❌ FORM SUBMIT - Hata:', error);
+      // Hata durumunda kullanıcıya bilgi ver
+      if (onError) {
+        onError('Solution oluşturulurken hata oluştu');
+      }
+    }
   };
 
   if (!isOpen) return null;
@@ -237,7 +313,7 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
                      <input
                        type="file"
                        accept="image/*"
-                       onChange={handleImageUpload}
+                       onChange={handleImageSelect}
                                                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
                           !imageUrl.trim() ? 'border-red-300 bg-red-50' : 'border-gray-300'
                         }`}
@@ -255,7 +331,7 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
                    {imageUrl && (
                      <div className="mt-3">
                        <img 
-                         src={`http://localhost:5000${imageUrl}`} 
+                         src={imageUrl.startsWith('blob:') ? imageUrl : `http://localhost:5000${imageUrl}`} 
                          alt="Preview" 
                          className="w-24 h-24 object-cover rounded-xl border-2 border-gray-200"
                        />

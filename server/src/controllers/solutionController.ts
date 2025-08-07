@@ -1,53 +1,14 @@
 import { Request, Response } from "express";
-import AppDataSource from "../data-source";
-import { SolutionTranslation } from "../entity/SolutionTranslation";
-import { SolutionExtraContent } from "../entity/SolutionExtraContent";
-import { Solution } from "../entity/Solution";
-import * as fs from "fs";
-import * as path from "path";
-
-// Dosya silme yardımcı fonksiyonu
-const deleteFileIfExists = (filePath: string) => {
-  try {
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      console.log(`✅ Dosya silindi: ${filePath}`);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error(`❌ Dosya silinirken hata: ${filePath}`, error);
-    return false;
-  }
-};
-
-// Dosya yolu oluşturma yardımcı fonksiyonu
-const getPublicFilePath = (relativePath: string) => {
-  // __dirname: server/src/controllers
-  // İhtiyacımız: server/public
-  return path.join(__dirname, "../../public", relativePath);
-};
+import { solutionService } from "../services/solutionService";
 
 export const getAllSolutions = async (req: Request, res: Response) => {
   const lang = req.query.lang as string || "tr";
 
   try {
-    const repo = AppDataSource.getRepository(SolutionTranslation);
-    const solutions = await repo.find({
-      where: { language: lang },
-      relations: ["solution"],
-    });
-
-    const response = solutions.map((item) => ({
-      id: item.solution.id,
-      slug: item.solution.slug,
-      title: item.title,
-      imageUrl: item.solution.imageUrl,
-    }));
-
-    res.status(200).json(response);
+    const solutions = await solutionService.getAllSolutions(lang);
+    res.status(200).json(solutions);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching solutions", error: err });
+    res.status(500).json({ message: "Error fetching solutions", error: err instanceof Error ? err.message : String(err) });
   }
 };
 
@@ -56,67 +17,20 @@ export const getSolutionBySlug = async (req: Request, res: Response) => {
   const lang = req.query.lang as string || "tr";
 
   try {
-    const repo = AppDataSource.getRepository(SolutionTranslation);
-    const translation = await repo.findOne({
-      where: {
-        language: lang,
-        solution: { slug },
-      },
-      relations: ["solution"],
-    });
-
-    if (!translation) {
-      return res.status(404).json({ message: "Solution not found" });
-    }
-
-    let extraContents: SolutionExtraContent[] = [];
-    if (translation.solution.hasExtraContent) {
-      const extraRepo = AppDataSource.getRepository(SolutionExtraContent);
-      extraContents = await extraRepo.find({
-        where: {
-          solution: { id: translation.solution.id },
-          language: lang,
-        },
-        order: { order: "ASC" },
-      });
-    }
-
-    res.status(200).json({
-      id: translation.solution.id,
-      slug: translation.solution.slug,
-      imageUrl: translation.solution.imageUrl,
-      title: translation.title,
-      subtitle: translation.subtitle,
-      description: translation.description,
-      hasExtraContent: translation.solution.hasExtraContent,
-      extraContents,
-    });
+    const solution = await solutionService.getSolutionBySlug(slug, lang);
+    res.status(200).json(solution);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching solution detail", error: err });
+    res.status(500).json({ message: "Error fetching solution detail", error: err instanceof Error ? err.message : String(err) });
   }
 };
 
 // Admin panel için tüm solution'ları getir
 export const getSolutionsForAdmin = async (req: Request, res: Response) => {
   try {
-    const repo = AppDataSource.getRepository(SolutionTranslation);
-    const solutions = await repo.find({
-      where: { language: "tr" }, // Türkçe olanları getir
-      relations: ["solution"],
-    });
-
-    const response = solutions.map((item) => ({
-      id: item.solution.id,
-      slug: item.solution.slug,
-      title: item.title,
-      description: item.description,
-      imageUrl: item.solution.imageUrl,
-      hasExtraContent: item.solution.hasExtraContent,
-    }));
-
-    res.status(200).json(response);
+    const solutions = await solutionService.getSolutionsForAdmin();
+    res.status(200).json(solutions);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching solutions for admin", error: err });
+    res.status(500).json({ message: "Error fetching solutions for admin", error: err instanceof Error ? err.message : String(err) });
   }
 };
 
@@ -125,180 +39,83 @@ export const getSolutionForEdit = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const solutionRepo = AppDataSource.getRepository(Solution);
-    const solution = await solutionRepo.findOne({
-      where: { id: parseInt(id) },
-      relations: ["translations"]
-    });
-
-    if (!solution) {
-      return res.status(404).json({ message: "Solution not found" });
-    }
-
-    // Tüm diller için translation'ları hazırla
-    const allLanguages = ['tr', 'en', 'de', 'fr'];
-    const translations = allLanguages.map(lang => {
-      const existingTranslation = solution.translations?.find(t => t.language === lang);
-      return {
-        language: lang,
-        title: existingTranslation?.title || '',
-        subtitle: existingTranslation?.subtitle || '',
-        description: existingTranslation?.description || ''
-      };
-    });
-
-    res.status(200).json({
-      id: solution.id,
-      slug: solution.slug,
-      imageUrl: solution.imageUrl,
-      hasExtraContent: solution.hasExtraContent,
-      translations: translations
-    });
+    const solution = await solutionService.getSolutionForEdit(parseInt(id));
+    res.status(200).json(solution);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching solution for edit", error: err });
+    res.status(500).json({ message: "Error fetching solution for edit", error: err instanceof Error ? err.message : String(err) });
   }
 };
 
-// Yeni solution oluştur
+// Yeni solution oluştur (resim yükleme ile birlikte)
 export const createSolution = async (req: Request, res: Response) => {
-  const { 
-    slug, 
-    imageUrl, 
-    hasExtraContent,
-    translations 
-  } = req.body;
-
   try {
-    // Slug kontrolü
-    const existingSolution = await AppDataSource.getRepository(Solution).findOne({
-      where: { slug }
-    });
+    console.log('🔍 CREATE SOLUTION - Request body:', req.body);
+    console.log('🔍 CREATE SOLUTION - File:', req.file);
+    
+    let imageUrl = req.body.imageUrl;
+    let solutionData = req.body;
 
-    if (existingSolution) {
-      return res.status(400).json({ message: "Bu slug zaten kullanılıyor" });
-    }
-
-    // Solution oluştur
-    const solutionRepo = AppDataSource.getRepository(Solution);
-    const solution = solutionRepo.create({
-      slug,
-      imageUrl,
-      hasExtraContent: hasExtraContent || false
-    });
-
-    const savedSolution = await solutionRepo.save(solution);
-
-    // Translation'ları oluştur
-    if (translations && Array.isArray(translations)) {
-      const translationRepo = AppDataSource.getRepository(SolutionTranslation);
+    // Eğer FormData ile resim yüklendiyse
+    if (req.file) {
+      imageUrl = `/uploads/solutions/${req.file.filename}`;
+      console.log('📸 CREATE SOLUTION - Yeni resim yolu:', imageUrl);
       
-      for (const translation of translations) {
-        const newTranslation = translationRepo.create({
-          language: translation.language,
-          title: translation.title,
-          subtitle: translation.subtitle,
-          description: translation.description,
-          solution: savedSolution
-        });
-        
-        await translationRepo.save(newTranslation);
+      // FormData'dan gelen veriyi parse et
+      if (req.body.data) {
+        solutionData = JSON.parse(req.body.data);
+        console.log('📋 CREATE SOLUTION - Parsed data:', solutionData);
       }
     }
 
-    res.status(201).json({
-      message: "Solution başarıyla oluşturuldu",
-      solution: savedSolution
+    console.log('🚀 CREATE SOLUTION - Service çağrısı öncesi:', {
+      slug: solutionData.slug,
+      imageUrl,
+      hasExtraContent: solutionData.hasExtraContent,
+      translations: solutionData.translations
     });
+
+    const result = await solutionService.createSolution({
+      slug: solutionData.slug,
+      imageUrl,
+      hasExtraContent: solutionData.hasExtraContent,
+      translations: solutionData.translations
+    });
+    
+    console.log('✅ CREATE SOLUTION - Başarılı:', result);
+    res.status(201).json(result);
   } catch (err) {
-    res.status(500).json({ message: "Error creating solution", error: err });
+    console.error('❌ CREATE SOLUTION - Hata:', err);
+    res.status(500).json({ message: "Error creating solution", error: err instanceof Error ? err.message : String(err) });
   }
 };
 
-// Solution güncelle
+// Solution güncelle (resim yükleme ile birlikte)
 export const updateSolution = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { slug, imageUrl, hasExtraContent, translations } = req.body;
-
+  
   try {
-    console.log('🔄 Solution güncelleme işlemi başlatıldı, ID:', id);
-    
-    const solutionRepo = AppDataSource.getRepository(Solution);
-    const solution = await solutionRepo.findOne({
-      where: { id: parseInt(id) },
-      relations: ["translations"]
-    });
+    let imageUrl = req.body.imageUrl;
+    let solutionData = req.body;
 
-    if (!solution) {
-      return res.status(404).json({ message: "Solution not found" });
-    }
-
-    console.log('🔍 Solution bulundu:', solution.id, solution.slug);
-
-    // Slug kontrolü (kendisi hariç)
-    if (slug && slug !== solution.slug) {
-      const existingSolution = await solutionRepo.findOne({
-        where: { slug }
-      });
-
-      if (existingSolution) {
-        return res.status(400).json({ message: "Bu slug zaten kullanılıyor" });
-      }
-    }
-
-    // Eski resmi sil (eğer yeni resim yüklendiyse)
-    if (solution.imageUrl && imageUrl && solution.imageUrl !== imageUrl) {
-      console.log('🗑️ Eski solution resmi siliniyor:', solution.imageUrl);
-      const oldImagePath = getPublicFilePath(solution.imageUrl);
-      deleteFileIfExists(oldImagePath);
-    }
-
-    // Solution güncelle
-    solution.slug = slug || solution.slug;
-    solution.imageUrl = imageUrl || solution.imageUrl;
-    solution.hasExtraContent = hasExtraContent !== undefined ? hasExtraContent : solution.hasExtraContent;
-
-    await solutionRepo.save(solution);
-
-    // Translation'ları güncelle
-    if (translations && Array.isArray(translations)) {
-      const translationRepo = AppDataSource.getRepository(SolutionTranslation);
+    // Eğer FormData ile resim yüklendiyse
+    if (req.file) {
+      imageUrl = `/uploads/solutions/${req.file.filename}`;
       
-      for (const translation of translations) {
-        const existingTranslation = await translationRepo.findOne({
-          where: {
-            solution: { id: parseInt(id) },
-            language: translation.language
-          }
-        });
-
-        if (existingTranslation) {
-          // Güncelle
-          existingTranslation.title = translation.title;
-          existingTranslation.subtitle = translation.subtitle;
-          existingTranslation.description = translation.description;
-          await translationRepo.save(existingTranslation);
-        } else {
-          // Yeni oluştur
-          const newTranslation = translationRepo.create({
-            language: translation.language,
-            title: translation.title,
-            subtitle: translation.subtitle,
-            description: translation.description,
-            solution: solution
-          });
-          await translationRepo.save(newTranslation);
-        }
+      // FormData'dan gelen veriyi parse et
+      if (req.body.data) {
+        solutionData = JSON.parse(req.body.data);
       }
     }
 
-    console.log('✅ Solution başarıyla güncellendi');
-    res.status(200).json({
-      message: "Solution başarıyla güncellendi",
-      solution: solution
+    const result = await solutionService.updateSolution(parseInt(id), {
+      slug: solutionData.slug,
+      imageUrl,
+      hasExtraContent: solutionData.hasExtraContent,
+      translations: solutionData.translations
     });
+    res.status(200).json(result);
   } catch (err) {
-    console.error('❌ Solution güncelleme hatası:', err);
-    res.status(500).json({ message: "Error updating solution", error: err });
+    res.status(500).json({ message: "Error updating solution", error: err instanceof Error ? err.message : String(err) });
   }
 };
 
@@ -307,66 +124,9 @@ export const deleteSolution = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    console.log('🗑️ Solution silme işlemi başlatıldı, ID:', id);
-    
-    const solutionRepo = AppDataSource.getRepository(Solution);
-    const translationRepo = AppDataSource.getRepository(SolutionTranslation);
-    const extraContentRepo = AppDataSource.getRepository(SolutionExtraContent);
-
-    // Solution'ı bul
-    const solution = await solutionRepo.findOne({
-      where: { id: parseInt(id) },
-      relations: ["translations", "extraContents"]
-    });
-
-    if (!solution) {
-      return res.status(404).json({ message: "Solution not found" });
-    }
-
-    console.log('🔍 Solution bulundu:', solution.id, solution.slug);
-
-    // Ekstra içerik sayısını al
-    const extraContentCount = solution.extraContents?.length || 0;
-    const translationCount = solution.translations?.length || 0;
-
-    // 1. Önce ekstra içerikleri sil
-    if (extraContentCount > 0) {
-      console.log('🗑️ Solution ekstra içerikleri siliniyor...');
-      await extraContentRepo.delete({
-        solution: { id: parseInt(id) }
-      });
-    }
-
-    // 2. Translation'ları sil
-    if (translationCount > 0) {
-      console.log('🗑️ Solution translation\'ları siliniyor...');
-      await translationRepo.delete({
-        solution: { id: parseInt(id) }
-      });
-    }
-
-    // 3. Solution resmini sil (eğer varsa)
-    if (solution.imageUrl) {
-      console.log('🗑️ Solution resmi siliniyor:', solution.imageUrl);
-      const imagePath = getPublicFilePath(solution.imageUrl);
-      deleteFileIfExists(imagePath);
-    }
-
-    // 4. Solution'ı sil
-    console.log('🗑️ Solution siliniyor...');
-    await solutionRepo.remove(solution);
-    
-    console.log('✅ Solution başarıyla silindi');
-    res.status(200).json({ 
-      message: `Solution başarıyla silindi`,
-      deletedItems: {
-        solution: 1,
-        translations: translationCount,
-        extraContents: extraContentCount
-      }
-    });
+    const result = await solutionService.deleteSolution(parseInt(id));
+    res.status(200).json(result);
   } catch (err) {
-    console.error('❌ Solution silme hatası:', err);
-    res.status(500).json({ message: "Error deleting solution", error: err });
+    res.status(500).json({ message: "Error deleting solution", error: err instanceof Error ? err.message : String(err) });
   }
 };
