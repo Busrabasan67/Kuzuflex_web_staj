@@ -1,8 +1,16 @@
 // HTML Generation utilities for content management
 
+export interface ColumnStyle {
+  backgroundColor: string;
+  textColor: string;
+  headerBackgroundColor: string;
+  headerTextColor: string;
+}
+
 export interface TableData {
   headers: string[];
   rows: string[][];
+  styles?: ColumnStyle[];
 }
 
 export interface ListData {
@@ -25,12 +33,17 @@ export const generateTableHTML = (tableData: TableData): string => {
   }
 
   let html = '<div class="table-container overflow-x-auto my-4">';
-  html += '<table class="min-w-full border border-gray-300 bg-white">';
+  html += '<table class="min-w-full border border-gray-300 bg-white rounded-lg overflow-hidden shadow-sm">';
   
   // Header
-  html += '<thead><tr class="bg-gray-100">';
-  tableData.headers.forEach(header => {
-    html += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+  html += '<thead><tr>';
+  tableData.headers.forEach((header, columnIndex) => {
+    const style = tableData.styles && tableData.styles[columnIndex];
+    const headerStyle = style ? 
+      `background-color: ${style.headerBackgroundColor}; color: ${style.headerTextColor};` : 
+      'background-color: #f3f4f6; color: #000000;';
+    
+    html += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold" style="${headerStyle}">${header}</th>`;
   });
   html += '</tr></thead>';
   
@@ -38,8 +51,13 @@ export const generateTableHTML = (tableData: TableData): string => {
   html += '<tbody>';
   tableData.rows.forEach(row => {
     html += '<tr>';
-    row.forEach(cell => {
-      html += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
+    row.forEach((cell, columnIndex) => {
+      const style = tableData.styles && tableData.styles[columnIndex];
+      const cellStyle = style ? 
+        `background-color: ${style.backgroundColor}; color: ${style.textColor};` : 
+        'background-color: #ffffff; color: #000000;';
+      
+      html += `<td class="border border-gray-300 px-4 py-2" style="${cellStyle}">${cell}</td>`;
     });
     html += '</tr>';
   });
@@ -106,23 +124,91 @@ export const generateMixedContentHTML = (
   
   if (layout === 'vertical') {
     html += '<div class="space-y-4">';
-    elements.forEach(element => {
+    elements.forEach((element, index) => {
+      const position = element.position || 'full';
+      const width = element.width || '100%';
+      
+      // Konum göstergesi ekle
+      let positionIndicator = '';
+      if (position === 'left') {
+        positionIndicator = '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>';
+      } else if (position === 'right') {
+        positionIndicator = '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>';
+      } else {
+        positionIndicator = '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+      }
+      
+      html += `<div class="relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">`;
+      html += positionIndicator;
+      html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       html += generateElementHTML(element);
+      html += '</div>';
     });
     html += '</div>';
   } else if (layout === 'horizontal') {
     html += '<div class="flex flex-wrap gap-4">';
-    elements.forEach(element => {
-      const width = element.width || '50%';
-      html += `<div style="flex: 1; min-width: ${width};">`;
+    elements.forEach((element, index) => {
+      const width = element.width || '100%';
+      const position = element.position || 'full';
+      
+      // Konum ve boyuta göre CSS sınıfları
+      let cssClasses = '';
+      if (position === 'left') {
+        cssClasses = 'flex-shrink-0';
+      } else if (position === 'right') {
+        cssClasses = 'flex-shrink-0 ml-auto';
+      } else {
+        cssClasses = 'flex-1';
+      }
+      
+      // Konum göstergesi ekle
+      let positionIndicator = '';
+      if (position === 'left') {
+        positionIndicator = '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>';
+      } else if (position === 'right') {
+        positionIndicator = '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>';
+      } else {
+        positionIndicator = '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+      }
+      
+      html += `<div class="${cssClasses} relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white" style="min-width: ${width}; max-width: ${width};">`;
+      html += positionIndicator;
+      html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       html += generateElementHTML(element);
       html += '</div>';
     });
     html += '</div>';
   } else if (layout === 'grid') {
-    html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
-    elements.forEach(element => {
+    // Grid layout için konum ve boyut bilgilerini kullan
+    html += '<div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">';
+    elements.forEach((element, index) => {
+      const width = element.width || '100%';
+      const position = element.position || 'full';
+      
+      let gridClasses = '';
+      if (position === 'left') {
+        gridClasses = 'justify-self-start';
+      } else if (position === 'right') {
+        gridClasses = 'justify-self-end';
+      } else {
+        gridClasses = 'justify-self-stretch';
+      }
+      
+      // Konum göstergesi ekle
+      let positionIndicator = '';
+      if (position === 'left') {
+        positionIndicator = '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>';
+      } else if (position === 'right') {
+        positionIndicator = '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>';
+      } else {
+        positionIndicator = '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+      }
+      
+      html += `<div class="${gridClasses} relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white" style="width: ${width};">`;
+      html += positionIndicator;
+      html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       html += generateElementHTML(element);
+      html += '</div>';
     });
     html += '</div>';
   }

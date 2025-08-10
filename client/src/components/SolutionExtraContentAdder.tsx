@@ -4,6 +4,7 @@ import ContentTypeSelector from './ContentTypeSelector';
 import SimpleTableBuilder from './SimpleTableBuilder';
 import SimpleListBuilder from './SimpleListBuilder';
 import MixedContentEditor from './MixedContentEditor';
+import RichTextEditor from './RichTextEditor';
 import { generateMixedContentHTML } from '../utils/htmlGenerators';
 
 // Local type definitions as backup
@@ -36,16 +37,6 @@ interface ExtraContent {
   solutionTitle: string;
 }
 
-interface TableData {
-  headers: string[];
-  rows: string[][];
-}
-
-interface ListData {
-  items: string[];
-  type: 'ordered' | 'unordered';
-}
-
 // Çoklu dil için yeni interface
 interface MultiLanguageContent {
   tr: { title: string; content: any };
@@ -58,14 +49,19 @@ interface SolutionExtraContentAdderProps {
   onContentAdded?: () => void;
   onCancel?: () => void;
   editingContent?: ExtraContent | null;
+  initialSolution?: Solution | null;
 }
+
+type Step = 'solution' | 'type' | 'content' | 'review';
 
 const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({ 
   onContentAdded,
   onCancel,
-  editingContent = null
+  editingContent = null,
+  initialSolution = null
 }) => {
-  const [selectedSolution, setSelectedSolution] = useState<Solution | null>(null);
+  const [currentStep, setCurrentStep] = useState<Step>('solution');
+  const [selectedSolution, setSelectedSolution] = useState<Solution | null>(initialSolution);
   const [selectedType, setSelectedType] = useState<ContentType | null>(null);
   const [multiLanguageContent, setMultiLanguageContent] = useState<MultiLanguageContent>({
     tr: { title: '', content: null },
@@ -73,27 +69,207 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
     de: { title: '', content: null },
     fr: { title: '', content: null }
   });
-  const [mixedElements, setMixedElements] = useState<ContentElement[]>([]);
+  const [mixedElements, setMixedElements] = useState<{ [language: string]: ContentElement[] }>({
+    tr: [],
+    en: [],
+    de: [],
+    fr: []
+  });
+  const [layoutByLang, setLayoutByLang] = useState<Record<string, 'vertical' | 'horizontal' | 'grid'>>({
+    tr: 'vertical',
+    en: 'vertical',
+    de: 'vertical',
+    fr: 'vertical'
+  });
+  const [activeLangTab, setActiveLangTab] = useState<'tr' | 'en' | 'de' | 'fr'>('tr');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // Düzenleme modu için başlangıç verilerini yükle
   useEffect(() => {
     if (editingContent) {
-      // Mevcut içeriği yükle
+      setCurrentStep('content');
       setSelectedType(editingContent.type as ContentType);
-      
-      // Solution'ı bul ve seç
       fetchSolutionForEditing(editingContent.solutionId);
       
-      // İçeriği parse et
+      // Eğer multiLanguageData varsa (tüm dillerdeki içerikler)
+      if ((editingContent as any).multiLanguageData) {
+        const multiData = (editingContent as any).multiLanguageData;
+        
       if (editingContent.type === 'mixed') {
-        // HTML içeriğini parse et (basit bir yaklaşım)
-        setMixedElements([]); // Şimdilik boş, daha gelişmiş parser gerekebilir
+          // Mixed content için özel yükleme
+          const newMixedElements: { [language: string]: ContentElement[] } = {
+            tr: [],
+            en: [],
+            de: [],
+            fr: []
+          };
+          const newLayoutByLang: Record<string, 'vertical' | 'horizontal' | 'grid'> = {
+            tr: 'vertical',
+            en: 'vertical', 
+            de: 'vertical',
+            fr: 'vertical'
+          };
+          
+          // Her dil için mixed content'i yükle
+          Object.keys(multiData).forEach(lang => {
+            try {
+              const content = multiData[lang];
+              if (content.content) {
+                let parsedContent;
+                if (typeof content.content === 'string') {
+                  parsedContent = JSON.parse(content.content);
+                } else {
+                  parsedContent = content.content;
+                }
+                
+                // Mixed content'i parse et
+                console.log(`🔍 ${lang} mixed content parsing:`, parsedContent);
+                if (parsedContent) {
+                  // Yeni format: JSON içinde hem HTML hem de JSON data var
+                  if (parsedContent.json) {
+                    console.log(`✅ ${lang} JSON format detected:`, parsedContent.json);
+                    // JSON formatından yükle
+                    const jsonData = parsedContent.json;
+                    newLayoutByLang[lang as keyof typeof newLayoutByLang] = jsonData.layout || 'vertical';
+                    newMixedElements[lang as keyof typeof newMixedElements] = jsonData.elements || [];
+                    console.log(`📦 ${lang} loaded elements:`, jsonData.elements);
+                  } else if (typeof parsedContent === 'string') {
+                    console.log(`📄 ${lang} HTML string format detected:`, parsedContent);
+                    // Eski format: Sadece HTML string
+                    // HTML içeriğini parse et ve elementleri çıkar
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = parsedContent;
+                    
+                    // Layout bilgisini çıkar (data-layout attribute'u varsa)
+                    const container = tempDiv.querySelector('[data-layout]');
+                    if (container) {
+                      newLayoutByLang[lang as keyof typeof newLayoutByLang] = 
+                        container.getAttribute('data-layout') as any || 'vertical';
+                    }
+                    
+                    // Elementleri parse et (bu kısım MixedContentEditor'ın formatına uygun olmalı)
+                    const elements: ContentElement[] = [];
+                    const contentElements = tempDiv.querySelectorAll('[data-element]');
+                    
+                    contentElements.forEach((el, index) => {
+                      const elementType = el.getAttribute('data-type') || 'text';
+                      const elementContent = el.textContent || '';
+                      const position = el.getAttribute('data-position') || 'full';
+                      const width = el.getAttribute('data-width') || '100%';
+                      
+                      elements.push({
+                        id: `element-${index}`,
+                        type: elementType as 'text' | 'image' | 'table' | 'list',
+                        content: elementContent,
+                        position: position as 'left' | 'right' | 'full',
+                        width: width as '25%' | '50%' | '75%' | '100%'
+                      });
+                    });
+                    
+                    newMixedElements[lang as keyof typeof newMixedElements] = elements;
+                    console.log(`📦 ${lang} parsed elements:`, elements);
+                  }
+                }
+              }
+            } catch (error) {
+              console.error(`Mixed content parsing error for ${lang}:`, error);
+            }
+          });
+          
+          setMixedElements(newMixedElements);
+          setLayoutByLang(newLayoutByLang);
+        } else {
+          // Tüm dillerdeki mevcut içerikleri yükle
+          const newMultiLanguageContent = {
+            tr: { title: '', content: null },
+            en: { title: '', content: null },
+            de: { title: '', content: null },
+            fr: { title: '', content: null }
+          };
+          
+          Object.keys(multiData).forEach(lang => {
+            try {
+              const content = multiData[lang];
+              
+              let parsedContent = null;
+              if (content.content) {
+                if (typeof content.content === 'string') {
+                  parsedContent = JSON.parse(content.content);
+                } else {
+                  parsedContent = content.content;
+                }
+              }
+              
+              newMultiLanguageContent[lang as keyof MultiLanguageContent] = {
+                title: content.title || '',
+                content: parsedContent
+              };
+            } catch (error) {
+              console.error(`Content parsing error for ${lang}:`, error);
+              const content = multiData[lang];
+              newMultiLanguageContent[lang as keyof MultiLanguageContent] = {
+                title: content.title || '',
+                content: content.content || null
+              };
+            }
+          });
+          
+          setMultiLanguageContent(newMultiLanguageContent);
+        }
+      } else {
+        // Tek dil için eski yöntem
+        if (editingContent.type === 'mixed') {
+          // Tek dil mixed content için yükleme
+          try {
+            const parsedContent = JSON.parse(editingContent.content);
+            if (parsedContent) {
+              // Yeni format: JSON içinde hem HTML hem de JSON data var
+              if (parsedContent.json) {
+                const jsonData = parsedContent.json;
+                setLayoutByLang(prev => ({
+                  ...prev,
+                  [editingContent.language]: jsonData.layout || 'vertical'
+                }));
+                setMixedElements(prev => ({
+                  ...prev,
+                  [editingContent.language]: jsonData.elements || []
+                }));
+              } else if (typeof parsedContent === 'string') {
+                // Eski format: Sadece HTML string
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = parsedContent;
+                
+                const elements: ContentElement[] = [];
+                const contentElements = tempDiv.querySelectorAll('[data-element]');
+                
+                contentElements.forEach((el, index) => {
+                  const elementType = el.getAttribute('data-type') || 'text';
+                  const elementContent = el.textContent || '';
+                  const position = el.getAttribute('data-position') || 'full';
+                  const width = el.getAttribute('data-width') || '100%';
+                  
+                  elements.push({
+                    id: `element-${index}`,
+                    type: elementType as 'text' | 'image' | 'table' | 'list',
+                    content: elementContent,
+                    position: position as 'left' | 'right' | 'full',
+                    width: width as '25%' | '50%' | '75%' | '100%'
+                  });
+                });
+                
+                setMixedElements(prev => ({
+                  ...prev,
+                  [editingContent.language]: elements
+                }));
+              }
+            }
+          } catch (error) {
+            console.error('Mixed content parsing error:', error);
+          }
       } else {
         try {
           const parsedContent = JSON.parse(editingContent.content);
-          // Sadece mevcut dil için içerik yükle
           setMultiLanguageContent(prev => ({
             ...prev,
             [editingContent.language]: {
@@ -106,7 +282,11 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
         }
       }
     }
-  }, [editingContent]);
+    } else if (initialSolution) {
+      setSelectedSolution(initialSolution);
+      setCurrentStep('type');
+    }
+  }, [editingContent, initialSolution]);
 
   const fetchSolutionForEditing = async (solutionId: number) => {
     try {
@@ -125,25 +305,21 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
 
   const handleSolutionSelect = (solution: Solution) => {
     setSelectedSolution(solution);
-    if (!editingContent) {
-      setSelectedType(null);
-      setMultiLanguageContent({
-        tr: { title: '', content: null },
-        en: { title: '', content: null },
-        de: { title: '', content: null },
-        fr: { title: '', content: null }
-      });
-      setMixedElements([]);
-    }
+    setCurrentStep('type');
     setMessage(null);
   };
 
   const handleTypeSelect = (type: ContentType) => {
     setSelectedType(type);
     if (type === 'mixed') {
-      setMixedElements([]);
+      setMixedElements({
+        tr: [],
+        en: [],
+        de: [],
+        fr: []
+      });
+      setLayoutByLang({ tr: 'vertical', en: 'vertical', de: 'vertical', fr: 'vertical' });
     } else {
-      // Her dil için varsayılan içerik oluştur
       const defaultContent = getDefaultContent(type);
       setMultiLanguageContent({
         tr: { title: '', content: defaultContent },
@@ -152,6 +328,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
         fr: { title: '', content: defaultContent }
       });
     }
+    setCurrentStep('content');
     setMessage(null);
   };
 
@@ -214,9 +391,14 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
       }
     }
     
-    if (selectedType === 'mixed' && mixedElements.length === 0) {
-      setMessage({ type: 'error', text: 'En az bir içerik elementi ekleyin' });
+    if (selectedType === 'mixed') {
+      const hasContent = ['tr', 'en', 'de', 'fr'].some(lang => 
+        mixedElements[lang] && mixedElements[lang].length > 0
+      );
+      if (!hasContent) {
+        setMessage({ type: 'error', text: 'En az bir dilde içerik elementi ekleyin' });
       return false;
+      }
     }
     
     return true;
@@ -247,10 +429,22 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
         
         let finalContent;
         if (selectedType === 'mixed') {
-          // Karışık içerik için HTML oluştur
-          finalContent = generateMixedContentHTML(content.title, 'vertical', mixedElements);
+          // Mixed content için hem HTML hem de JSON formatında kaydet
+          const htmlContent = generateMixedContentHTML(content.title, layoutByLang[language], mixedElements[language] || []);
+          const jsonContent = {
+            title: content.title,
+            layout: layoutByLang[language],
+            elements: mixedElements[language] || []
+          };
+          finalContent = JSON.stringify({
+            html: htmlContent,
+            json: jsonContent
+          });
+          console.log(`💾 ${language} mixed content saved:`, {
+            html: htmlContent,
+            json: jsonContent
+          });
         } else {
-          // Tek içerik için JSON string
           finalContent = JSON.stringify(content.content);
         }
 
@@ -261,18 +455,32 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
         };
       });
 
-      const requestData = {
+      const requestData: any = {
         solutionId: selectedSolution.id,
         type: selectedType,
         contents,
         order: 1
       };
 
-      const url = editingContent 
-        ? `http://localhost:5000/api/solution-extra-content/${editingContent.id}`
-        : 'http://localhost:5000/api/solution-extra-content/multi';
-      
-      const method = editingContent ? 'PUT' : 'POST';
+      // Düzenleme modu için özel kontrol
+      const isGroupEdit = editingContent && (editingContent as any).multiLanguageData;
+
+      let url, method;
+      if (isGroupEdit) {
+        // Grup düzenleme için özel endpoint
+        url = 'http://localhost:5000/api/solution-extra-content/update-group';
+        method = 'PUT';
+        // Grup ID'sini ekle
+        requestData.groupId = editingContent.id;
+      } else if (editingContent) {
+        // Tek içerik düzenleme
+        url = `http://localhost:5000/api/solution-extra-content/${editingContent.id}`;
+        method = 'PUT';
+      } else {
+        // Yeni içerik ekleme
+        url = 'http://localhost:5000/api/solution-extra-content/multi';
+        method = 'POST';
+      }
 
       const response = await fetch(url, {
         method,
@@ -287,25 +495,15 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
         throw new Error(errorData.message || 'İçerik kaydedilirken hata oluştu');
       }
 
-      const result = await response.json();
+      await response.json();
+      
       setMessage({ type: 'success', text: editingContent ? 'İçerik başarıyla güncellendi!' : 'Tüm diller için içerik başarıyla eklendi!' });
       
-      // Callback çağır
       if (onContentAdded) {
         onContentAdded();
-      } else {
-        // Formu temizle (eski davranış)
-        setMultiLanguageContent({
-          tr: { title: '', content: null },
-          en: { title: '', content: null },
-          de: { title: '', content: null },
-          fr: { title: '', content: null }
-        });
-        if (selectedType === 'mixed') {
-          setMixedElements([]);
-        }
       }
     } catch (error) {
+      console.error('handleSave error:', error);
       setMessage({ 
         type: 'error', 
         text: error instanceof Error ? error.message : 'Bilinmeyen hata oluştu' 
@@ -318,18 +516,6 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
   const handleCancel = () => {
     if (onCancel) {
       onCancel();
-    } else {
-      // Eski davranış - formu temizle
-      setSelectedSolution(null);
-      setSelectedType(null);
-      setMultiLanguageContent({
-        tr: { title: '', content: null },
-        en: { title: '', content: null },
-        de: { title: '', content: null },
-        fr: { title: '', content: null }
-      });
-      setMixedElements([]);
-      setMessage(null);
     }
   };
 
@@ -339,12 +525,28 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
     const content = multiLanguageContent[language as keyof MultiLanguageContent];
 
     if (selectedType === 'mixed') {
+      console.log(`🎨 ${language} MixedContentEditor props:`, {
+        title: content.title,
+        elements: mixedElements[language] || [],
+        layout: layoutByLang[language],
+        mixedElements: mixedElements,
+        layoutByLang: layoutByLang
+      });
+      
       return (
         <MixedContentEditor
           title={content.title}
           onTitleChange={(title) => handleTitleChange(language, title)}
-          elements={mixedElements}
-          onElementsChange={setMixedElements}
+          elements={mixedElements[language] || []}
+          onElementsChange={(elements) => {
+            console.log(`🔄 ${language} elements changed:`, elements);
+            setMixedElements(prev => ({
+              ...prev,
+              [language]: elements
+            }));
+          }}
+          layout={layoutByLang[language]}
+          onLayoutChange={(lay) => setLayoutByLang(prev => ({ ...prev, [language]: lay }))}
         />
       );
     }
@@ -356,12 +558,10 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Metin İçeriği:
             </label>
-            <textarea
+            <RichTextEditor
               value={content.content || ''}
-              onChange={(e) => handleContentChange(language, e.target.value)}
+              onChange={(value) => handleContentChange(language, value)}
               placeholder="Metninizi yazın..."
-              rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         );
@@ -397,42 +597,174 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
     }
   };
 
-  return (
-    <div className="solution-extra-content-adder p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6">
-        {editingContent ? 'Ekstra İçerik Düzenle' : 'Solution Ekstra İçerik Ekleme (Çoklu Dil)'}
-      </h2>
+  const getStepStatus = (step: Step) => {
+    if (step === 'solution') return selectedSolution ? 'completed' : 'current';
+    if (step === 'type') return selectedType ? 'completed' : selectedSolution ? 'current' : 'upcoming';
+    if (step === 'content') return selectedType ? 'current' : 'upcoming';
+    return 'upcoming';
+  };
 
-      {/* Adım 1: Solution Seçimi */}
-      <div className="mb-8">
-        <SolutionSelector onSolutionSelect={handleSolutionSelect} />
-        {selectedSolution && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
-              Seçilen Solution: <strong>{selectedSolution.title}</strong>
+  const renderStepIndicator = () => {
+    const steps = [
+      { key: 'solution', label: 'Solution Seçimi', icon: '🏢', description: 'Hangi solution için içerik ekleyeceğinizi seçin' },
+      { key: 'type', label: 'İçerik Türü', icon: '📝', description: 'Ne tür içerik oluşturacağınızı belirleyin' },
+      { key: 'content', label: 'İçerik Düzenleme', icon: '✏️', description: 'Her dil için içeriğinizi oluşturun' },
+      { key: 'review', label: 'Önizleme', icon: '👁️', description: 'Son kontrol ve kaydetme' }
+    ];
+
+    return (
+      <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">İlerleme Durumu</h3>
+          <div className="text-sm text-gray-600">
+            Adım {steps.findIndex(s => getStepStatus(s.key as Step) === 'current') + 1} / {steps.length}
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          {steps.map((step, index) => {
+            const status = getStepStatus(step.key as Step);
+            const isLast = index === steps.length - 1;
+            
+            return (
+              <div key={step.key} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
+                    status === 'completed' ? 'bg-green-500 border-green-500 text-white shadow-lg' :
+                    status === 'current' ? 'bg-blue-500 border-blue-500 text-white shadow-lg scale-110' :
+                    'bg-gray-200 border-gray-300 text-gray-500'
+                  }`}>
+                    {status === 'completed' ? (
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <span className="text-lg">{step.icon}</span>
+                    )}
+                  </div>
+                  <div className="mt-2 text-center">
+                    <div className={`text-sm font-medium ${
+                      status === 'completed' ? 'text-green-600' :
+                      status === 'current' ? 'text-blue-600' :
+                      'text-gray-500'
+                    }`}>
+                      {step.label}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 hidden sm:block">
+                      {step.description}
+                    </div>
+                  </div>
+                </div>
+                {!isLast && (
+                  <div className={`flex-1 h-0.5 mx-4 transition-all duration-300 ${
+                    status === 'completed' ? 'bg-green-500' : 'bg-gray-300'
+                  }`} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {editingContent ? 'İçerik Düzenle' : 'Yeni İçerik Ekle'}
+      </h2>
+            <p className="text-gray-600 mt-1">
+              {editingContent ? 'Mevcut içeriği güncelleyin' : 'Solution için yeni içerik oluşturun'}
             </p>
           </div>
-        )}
+          <button
+            onClick={handleCancel}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* Adım 2: İçerik Türü Seçimi */}
-      {selectedSolution && (
-        <div className="mb-8">
+      {/* Step Indicator */}
+      {renderStepIndicator()}
+
+      {/* Content */}
+      <div className="px-6 py-4">
+        {/* Step 1: Solution Selection */}
+        {currentStep === 'solution' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                <span className="text-2xl">🏢</span>
+              </div>
+              <p className="text-gray-600 max-w-md mx-auto">İçerik eklemek istediğiniz solution'ı aşağıdan seçin. Arama yapabilir ve filtreleyebilirsiniz.</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <SolutionSelector onSolutionSelect={handleSolutionSelect} />
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Content Type Selection */}
+        {currentStep === 'type' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <span className="text-2xl">📝</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">İçerik Türü Seçimi</h3>
+              <p className="text-gray-600 max-w-md mx-auto">Ne tür bir içerik oluşturmak istiyorsunuz? Her türün kendine özgü özellikleri vardır.</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <ContentTypeSelector 
             onTypeSelect={handleTypeSelect}
             selectedType={selectedType}
           />
+            </div>
         </div>
       )}
 
-      {/* Adım 3: Çoklu Dil İçerik Detayları */}
-      {selectedSolution && selectedType && (
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4">Çoklu Dil İçerik Detayları</h3>
-          
-          <div className="space-y-8">
+        {/* Step 3: Content Editing */}
+        {currentStep === 'content' && selectedType && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                <span className="text-2xl">✏️</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">İçerik Düzenleme</h3>
+              <p className="text-gray-600 max-w-md mx-auto">Her dil için içeriğinizi oluşturun. Tüm dillerde aynı bilgileri farklı dillerde yazın.</p>
+            </div>
+
+            {/* Dil Sekmeleri */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="mb-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Dil Seçimi</h4>
+                <div className="inline-flex rounded-lg shadow-sm overflow-hidden border">
+                  {(['tr', 'en', 'de', 'fr'] as const).map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => setActiveLangTab(lang)}
+                      className={`${activeLangTab === lang ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'} px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-all duration-200 hover:bg-blue-50`}
+                    >
+                      {lang === 'tr' && '🇹🇷 Türkçe'}
+                      {lang === 'en' && '🇬🇧 İngilizce'}
+                      {lang === 'de' && '🇩🇪 Almanca'}
+                      {lang === 'fr' && '🇫🇷 Fransızca'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Aktif dil paneli */}
             {(['tr', 'en', 'de', 'fr'] as const).map((language) => (
-              <div key={language} className="p-6 border border-gray-200 rounded-lg bg-gray-50">
+                <div key={language} className={`${activeLangTab === language ? 'block' : 'hidden'}`}>
+                  <div className="bg-gray-50 p-6 rounded-lg">
                 <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                   <span className="mr-2">
                     {language === 'tr' && '🇹🇷'}
@@ -441,7 +773,6 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                     {language === 'fr' && '🇫🇷'}
                   </span>
                   {getLanguageName(language)} İçeriği
-                  <span className="ml-2 text-red-500">*</span>
                 </h4>
                 
                 <div className="space-y-4">
@@ -464,6 +795,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
 
                   {/* İçerik Editörü */}
                   {renderContentEditor(language)}
+                    </div>
                 </div>
               </div>
             ))}
@@ -473,7 +805,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
 
       {/* Mesaj */}
       {message && (
-        <div className={`mb-4 p-4 rounded-lg ${
+          <div className={`mt-4 p-4 rounded-lg ${
           message.type === 'success' 
             ? 'bg-green-50 border border-green-200 text-green-800' 
             : 'bg-red-50 border border-red-200 text-red-800'
@@ -482,24 +814,53 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
         </div>
       )}
 
-      {/* Butonlar */}
-      {selectedSolution && selectedType && (
-        <div className="flex justify-end space-x-4">
+        {/* Navigation Buttons */}
+        <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
           <button
-            onClick={handleCancel}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+            onClick={() => {
+              if (currentStep === 'type') setCurrentStep('solution');
+              else if (currentStep === 'content') setCurrentStep('type');
+            }}
+            disabled={currentStep === 'solution'}
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center"
           >
-            İptal
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Geri
           </button>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={handleCancel}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200"
+            >
+              İptal
+            </button>
+            {currentStep === 'content' && (
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-          >
-            {saving ? 'Kaydediliyor...' : (editingContent ? 'Güncelle' : '💾 Tüm Dillerde Kaydet')}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 flex items-center shadow-lg"
+              >
+                {saving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Kaydediliyor...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {editingContent ? 'Güncelle' : 'Kaydet'}
+                  </>
+                )}
           </button>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

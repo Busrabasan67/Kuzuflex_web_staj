@@ -5,8 +5,11 @@ import {
   getExtraContents, 
   getAllExtraContentsForAdmin,
   getExtraContentById,
-  updateExtraContent, 
-  deleteExtraContent 
+  updateExtraContent,
+  updateExtraContentGroup,
+  deleteExtraContent,
+  uploadImage,
+  uploadExtraContentImage
 } from "../controllers/solutionExtraContentController";
 
 const router = express.Router();
@@ -133,6 +136,44 @@ router.get("/detail/:id", getExtraContentById);
 
 /**
  * @openapi
+ * /api/solution-extra-content/update-group:
+ *   put:
+ *     summary: Grup bazlı ekstra içerikleri günceller
+ *     tags: [Solution Extra Content]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               groupId:
+ *                 type: integer
+ *               solutionId:
+ *                 type: integer
+ *               type:
+ *                 type: string
+ *               contents:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     language:
+ *                       type: string
+ *                     title:
+ *                       type: string
+ *                     content:
+ *                       type: string
+ *               order:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: "Grup ekstra içerikleri başarıyla güncellendi"
+ */
+router.put("/update-group", updateExtraContentGroup);
+
+/**
+ * @openapi
  * /api/solution-extra-content/{id}:
  *   put:
  *     summary: Ekstra içeriği günceller
@@ -181,5 +222,8 @@ router.put("/:id", updateExtraContent);
  *         description: "Ekstra içerik başarıyla silindi"
  */
 router.delete("/:id", deleteExtraContent);
+
+// Basit resim upload endpoint'i
+router.post("/upload", uploadExtraContentImage.single('image'), uploadImage);
 
 export default router;

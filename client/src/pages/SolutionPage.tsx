@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { generateMixedContentHTML } from "../utils/htmlGenerators";
 
 interface Solution {
   id: number;
@@ -32,10 +33,170 @@ const SolutionPage: React.FC = () => {
   // Resim URL'lerini düzelt
   const fixImageUrls = (htmlContent: string): string => {
     // /uploads/ ile başlayan URL'leri tam URL'ye çevir
-    return htmlContent.replace(
+    let fixedContent = htmlContent.replace(
       /src="\/uploads\//g, 
       'src="http://localhost:5000/uploads/'
     );
+    
+    // Konum ve boyut bilgilerini CSS ile uygula
+    fixedContent = fixedContent.replace(
+      /style="([^"]*width:\s*([^;]+);[^"]*)"/g,
+      (match, style, width) => {
+        // Width değerini CSS class olarak uygula
+        return `style="${style}" class="w-full"`;
+      }
+    );
+    
+    return fixedContent;
+  };
+
+  // Ekstra içeriği render et
+  const renderExtraContent = (content: ExtraContent) => {
+    try {
+      // Eğer content zaten HTML ise (mixed type için)
+      if (content.type === 'mixed') {
+        console.log('🔍 Mixed content detected:', content.content.substring(0, 200));
+        
+        // Mixed content için önce JSON olup olmadığını kontrol et
+        if (content.content.trim().startsWith('{') && content.content.trim().endsWith('}')) {
+          console.log('✅ Content looks like JSON, attempting to parse...');
+          
+          // JSON formatında ise parse et
+          try {
+            const parsedContent = JSON.parse(content.content);
+            console.log('✅ First level parsed:', parsedContent);
+            
+            // Eğer html ve json alanları varsa, json alanını kullan
+            if (parsedContent.html && parsedContent.json) {
+              console.log('✅ Found html and json fields, json field is already an object');
+              
+              // parsedContent.json zaten bir object, tekrar parse etmeye gerek yok
+              const jsonContent = parsedContent.json;
+              console.log('✅ Using json field directly:', jsonContent);
+              
+              if (jsonContent.title && jsonContent.layout && jsonContent.elements) {
+                console.log('✅ All required fields found, generating HTML...');
+                const result = generateMixedContentHTML(jsonContent.title, jsonContent.layout, jsonContent.elements);
+                console.log('✅ Generated HTML:', result.substring(0, 200));
+                return result;
+              } else {
+                console.log('❌ Missing required fields in jsonContent:', {
+                  hasTitle: !!jsonContent.title,
+                  hasLayout: !!jsonContent.layout,
+                  hasElements: !!jsonContent.elements
+                });
+              }
+            } else {
+              console.log('❌ No html/json fields found in parsedContent');
+            }
+            
+            // Eğer doğrudan title, layout, elements varsa
+            if (parsedContent.title && parsedContent.layout && parsedContent.elements) {
+              console.log('✅ Direct fields found, generating HTML...');
+              const result = generateMixedContentHTML(parsedContent.title, parsedContent.layout, parsedContent.elements);
+              console.log('✅ Generated HTML:', result.substring(0, 200));
+              return result;
+            } else {
+              console.log('❌ No direct fields found in parsedContent');
+            }
+          } catch (parseError) {
+            console.error('❌ Mixed content JSON parsing error:', parseError);
+          }
+        } else {
+          console.log('❌ Content does not look like JSON');
+        }
+        
+        console.log('🔄 Falling back to HTML processing');
+        // JSON değilse veya parse edilemezse, HTML olarak işle
+        return fixImageUrls(content.content);
+      }
+
+      // JSON string'i parse et (sadece JSON formatında ise)
+      if (content.content.trim().startsWith('{') && content.content.trim().endsWith('}')) {
+        try {
+          const parsedContent = JSON.parse(content.content);
+          
+          switch (content.type) {
+            case 'text':
+              return `<div class="text-gray-700 leading-relaxed">${parsedContent}</div>`;
+              
+            case 'table':
+              if (parsedContent.headers && parsedContent.rows) {
+                let tableHtml = '<div class="overflow-x-auto my-4"><table class="min-w-full border border-gray-300 bg-white rounded-lg overflow-hidden shadow-sm">';
+                
+                // Header
+                tableHtml += '<thead><tr>';
+                parsedContent.headers.forEach((header: string, columnIndex: number) => {
+                  const style = parsedContent.styles && parsedContent.styles[columnIndex];
+                  const headerStyle = style ? 
+                    `background-color: ${style.headerBackgroundColor}; color: ${style.headerTextColor};` : 
+                    'background-color: #f3f4f6; color: #000000;';
+                  
+                  tableHtml += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold" style="${headerStyle}">${header}</th>`;
+                });
+                tableHtml += '</tr></thead>';
+                
+                // Body
+                tableHtml += '<tbody>';
+                parsedContent.rows.forEach((row: string[]) => {
+                  tableHtml += '<tr>';
+                  row.forEach((cell: string, columnIndex: number) => {
+                    const style = parsedContent.styles && parsedContent.styles[columnIndex];
+                    const cellStyle = style ? 
+                      `background-color: ${style.backgroundColor}; color: ${style.textColor};` : 
+                      'background-color: #ffffff; color: #000000;';
+                    
+                    tableHtml += `<td class="border border-gray-300 px-4 py-2" style="${cellStyle}">${cell}</td>`;
+                  });
+                  tableHtml += '</tr>';
+                });
+                tableHtml += '</tbody></table></div>';
+                
+                return tableHtml || '';
+              }
+              break;
+              
+            case 'list':
+              if (parsedContent.items) {
+                const tag = parsedContent.type === 'ordered' ? 'ol' : 'ul';
+                const className = parsedContent.type === 'ordered' 
+                  ? 'list-decimal list-inside space-y-1 my-4' 
+                  : 'list-disc list-inside space-y-1 my-4';
+                
+                let listHtml = `<${tag} class="${className}">`;
+                parsedContent.items.forEach((item: string) => {
+                  listHtml += `<li class="text-gray-700">${item}</li>`;
+                });
+                listHtml += `</${tag}>`;
+                
+                return listHtml;
+              }
+              break;
+              
+            case 'image':
+              if (parsedContent) {
+                const imageUrl = parsedContent.startsWith('/uploads/') ? `http://localhost:5000${parsedContent}` : parsedContent;
+                return `<div class="my-4"><img src="${imageUrl}" alt="Content Image" class="max-w-full h-auto rounded-lg shadow-md" /></div>`;
+              }
+              break;
+              
+            default:
+              return `<div class="text-gray-700">${content.content}</div>`;
+          }
+        } catch (parseError) {
+          console.error('JSON parsing error:', parseError);
+        }
+      }
+      
+      // JSON değilse veya parse edilemezse, content'i HTML olarak döndür
+      return fixImageUrls(content.content);
+      
+      // Eğer hiçbir case eşleşmezse
+      return `<div class="text-gray-700">${content.content}</div>`;
+    } catch (error) {
+      console.error('Content parsing error:', error);
+      return `<div class="text-gray-700">${content.content}</div>`;
+    }
   };
 
   useEffect(() => {
@@ -141,7 +302,7 @@ const SolutionPage: React.FC = () => {
                   <div className="prose prose-sm max-w-none">
                     <div 
                       className="text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: fixImageUrls(content.content) }}
+                      dangerouslySetInnerHTML={{ __html: renderExtraContent(content) }}
                     />
                   </div>
                 </div>

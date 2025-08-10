@@ -2,6 +2,49 @@ import { Request, Response } from "express";
 import AppDataSource from "../data-source";
 import { Solution } from "../entity/Solution";
 import { SolutionExtraContent } from "../entity/SolutionExtraContent";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Basit resim upload için storage
+const extraContentImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, "../../public/uploads/solutions/extra-content");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `extra-content-${uniqueSuffix}${ext}`);
+  }
+});
+
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  if (file.mimetype.startsWith("image/")) cb(null, true);
+  else cb(new Error("Sadece resim dosyaları yüklenebilir!"));
+};
+
+export const uploadExtraContentImage = multer({ storage: extraContentImageStorage, fileFilter });
+
+// Basit resim upload endpoint'i
+export const uploadImage = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Dosya yüklenmedi" });
+    }
+
+    const fileUrl = `/uploads/solutions/extra-content/${req.file.filename}`;
+    
+    res.status(200).json({
+      url: fileUrl,
+      filename: req.file.filename
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: "Dosya yükleme hatası" });
+  }
+};
 
 // Solution'ın hasExtraContent alanını güncelle
 const updateSolutionHasExtraContent = async (solutionId: number) => {
@@ -225,6 +268,61 @@ export const updateExtraContent = async (req: Request, res: Response) => {
   }
 };
 
+// Grup bazlı ekstra içerik güncelle
+export const updateExtraContentGroup = async (req: Request, res: Response) => {
+  const { groupId, solutionId, type, contents, order } = req.body;
+
+  try {
+    const repo = AppDataSource.getRepository(SolutionExtraContent);
+    
+    // Önce mevcut grup içeriklerini bul
+    const existingContents = await repo.find({
+      where: { 
+        solution: { id: solutionId },
+        order: order
+      }
+    });
+
+    // Her dil için güncelleme yap
+    for (const contentData of contents) {
+      const { language, title, content } = contentData;
+      
+      // Bu dil için mevcut içeriği bul
+      const existingContent = existingContents.find(ec => ec.language === language);
+      
+      if (existingContent) {
+        // Mevcut içeriği güncelle
+        existingContent.type = type;
+        existingContent.title = title;
+        existingContent.content = content;
+        await repo.save(existingContent);
+      } else {
+        // Yeni içerik oluştur
+        const newContent = repo.create({
+          solution: { id: solutionId },
+          type,
+          title,
+          content,
+          order,
+          language
+        });
+        await repo.save(newContent);
+      }
+    }
+
+    // Solution'ın hasExtraContent'ini güncelle
+    await updateSolutionHasExtraContent(solutionId);
+
+    res.status(200).json({
+      message: "Extra content group updated successfully",
+      updatedCount: contents.length
+    });
+  } catch (err) {
+    console.error('Grup güncelleme hatası:', err);
+    res.status(500).json({ message: "Error updating extra content group", error: err });
+  }
+};
+
 // Ekstra içerik sil
 export const deleteExtraContent = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -250,3 +348,4 @@ export const deleteExtraContent = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error deleting extra content", error: err });
   }
 };
+
