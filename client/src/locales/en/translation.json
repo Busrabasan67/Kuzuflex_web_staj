@@ -57,7 +57,15 @@
       "description": "We provide high-quality industrial solutions for your business needs.",
       "solutionsDesc": "Innovative solutions for modern industry",
       "qualityDesc": "High quality standards and reliability",
-      "servicesDesc": "Professional service and support"
+      "servicesDesc": "Professional service and support",
+      "markets": {
+        "title": "MARKETS",
+        "subtitle": "Discover our innovative solutions across diverse markets and applications",
+        "defaultDescription": "Innovative solutions for this market",
+        "learnMore": "Learn More",
+        "viewAll": "View All Markets",
+        "titleCard": "MARKETS"
+      }
     },
     "about": {
       "title": "About Us",
@@ -96,6 +104,14 @@
     "loading": "Loading...",
     "error": "Error",
     "retry": "Retry"
+  },
+  "markets": {
+    "title": "MARKETS",
+    "subtitle": "Discover our innovative solutions across diverse markets and applications",
+    "defaultDescription": "Innovative solutions for this market",
+    "learnMore": "Learn More",
+    "viewAll": "View All Markets",
+    "titleCard": "MARKETS"
   },
   "market": {
     "mainContents": "Main Contents",

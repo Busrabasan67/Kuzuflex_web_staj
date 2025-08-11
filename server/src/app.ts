@@ -13,6 +13,7 @@ import marketRoutes from "./routes/marketRoutes";
 import pageRoutes from "./routes/pageRoutes";
 import aboutPageRoutes from "./routes/aboutPageRoutes";
 import aboutPageExtraContentRoutes from "./routes/aboutPageExtraContentRoutes";
+import homeRoutes from "./routes/homeRoutes";
 
 
 const app = express();
@@ -46,6 +47,7 @@ app.use("/api/markets", marketRoutes);
 app.use("/api/pages", pageRoutes);
 app.use("/api/about-page", aboutPageRoutes);
 app.use("/api/about-page-extra-content", aboutPageExtraContentRoutes);
+app.use("/api/home", homeRoutes);
 
 
 export default app;

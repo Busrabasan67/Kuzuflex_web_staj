@@ -159,40 +159,42 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   return (
     <nav
       ref={navbarRef}
-      className={`sticky top-0 z-50 transition-colors duration-300 ${
-        darkMode ? "bg-gray-900 text-white" : "bg-white text-black border-b border-gray-200"
+      className={`sticky top-0 z-50 m-0 p-0 transition-all duration-300 shadow-okuma ${
+        darkMode ? "bg-okuma-gray-900 text-white" : "bg-white text-okuma-gray-900 border-b border-okuma-gray-200"
       }`}
     >
-      {/* Üst bilgi */}
-      <div className="bg-black text-white text-xs py-1 px-4 flex justify-between items-center">
-        <div>{t('navbar.professionalSolutions')}</div>
+      {/* Üst bilgi - Okuma.com tarzı */}
+      <div className="bg-okuma-950 text-white text-xs py-2 px-4 flex justify-between items-center">
+        <div className="font-medium">{t('navbar.professionalSolutions')}</div>
         <div className="flex items-center space-x-4">
-          <span>{t('common.phone')}</span>
-          <span>{t('common.email')}</span>
+          <span className="hover:text-okuma-300 transition-colors">{t('common.phone')}</span>
+          <span className="hover:text-okuma-300 transition-colors">{t('common.email')}</span>
         </div>
       </div>
 
-      {/* Ana Menü */}
-      <div className="max-w-7xl mx-auto px-4">
+      {/* Ana Menü - Okuma.com tarzı */}
+      <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center gap-2">
             <img src={KuzuflexLogo} alt="Kuzuflex Logo" className="h-10 w-auto" />
           </Link>
 
-          {/* Menü */}
-          <div className="hidden lg:flex space-x-3">
+          {/* Menü - Okuma.com tarzı */}
+          <div className="hidden lg:flex space-x-1">
             {menuItems.map((item) => (
               <div key={item.title} className="relative group">
                 {/* Ana Menü */}
                 {item.path ? (
                   <Link
                     to={item.path}
-                    className={`px-4 py-3 font-medium hover:underline ${location.pathname === item.path && "font-bold"}`}
+                    className={`px-4 py-3 font-medium text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 ${
+                      location.pathname === item.path ? "text-okuma-600 bg-okuma-100 font-semibold" : ""
+                    }`}
                   >
                     {item.title}
                   </Link>
                 ) : (
-                  <button onClick={() => toggleDropdown(item.title)} className="px-4 py-3 font-medium flex items-center">
+                  <button onClick={() => toggleDropdown(item.title)} className="px-4 py-3 font-medium text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 flex items-center">
                     {item.title}
                     {item.submenu && item.submenu.length > 0 && (
                       <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -202,10 +204,10 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                   </button>
                 )}
 
-                {/* Alt Kategoriler */}
+                {/* Alt Kategoriler - Okuma.com tarzı */}
                 {item.submenu && openDropdown === item.title && (
-                  <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-1 min-w-[250px] rounded-lg shadow-lg z-50 ${
-                    darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+                  <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[250px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 ${
+                    darkMode ? "bg-okuma-gray-800 text-white" : "bg-white text-okuma-gray-900"
                   }`}>
                     {item.submenu.map((sub) => (
                       <div
@@ -215,25 +217,25 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                         onMouseLeave={() => setOpenSubDropdown(null)}
                       >
                         {sub.path ? (
-                          <Link to={sub.path} className="block px-4 py-2 hover:bg-opacity-20">
+                          <Link to={sub.path} className="block px-4 py-3 hover:bg-okuma-50 hover:text-okuma-600 transition-all duration-200 rounded-lg mx-2">
                             {sub.title}
                           </Link>
                         ) : (
-                          <span className="block px-4 py-2 text-gray-500">{sub.title}</span>
+                          <span className="block px-4 py-3 text-okuma-gray-500 mx-2">{sub.title}</span>
                         )}
 
-                        {/* ALT ALT MENÜ */}
+                        {/* ALT ALT MENÜ - Okuma.com tarzı */}
                         {sub.submenu && openSubDropdown === sub.title && (
-                          <div className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-md shadow-md z-50 ${
-                            darkMode ? "bg-gray-700 text-white" : "bg-white text-black"
+                          <div className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 ${
+                            darkMode ? "bg-okuma-gray-700 text-white" : "bg-white text-okuma-gray-900"
                           }`}>
                             {sub.submenu.map((subItem) =>
                               subItem.path ? (
-                                <Link key={subItem.key || subItem.title} to={subItem.path} className="block px-4 py-2 hover:underline">
+                                <Link key={subItem.key || subItem.title} to={subItem.path} className="block px-4 py-3 hover:bg-okuma-50 hover:text-okuma-600 transition-all duration-200 rounded-lg mx-2">
                                   {subItem.title}
                                 </Link>
                               ) : (
-                                <span key={subItem.key || subItem.title} className="block px-4 py-2 text-gray-500">
+                                <span key={subItem.key || subItem.title} className="block px-4 py-3 text-okuma-gray-500 mx-2">
                                   {subItem.title}
                                 </span>
                               )
@@ -248,29 +250,33 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
             ))}
           </div>
 
-          {/* Aksiyonlar */}
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSearchOpen(!searchOpen)}><FiSearch /></button>
-            <button onClick={() => setDarkMode(!darkMode)}>{darkMode ? <FiSun /> : <FiMoon />}</button>
+          {/* Aksiyonlar - Okuma.com tarzı */}
+          <div className="flex items-center gap-4">
+            <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200">
+              <FiSearch className="w-5 h-5" />
+            </button>
+            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200">
+              {darkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
+            </button>
             
             {/* LanguageSwitcher Component'i */}
             <LanguageSwitcher />
             
-            <Link to={isAdminLoggedIn ? "/admin" : "/admin-login"} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+            <Link to={isAdminLoggedIn ? "/admin" : "/admin-login"} className="bg-okuma-600 text-white px-4 py-2 rounded-lg hover:bg-okuma-700 transition-all duration-200 font-medium shadow-okuma">
               {t('navbar.adminPanel')}
             </Link>
-            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden">☰</button>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200">☰</button>
           </div>
         </div>
 
-        {/* Arama Kutusu */}
+        {/* Arama Kutusu - Okuma.com tarzı */}
         {searchOpen && (
-          <form onSubmit={handleSearch} className="mt-2">
+          <form onSubmit={handleSearch} className="mt-3 px-6 pb-4">
             <input
               ref={searchRef}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full p-2 rounded-md border shadow-sm"
+              className="w-full p-3 rounded-lg border border-okuma-gray-200 focus:border-okuma-500 focus:ring-2 focus:ring-okuma-100 shadow-okuma transition-all duration-200 outline-none"
               placeholder={t('navbar.searchPlaceholder')}
             />
           </form>

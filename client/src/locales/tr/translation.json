@@ -57,7 +57,15 @@
       "description": "İşletmenizin ihtiyaçları için yüksek kaliteli endüstriyel çözümler sunuyoruz.",
       "solutionsDesc": "Modern endüstri için yenilikçi çözümler",
       "qualityDesc": "Yüksek kalite standartları ve güvenilirlik",
-      "servicesDesc": "Profesyonel hizmet ve destek"
+      "servicesDesc": "Profesyonel hizmet ve destek",
+      "markets": {
+        "title": "PAZARLAR",
+        "subtitle": "Çeşitli pazarlar ve uygulamalarda yenilikçi çözümlerimizi keşfedin",
+        "defaultDescription": "Bu pazar için yenilikçi çözümler",
+        "learnMore": "Detaylı Bilgi",
+        "viewAll": "Tüm Pazarları Gör",
+        "titleCard": "PAZARLAR"
+      }
     },
     "about": {
       "title": "Hakkımızda",
@@ -92,10 +100,14 @@
       "noDocumentsDesc": "Şu anda görüntülenecek belge bulunmuyor."
     }
   },
-  "common": {
-    "loading": "Yükleniyor...",
-    "error": "Hata",
-    "retry": "Tekrar Dene"
+
+  "markets": {
+    "title": "PAZARLAR",
+    "subtitle": "Çeşitli pazarlar ve uygulamalarda yenilikçi çözümlerimizi keşfedin",
+    "defaultDescription": "Bu pazar için yenilikçi çözümler",
+    "learnMore": "Detaylı Bilgi",
+    "viewAll": "Tüm Pazarları Gör",
+    "titleCard": "PAZARLAR"
   },
   "market": {
     "mainContents": "Ana İçerikler",

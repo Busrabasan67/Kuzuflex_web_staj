@@ -33,6 +33,14 @@
     "contactInfo": "Kontaktinformationen",
     "allRightsReserved": "Alle Rechte vorbehalten."
   },
+  "markets": {
+    "title": "MÄRKTE",
+    "subtitle": "Entdecken Sie unsere innovativen Lösungen in verschiedenen Märkten und Anwendungen",
+    "defaultDescription": "Innovative Lösungen für diesen Markt",
+    "learnMore": "Mehr Erfahren",
+    "viewAll": "Alle Märkte Anzeigen",
+    "titleCard": "MÄRKTE"
+  },
   "loading": {
     "productInfo": "Produktinformationen werden geladen...",
     "solutionInfo": "Lösungsinformationen werden geladen..."
@@ -53,7 +61,15 @@
       "description": "Wir bieten hochwertige industrielle Lösungen für Ihre Geschäftsanforderungen.",
       "solutionsDesc": "Innovative Lösungen für moderne Industrie",
       "qualityDesc": "Hohe Qualitätsstandards und Zuverlässigkeit",
-      "servicesDesc": "Professioneller Service und Support"
+      "servicesDesc": "Professioneller Service und Support",
+      "markets": {
+        "title": "MÄRKTE",
+        "subtitle": "Entdecken Sie unsere innovativen Lösungen in verschiedenen Märkten und Anwendungen",
+        "defaultDescription": "Innovative Lösungen für diesen Markt",
+        "learnMore": "Mehr Erfahren",
+        "viewAll": "Alle Märkte Anzeigen",
+        "titleCard": "MÄRKTE"
+      }
     },
     "about": {
       "title": "Über Uns",

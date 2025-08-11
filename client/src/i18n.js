@@ -18,10 +18,14 @@ i18n
       de: { translation: de }
     },
     fallbackLng: "en",
+    lng: "en", // Default language
     interpolation: { escapeValue: false },
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage']
+    },
+    react: {
+      useSuspense: false
     }
   });
 
