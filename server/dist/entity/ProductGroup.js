@@ -12,7 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductGroup = void 0;
 const typeorm_1 = require("typeorm");
 const Product_1 = require("./Product");
-// ana başlıklar
+const ProductGroupTranslation_1 = require("./ProductGroupTranslation");
+const Market_1 = require("./Market");
+// Ürün gruplarının ortak verilerini tutan ana tablo
 let ProductGroup = class ProductGroup {
 };
 exports.ProductGroup = ProductGroup;
@@ -21,13 +23,9 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductGroup.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], ProductGroup.prototype, "name", void 0);
-__decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], ProductGroup.prototype, "description", void 0);
+], ProductGroup.prototype, "slug", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
@@ -37,9 +35,27 @@ __decorate([
     __metadata("design:type", String)
 ], ProductGroup.prototype, "standard", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'datetime', default: () => 'GETDATE()' }),
+    __metadata("design:type", Date)
+], ProductGroup.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'datetime', default: () => 'GETDATE()', onUpdate: 'GETDATE()' }),
+    __metadata("design:type", Date)
+], ProductGroup.prototype, "updatedAt", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => Product_1.Product, (product) => product.group),
     __metadata("design:type", Array)
 ], ProductGroup.prototype, "products", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => ProductGroupTranslation_1.ProductGroupTranslation, (translation) => translation.group, {
+        cascade: true,
+    }),
+    __metadata("design:type", Array)
+], ProductGroup.prototype, "translations", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Market_1.Market, (market) => market.productGroups, { nullable: true }),
+    __metadata("design:type", Market_1.Market)
+], ProductGroup.prototype, "market", void 0);
 exports.ProductGroup = ProductGroup = __decorate([
     (0, typeorm_1.Entity)()
 ], ProductGroup);

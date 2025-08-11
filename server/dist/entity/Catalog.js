@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Catalog = void 0;
 const typeorm_1 = require("typeorm");
 const Product_1 = require("./Product");
-// alt başlıkların 0 veya daha fazla katalogu olabilir
+const CatalogTranslation_1 = require("./CatalogTranslation");
 let Catalog = class Catalog {
 };
 exports.Catalog = Catalog;
@@ -23,15 +23,15 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Catalog.prototype, "name", void 0);
+], Catalog.prototype, "filePath", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Catalog.prototype, "fileUrl", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => Product_1.Product, (product) => product.catalogs, { onDelete: 'CASCADE' }),
+    (0, typeorm_1.ManyToOne)(() => Product_1.Product, product => product.catalogs, { onDelete: "CASCADE" }),
     __metadata("design:type", Product_1.Product)
 ], Catalog.prototype, "product", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => CatalogTranslation_1.CatalogTranslation, translation => translation.catalog, { cascade: true }),
+    __metadata("design:type", Array)
+], Catalog.prototype, "translations", void 0);
 exports.Catalog = Catalog = __decorate([
     (0, typeorm_1.Entity)()
 ], Catalog);

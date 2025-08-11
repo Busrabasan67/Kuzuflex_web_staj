@@ -1,16 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUser, FiLock } from 'react-icons/fi';
 import { useAuth } from "../context/AuthContext";
 
-
-
 const AdminLogin: React.FC= () => {
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Sayfa yüklendiğinde history'yi temizle
+  useEffect(() => {
+    // Eğer zaten authenticate ise admin paneline yönlendir
+    if (isAuthenticated) {
+      navigate("/admin", { replace: true });
+      return;
+    }
+
+    // Login sayfasında history'yi temizle ve güvenli hale getir
+    window.history.pushState(null, '', '/admin-login');
+    window.history.replaceState(null, '', '/admin-login');
+
+    // Geri tuşuna basınca ana sayfaya yönlendir
+    const handlePopState = (event: PopStateEvent) => {
+      event.preventDefault();
+      navigate("/", { replace: true });
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +61,8 @@ const AdminLogin: React.FC= () => {
       if (!response.ok) {
         throw new Error(data.message || "Giriş başarısız");
       }
-  
+
       login(data.token);
-      navigate("/admin");
     } catch (err: any) {
       setError(err.message);
     }

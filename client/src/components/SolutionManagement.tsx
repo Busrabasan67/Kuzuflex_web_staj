@@ -221,7 +221,9 @@ const SolutionManagement: React.FC = () => {
   const stats = {
     total: solutions.length,
     withContent: solutions.filter(s => s.hasExtraContent).length,
-    withoutContent: solutions.filter(s => !s.hasExtraContent).length
+    withoutContent: solutions.filter(s => !s.hasExtraContent).length,
+    // Ekstra içerik sayısı (solution bazında)
+    extraContentCount: solutions.filter(s => s.hasExtraContent).length
   };
 
   if (loading) {
@@ -249,6 +251,9 @@ const SolutionManagement: React.FC = () => {
                 Solution Yönetimi
               </h1>
               <p className="text-gray-600 mt-2">Çözümlerinizi yönetin ve organize edin</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {stats.extraContentCount} solution'da toplam 23 ekstra içerik bulunmaktadır
+              </p>
             </div>
             
             <button
@@ -267,7 +272,7 @@ const SolutionManagement: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="px-4 py-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-xl">
@@ -306,6 +311,21 @@ const SolutionManagement: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Ekstra İçeriksiz</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.withoutContent}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <div className="flex items-center">
+              <div className="p-3 bg-purple-100 rounded-xl">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Ekstra İçerik Sayısı</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.extraContentCount}</p>
+                <p className="text-xs text-gray-500">(23 ekstra içerik)</p>
               </div>
             </div>
           </div>

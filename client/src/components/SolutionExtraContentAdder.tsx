@@ -93,7 +93,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
       fetchSolutionForEditing(editingContent.solutionId);
       
       // Eğer multiLanguageData varsa (tüm dillerdeki içerikler)
-      if ((editingContent as any).multiLanguageData) {
+        if ((editingContent as any).multiLanguageData) {
         const multiData = (editingContent as any).multiLanguageData;
         
       if (editingContent.type === 'mixed') {
@@ -110,11 +110,20 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
             de: 'vertical',
             fr: 'vertical'
           };
+            // Başlıkları da doldurmak için başlangıç state'i hazırla
+            const newMultiLanguage: MultiLanguageContent = {
+              tr: { title: '', content: null },
+              en: { title: '', content: null },
+              de: { title: '', content: null },
+              fr: { title: '', content: null }
+            };
           
           // Her dil için mixed content'i yükle
           Object.keys(multiData).forEach(lang => {
             try {
               const content = multiData[lang];
+              // Varolan başlığı aktar
+              newMultiLanguage[lang as keyof MultiLanguageContent].title = content.title || '';
               if (content.content) {
                 let parsedContent;
                 if (typeof content.content === 'string') {
@@ -179,6 +188,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
           
           setMixedElements(newMixedElements);
           setLayoutByLang(newLayoutByLang);
+            setMultiLanguageContent(newMultiLanguage);
         } else {
           // Tüm dillerdeki mevcut içerikleri yükle
           const newMultiLanguageContent = {
@@ -235,6 +245,11 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                   ...prev,
                   [editingContent.language]: jsonData.elements || []
                 }));
+                  // Başlığı da doldur
+                  setMultiLanguageContent(prev => ({
+                    ...prev,
+                    [editingContent.language]: { title: editingContent.title, content: null }
+                  }));
               } else if (typeof parsedContent === 'string') {
                 // Eski format: Sadece HTML string
                 const tempDiv = document.createElement('div');
@@ -262,6 +277,10 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                   ...prev,
                   [editingContent.language]: elements
                 }));
+                  setMultiLanguageContent(prev => ({
+                    ...prev,
+                    [editingContent.language]: { title: editingContent.title, content: null }
+                  }));
               }
             }
           } catch (error) {
@@ -668,9 +687,9 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg">
+    <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      <div className="px-8 py-5 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50 rounded-t-2xl">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
@@ -682,7 +701,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
           </div>
           <button
             onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 rounded-full p-2 hover:bg-gray-100"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -695,17 +714,11 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
       {renderStepIndicator()}
 
       {/* Content */}
-      <div className="px-6 py-4">
+      <div className="px-8 py-6">
         {/* Step 1: Solution Selection */}
         {currentStep === 'solution' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                <span className="text-2xl">🏢</span>
-              </div>
-              <p className="text-gray-600 max-w-md mx-auto">İçerik eklemek istediğiniz solution'ı aşağıdan seçin. Arama yapabilir ve filtreleyebilirsiniz.</p>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="animate-fadeIn">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
               <SolutionSelector onSolutionSelect={handleSolutionSelect} />
             </div>
           </div>
@@ -721,7 +734,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
               <h3 className="text-2xl font-bold text-gray-900 mb-3">İçerik Türü Seçimi</h3>
               <p className="text-gray-600 max-w-md mx-auto">Ne tür bir içerik oluşturmak istiyorsunuz? Her türün kendine özgü özellikleri vardır.</p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
           <ContentTypeSelector 
             onTypeSelect={handleTypeSelect}
             selectedType={selectedType}
@@ -742,7 +755,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
             </div>
 
             {/* Dil Sekmeleri */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
               <div className="mb-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">Dil Seçimi</h4>
                 <div className="inline-flex rounded-lg shadow-sm overflow-hidden border">

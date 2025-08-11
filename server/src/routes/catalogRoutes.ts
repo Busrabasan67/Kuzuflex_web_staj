@@ -51,7 +51,7 @@ const router = Router();
  *         name: lang
  *         schema:
  *           type: string
- *         description: Dil kodu (varsayılan: tr)
+ *         description: "Dil kodu (varsayılan: tr)"
  *     responses:
  *       200:
  *         description: Kataloglar başarıyla getirildi

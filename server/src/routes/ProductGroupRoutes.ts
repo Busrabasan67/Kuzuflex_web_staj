@@ -58,7 +58,7 @@ router.get("/", getAllGroups);
  *         required: true
  *         schema:
  *           type: string
- *         description: Ürün grup slug'ı (örn: metal-hoses)
+ *         description: "Ürün grup slug'ı (örn: metal-hoses)"
  *       - in: query
  *         name: lang
  *         required: false

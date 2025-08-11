@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 // src/entity/Product.ts
 const ProductGroup_1 = require("./ProductGroup");
 const Catalog_1 = require("./Catalog");
+const ProductTranslation_1 = require("./ProductTranslation");
 //alta başlıklar
 let Product = class Product {
 };
@@ -23,13 +24,9 @@ __decorate([
     __metadata("design:type", Number)
 ], Product.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Product.prototype, "title", void 0);
-__decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Product.prototype, "description", void 0);
+], Product.prototype, "slug", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
@@ -39,23 +36,27 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "standard", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'datetime', default: () => 'GETDATE()' }),
+    __metadata("design:type", Date)
+], Product.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'datetime', default: () => 'GETDATE()', onUpdate: 'GETDATE()' }),
+    __metadata("design:type", Date)
+], Product.prototype, "updatedAt", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => ProductGroup_1.ProductGroup, group => group.products, { nullable: true, onDelete: 'SET NULL' }),
     __metadata("design:type", ProductGroup_1.ProductGroup)
 ], Product.prototype, "group", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Product, (product) => product.children, {
-        onDelete: 'NO ACTION', // veya hiç yazma
-    }),
-    __metadata("design:type", Product)
-], Product.prototype, "parent", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => Product, product => product.parent),
-    __metadata("design:type", Array)
-], Product.prototype, "children", void 0);
-__decorate([
     (0, typeorm_1.OneToMany)(() => Catalog_1.Catalog, catalog => catalog.product),
     __metadata("design:type", Array)
 ], Product.prototype, "catalogs", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => ProductTranslation_1.ProductTranslation, translation => translation.product, {
+        cascade: true,
+    }),
+    __metadata("design:type", Array)
+], Product.prototype, "translations", void 0);
 exports.Product = Product = __decorate([
     (0, typeorm_1.Entity)()
 ], Product);

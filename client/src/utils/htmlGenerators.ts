@@ -24,6 +24,11 @@ export interface ContentElement {
   content: any;
   position?: 'left' | 'right' | 'full';
   width?: '25%' | '50%' | '75%' | '100%';
+  // Optional style settings
+  fontSizePx?: number; // for text
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  imageWidthPercent?: number; // 10-100
+  imageMaxHeightPx?: number; // limit image height
 }
 
 // Tablo verilerini HTML'e çevir
@@ -88,34 +93,79 @@ export const generateListHTML = (listData: ListData): string => {
 };
 
 // Metin içeriğini HTML'e çevir
-export const generateTextHTML = (text: string): string => {
+export const generateTextHTML = (text: string, opts?: { fontSizePx?: number; textAlign?: 'left'|'center'|'right'|'justify' }): string => {
   if (!text) return '';
   
-  // Satır sonlarını <br> ile değiştir
-  const formattedText = text.replace(/\n/g, '<br>');
-  return `<div class="text-gray-700 leading-relaxed my-4">${formattedText}</div>`;
+  // HTML entity'leri decode et (JSON.stringify sırasında escape edilen karakterler)
+  let decodedText = text
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+  
+  // Eğer decodedText hala çift tırnak içindeyse, tırnakları kaldır
+  if (decodedText.startsWith('"') && decodedText.endsWith('"')) {
+    decodedText = decodedText.slice(1, -1);
+  }
+  
+  // Eğer decodedText zaten HTML içeriyorsa (RichTextEditor'dan geliyorsa)
+  if (decodedText.includes('<') && decodedText.includes('>')) {
+    // RichTextEditor'dan gelen HTML'deki TÜM inline stilleri koru
+    // Bu HTML'de zaten renk, font, hizalama gibi stiller var
+    
+    // Uzun sözcükler taşmasın; break-all yerine break-words kullanarak doğal kelime böl
+    const fontStyle = opts?.fontSizePx ? `font-size: ${opts.fontSizePx}px;` : '';
+    
+    // RichTextEditor'dan gelen HTML'de zaten tüm stiller var, sadece font boyutunu ekle
+    // Eğer font boyutu belirtilmemişse, sadece wrapper div'i ekle
+    if (fontStyle) {
+      return `<div class="break-words whitespace-normal" style="${fontStyle}">${decodedText}</div>`;
+    } else {
+      return `<div class="break-words whitespace-normal">${decodedText}</div>`;
+    }
+  }
+  
+  // Sadece düz metin ise, satır sonlarını <br> ile değiştir ve div ile sar
+  const formattedText = decodedText.replace(/\n/g, '<br>');
+  const fontStyle = opts?.fontSizePx ? `font-size: ${opts.fontSizePx}px;` : '';
+  const alignStyle = opts?.textAlign ? `text-align: ${opts.textAlign};` : '';
+  return `<div class="text-gray-700 leading-relaxed my-4 break-words whitespace-normal" style="${fontStyle}${alignStyle}">${formattedText}</div>`;
 };
 
 // Resim HTML'i oluştur
-export const generateImageHTML = (imageUrl: string, alt: string = 'Image'): string => {
-  if (!imageUrl) return '';
-  
-  // Eğer URL zaten tam URL ise kullan, değilse server URL'ini ekle
-  const fullUrl = imageUrl.startsWith('http') ? imageUrl : `http://localhost:5000${imageUrl}`;
-  
+export const generateImageHTML = (
+  image: string | { url: string; widthPercent?: number; maxHeightPx?: number; borderRadiusPx?: number },
+  alt: string = 'Image'
+): string => {
+  if (!image) return '';
+  const url = typeof image === 'string' ? image : image.url;
+  const widthPercent = typeof image === 'string' ? undefined : image.widthPercent;
+  const maxHeightPx = typeof image === 'string' ? undefined : image.maxHeightPx;
+  const borderRadiusPx = typeof image === 'string' ? undefined : image.borderRadiusPx;
+
+  const fullUrl = url.startsWith('http') ? url : `http://localhost:5000${url}`;
+  const style = [
+    widthPercent ? `max-width:${widthPercent}%;` : '',
+    maxHeightPx ? `max-height:${maxHeightPx}px;` : '',
+    borderRadiusPx ? `border-radius:${borderRadiusPx}px;` : ''
+  ].join('');
+
   return `
-    <div class="image-container my-4">
-      <img src="${fullUrl}" alt="${alt}" class="max-w-full h-auto rounded-lg shadow-md" />
+    <div class="image-container my-4 flex justify-center">
+      <img src="${fullUrl}" alt="${alt}" class="h-auto shadow-md" style="${style}" />
     </div>
   `;
 };
 
 // Karışık içerik bloğu için HTML oluştur
 export const generateMixedContentHTML = (
-  title: string, 
-  layout: 'vertical' | 'horizontal' | 'grid', 
-  elements: ContentElement[]
+  title: string,
+  layout: 'vertical' | 'horizontal' | 'grid',
+  elements: ContentElement[],
+  options?: { preview?: boolean }
 ): string => {
+  const showPreview = options?.preview === true;
   let html = `<div class="mixed-content-block my-8 p-6 bg-gray-50 rounded-lg">`;
   
   if (title) {
@@ -124,30 +174,29 @@ export const generateMixedContentHTML = (
   
   if (layout === 'vertical') {
     html += '<div class="space-y-4">';
-    elements.forEach((element, index) => {
+    elements.forEach((element) => {
       const position = element.position || 'full';
       const width = element.width || '100%';
-      
-      // Konum göstergesi ekle
-      let positionIndicator = '';
-      if (position === 'left') {
-        positionIndicator = '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>';
-      } else if (position === 'right') {
-        positionIndicator = '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>';
-      } else {
-        positionIndicator = '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+      const wrapperClasses = showPreview
+        ? 'relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white'
+        : 'relative';
+      html += `<div class="${wrapperClasses}">`;
+      if (showPreview) {
+        const positionIndicator = position === 'left'
+          ? '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>'
+          : position === 'right'
+            ? '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>'
+            : '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+        html += positionIndicator;
+        html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       }
-      
-      html += `<div class="relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">`;
-      html += positionIndicator;
-      html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       html += generateElementHTML(element);
       html += '</div>';
     });
     html += '</div>';
   } else if (layout === 'horizontal') {
     html += '<div class="flex flex-wrap gap-4">';
-    elements.forEach((element, index) => {
+    elements.forEach((element) => {
       const width = element.width || '100%';
       const position = element.position || 'full';
       
@@ -160,20 +209,20 @@ export const generateMixedContentHTML = (
       } else {
         cssClasses = 'flex-1';
       }
-      
-      // Konum göstergesi ekle
-      let positionIndicator = '';
-      if (position === 'left') {
-        positionIndicator = '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>';
-      } else if (position === 'right') {
-        positionIndicator = '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>';
-      } else {
-        positionIndicator = '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+
+      const wrapperClasses = showPreview
+        ? `${cssClasses} relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white`
+        : `${cssClasses}`;
+      html += `<div class="${wrapperClasses}" style="min-width: ${width}; max-width: ${width};">`;
+      if (showPreview) {
+        const positionIndicator = position === 'left'
+          ? '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>'
+          : position === 'right'
+            ? '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>'
+            : '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+        html += positionIndicator;
+        html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       }
-      
-      html += `<div class="${cssClasses} relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white" style="min-width: ${width}; max-width: ${width};">`;
-      html += positionIndicator;
-      html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       html += generateElementHTML(element);
       html += '</div>';
     });
@@ -181,7 +230,7 @@ export const generateMixedContentHTML = (
   } else if (layout === 'grid') {
     // Grid layout için konum ve boyut bilgilerini kullan
     html += '<div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">';
-    elements.forEach((element, index) => {
+    elements.forEach((element) => {
       const width = element.width || '100%';
       const position = element.position || 'full';
       
@@ -193,20 +242,20 @@ export const generateMixedContentHTML = (
       } else {
         gridClasses = 'justify-self-stretch';
       }
-      
-      // Konum göstergesi ekle
-      let positionIndicator = '';
-      if (position === 'left') {
-        positionIndicator = '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>';
-      } else if (position === 'right') {
-        positionIndicator = '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>';
-      } else {
-        positionIndicator = '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+
+      const wrapperClasses = showPreview
+        ? `${gridClasses} relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white`
+        : `${gridClasses}`;
+      html += `<div class="${wrapperClasses}" style="width: ${width};">`;
+      if (showPreview) {
+        const positionIndicator = position === 'left'
+          ? '<div class="text-xs text-blue-600 mb-1">⬅️ Sol Konum</div>'
+          : position === 'right'
+            ? '<div class="text-xs text-green-600 mb-1">➡️ Sağ Konum</div>'
+            : '<div class="text-xs text-purple-600 mb-1">🔄 Tam Genişlik</div>';
+        html += positionIndicator;
+        html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       }
-      
-      html += `<div class="${gridClasses} relative border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white" style="width: ${width};">`;
-      html += positionIndicator;
-      html += `<div class="text-xs text-gray-500 mb-2">📏 Boyut: ${width}</div>`;
       html += generateElementHTML(element);
       html += '</div>';
     });
@@ -221,7 +270,7 @@ export const generateMixedContentHTML = (
 export const generateElementHTML = (element: ContentElement): string => {
   switch (element.type) {
     case 'text':
-      return generateTextHTML(element.content);
+      return generateTextHTML(element.content, { fontSizePx: element.fontSizePx, textAlign: element.textAlign });
     case 'table':
       return generateTableHTML(element.content);
     case 'list':

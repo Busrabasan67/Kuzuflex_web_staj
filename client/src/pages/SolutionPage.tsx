@@ -32,8 +32,16 @@ const SolutionPage: React.FC = () => {
 
   // Resim URL'lerini düzelt
   const fixImageUrls = (htmlContent: string): string => {
+    // HTML entity'leri decode et (JSON.stringify sırasında escape edilen karakterler)
+    let fixedContent = htmlContent
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
     // /uploads/ ile başlayan URL'leri tam URL'ye çevir
-    let fixedContent = htmlContent.replace(
+    fixedContent = fixedContent.replace(
       /src="\/uploads\//g, 
       'src="http://localhost:5000/uploads/'
     );
@@ -41,10 +49,7 @@ const SolutionPage: React.FC = () => {
     // Konum ve boyut bilgilerini CSS ile uygula
     fixedContent = fixedContent.replace(
       /style="([^"]*width:\s*([^;]+);[^"]*)"/g,
-      (match, style, width) => {
-        // Width değerini CSS class olarak uygula
-        return `style="${style}" class="w-full"`;
-      }
+      (_unused, style) => `style="${style}" class="w-full"`
     );
     
     return fixedContent;
@@ -53,6 +58,44 @@ const SolutionPage: React.FC = () => {
   // Ekstra içeriği render et
   const renderExtraContent = (content: ExtraContent) => {
     try {
+      // Öncelikle 'text' türünü ele al: İçerik çoğu zaman JSON.stringify ile kaydedilmiş düz stringtir
+      if (content.type === 'text') {
+        const decodeEntities = (s: string) =>
+          s
+            .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&#39;/g, "'");
+
+        let raw = (content.content || '').trim();
+        let textContent: string = raw;
+
+        // JSON string literal ise parse etmeyi dene
+        try {
+          // Hem "..." hem de {...} gibi durumları güvenle parse etmeyi dene
+          textContent = JSON.parse(raw);
+        } catch {
+          // Parse edilemezse, ham veriyi kullan
+          textContent = raw;
+        }
+
+        // Tür güvenliği: String değilse stringe çevir
+        if (typeof textContent !== 'string') {
+          textContent = String(textContent ?? '');
+        }
+
+        // Eğer hala başında ve sonunda çift tırnak varsa kaldır
+        if (textContent.startsWith('"') && textContent.endsWith('"')) {
+          textContent = textContent.slice(1, -1);
+        }
+
+        // HTML entity decode
+        textContent = decodeEntities(textContent);
+
+        // RichTextEditor HTML'ini olduğu gibi döndür (stil korunur)
+        return textContent;
+      }
       // Eğer content zaten HTML ise (mixed type için)
       if (content.type === 'mixed') {
         console.log('🔍 Mixed content detected:', content.content.substring(0, 200));
@@ -107,10 +150,13 @@ const SolutionPage: React.FC = () => {
         }
         
         console.log('🔄 Falling back to HTML processing');
+        console.log('🔍 Raw HTML content before fixImageUrls:', content.content.substring(0, 200));
         // JSON değilse veya parse edilemezse, HTML olarak işle
-        return fixImageUrls(content.content);
+        const processedHTML = fixImageUrls(content.content);
+        console.log('✅ Processed HTML after fixImageUrls:', processedHTML.substring(0, 200));
+        return processedHTML;
       }
-
+ 
       // JSON string'i parse et (sadece JSON formatında ise)
       if (content.content.trim().startsWith('{') && content.content.trim().endsWith('}')) {
         try {
@@ -118,7 +164,41 @@ const SolutionPage: React.FC = () => {
           
           switch (content.type) {
             case 'text':
-              return `<div class="text-gray-700 leading-relaxed">${parsedContent}</div>`;
+              // Debug: Metin türü için parsedContent'i logla
+              console.log('🔍 Text type content:', {
+                originalContent: content.content,
+                parsedContent: parsedContent,
+                type: typeof parsedContent,
+                startsWithQuote: typeof parsedContent === 'string' && parsedContent.startsWith('"'),
+                endsWithQuote: typeof parsedContent === 'string' && parsedContent.endsWith('"')
+              });
+              
+              // Metin türü için parsedContent bir string olmalı, HTML olarak render et
+              // RichTextEditor'dan gelen HTML içeriği JSON.stringify ile kaydedildiği için
+              // parse edildikten sonra HTML string olarak alınıyor
+              let textContent = parsedContent;
+              
+              // Eğer parsedContent bir string ise ve çift tırnak içindeyse, tırnakları kaldır
+              if (typeof textContent === 'string') {
+                // Çift tırnakları kaldır
+                if (textContent.startsWith('"') && textContent.endsWith('"')) {
+                  textContent = textContent.slice(1, -1);
+                  console.log('✅ Quotes removed, final textContent:', textContent);
+                }
+                
+                // HTML entity'leri decode et
+                textContent = textContent
+                  .replace(/&quot;/g, '"')
+                  .replace(/&amp;/g, '&')
+                  .replace(/&lt;/g, '<')
+                  .replace(/&gt;/g, '>')
+                  .replace(/&#39;/g, "'");
+                 
+                console.log('✅ HTML entities decoded, final textContent:', textContent);
+              }
+              
+              // HTML olarak render et, böylece RichTextEditor'dan gelen stiller korunur
+              return textContent;
               
             case 'table':
               if (parsedContent.headers && parsedContent.rows) {
@@ -299,9 +379,9 @@ const SolutionPage: React.FC = () => {
                   <h4 className="text-lg font-semibold text-gray-900 mb-3">
                     {content.title}
                   </h4>
-                  <div className="prose prose-sm max-w-none">
+                  <div className="prose prose-sm max-w-none break-words">
                     <div 
-                      className="text-gray-700"
+                      className="text-gray-700 break-words whitespace-normal"
                       dangerouslySetInnerHTML={{ __html: renderExtraContent(content) }}
                     />
                   </div>

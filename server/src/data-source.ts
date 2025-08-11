@@ -3,7 +3,7 @@ import { DataSource } from "typeorm";
 import { Product } from "./entity/Product";
 import { Catalog } from "./entity/Catalog";
 import { Admin } from "./entity/Admin";
-import { ProductGroup } from "./entity/ProductGroup";
+import { ProductGroup } from "./entity/ProductGroup"; 
 import { ProductTranslation } from "./entity/ProductTranslation";
 import { ProductGroupTranslation } from "./entity/ProductGroupTranslation";
 import { CatalogTranslation } from "./entity/CatalogTranslation";
@@ -15,6 +15,10 @@ import { QMDocumentsAndCertificatesTranslations } from "./entity/QMDocumentsAndC
 import { Market } from "./entity/Market";
 import { MarketContent } from "./entity/MarketContent";
 import { MarketTranslation } from "./entity/MarketTranslation";
+import { AboutPage } from "./entity/AboutPage";
+import { AboutPageTranslation } from "./entity/AboutPageTranslation";
+import { AboutPageExtraContent } from "./entity/AboutPageExtraContent";
+
 
 const AppDataSource = new DataSource({
   type: "mssql",
@@ -25,7 +29,7 @@ const AppDataSource = new DataSource({
   database: "KuzuflexDB",
   synchronize: false,
   logging: false,
-  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation, Solution, SolutionTranslation, SolutionExtraContent, QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslations, Market, MarketContent, MarketTranslation],  
+  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation, Solution, SolutionTranslation, SolutionExtraContent, QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslations, Market, MarketContent, MarketTranslation, AboutPage, AboutPageTranslation, AboutPageExtraContent],  
   migrations: [__dirname + "/migrations/*.ts"],
   options: {
     encrypt: true,
@@ -33,15 +37,6 @@ const AppDataSource = new DataSource({
   },
 });
 
-AppDataSource.initialize()
-  .then(() => {
-    console.log("✅ Veritabanı bağlantısı başarılı (data-source.ts)");
-  })
-  .catch((err: any) => {
-    console.error("Veritabanı bağlantı hatası:", err);
-  });
-  
-  
 export default AppDataSource;
 
 

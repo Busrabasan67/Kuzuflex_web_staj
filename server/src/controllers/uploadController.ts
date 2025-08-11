@@ -83,6 +83,22 @@ export const uploadQMDocuments = multer({ storage: qmDocumentsStorage, fileFilte
 // Genel upload middleware (varsayılan)
 export const upload = multer({ storage: productGroupStorage, fileFilter });
 
+// Pages (About vs.) için storage
+const pageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(BASE_UPLOAD_DIR, "images/Pages");
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `page-${uniqueSuffix}${ext}`);
+  }
+});
+
+export const uploadPage = multer({ storage: pageStorage, fileFilter });
+
 // QM Documents için upload endpoint
 export const uploadQMDocumentsFile = (req: Request, res: Response) => {
   try {

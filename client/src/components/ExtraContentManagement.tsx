@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SolutionExtraContentAdder from './SolutionExtraContentAdder';
+import ExtraContentDeleteModal from './ExtraContentDeleteModal';
 
 interface ExtraContent {
   id: number;
@@ -33,6 +34,13 @@ const ExtraContentManagement: React.FC = () => {
   const [editingContent, setEditingContent] = useState<ExtraContent | null>(null);
   const [expandedSolutions, setExpandedSolutions] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info', message: string } | null>(null);
+
+  // Toast gösterme fonksiyonu
+  const showToast = (type: 'success' | 'error' | 'info', message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 5000); // 5 saniye sonra otomatik kapat
+  };
 
   // Yeni işlevsel state'ler
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,6 +51,10 @@ const ExtraContentManagement: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  
+  // Modal state'leri (sadece sağdaki toplu işlem modali)
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteModalData, setDeleteModalData] = useState<{ ids: number[], label: string } | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -116,10 +128,11 @@ const ExtraContentManagement: React.FC = () => {
     try {
       setLoading(true);
       
-      // Ekstra içerikleri ve solution'ları paralel olarak çek
+      // Ekstra içerikleri ve solution'ları paralel olarak çek (cache busting)
+      const ts = Date.now();
       const [contentsResponse, solutionsResponse] = await Promise.all([
-        fetch('http://localhost:5000/api/solution-extra-content/admin'),
-        fetch('http://localhost:5000/api/solutions/admin')
+        fetch(`http://localhost:5000/api/solution-extra-content/admin?ts=${ts}`, { cache: 'no-store' }),
+        fetch(`http://localhost:5000/api/solutions/admin?ts=${ts}`, { cache: 'no-store' })
       ]);
       
       if (!contentsResponse.ok || !solutionsResponse.ok) {
@@ -134,7 +147,7 @@ const ExtraContentManagement: React.FC = () => {
       setExtraContents(contentsData);
       setSolutions(solutionsData);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Veriler yüklenirken hata oluştu' });
+      showToast('error', 'Veriler yüklenirken hata oluştu');
       console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
@@ -151,35 +164,7 @@ const ExtraContentManagement: React.FC = () => {
     setExpandedSolutions(newExpanded);
   };
 
-  const handleDeleteContent = async (id: number) => {
-    if (!confirm('Bu ekstra içeriği silmek istediğinizden emin misiniz?')) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:5000/api/solution-extra-content/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Ekstra içerik silinirken hata oluştu');
-      }
-
-      setMessage({ type: 'success', text: 'Ekstra içerik başarıyla silindi!' });
-      fetchData(); // Listeyi yenile
-    } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Bilinmeyen hata oluştu' 
-      });
-    }
-  };
-
-  const handleEditContent = (content: ExtraContent) => {
-    setEditingContent(content);
-    setShowAdder(true);
-  };
+  // Tekil düzenleme/silme kaldırıldı; sadece sağdaki toplu butonlar kullanılacak
 
   // Tüm dillerdeki içeriği düzenlemek için
   const handleEditContentGroup = (contents: ExtraContent[]) => {
@@ -207,16 +192,34 @@ const ExtraContentManagement: React.FC = () => {
   // Verilen ID listesindeki içerikleri topluca sil (grup bazlı)
   const handleDeleteContentGroup = async (ids: number[], label: string) => {
     if (ids.length === 0) return;
-    if (!confirm(`${label} grubundaki ${ids.length} kaydı silmek istiyor musunuz?`)) return;
+    
+    // Modal'ı aç
+    setDeleteModalData({ ids, label });
+    setShowDeleteModal(true);
+  };
+
+  // Modal'dan onay geldiğinde çalışacak fonksiyon
+  const handleConfirmDelete = async () => {
+    if (!deleteModalData) return;
+    
     try {
       await Promise.all(
-        ids.map(id => fetch(`http://localhost:5000/api/solution-extra-content/${id}`, { method: 'DELETE' }))
+        deleteModalData.ids.map(id => fetch(`http://localhost:5000/api/solution-extra-content/${id}`, { method: 'DELETE' }))
       );
-      setMessage({ type: 'success', text: `${label} grubu silindi` });
+      showToast('success', `${deleteModalData.label} grubu silindi`);
       fetchData();
     } catch (error) {
-      setMessage({ type: 'error', text: 'Toplu silme sırasında hata oluştu' });
+      showToast('error', 'Toplu silme sırasında hata oluştu');
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteModalData(null);
     }
+  };
+
+  // Modal'ı kapat
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteModalData(null);
   };
 
   // Toplu işlemler
@@ -230,12 +233,12 @@ const ExtraContentManagement: React.FC = () => {
           fetch(`http://localhost:5000/api/solution-extra-content/${id}`, { method: 'DELETE' })
         )
       );
-      setMessage({ type: 'success', text: `${selectedItems.size} öğe başarıyla silindi!` });
+      showToast('success', `${selectedItems.size} öğe başarıyla silindi!`);
       setSelectedItems(new Set());
       setShowBulkActions(false);
       fetchData();
     } catch (error) {
-      setMessage({ type: 'error', text: 'Toplu silme sırasında hata oluştu' });
+      showToast('error', 'Toplu silme sırasında hata oluştu');
     }
   };
 
@@ -262,7 +265,7 @@ const ExtraContentManagement: React.FC = () => {
   };
 
   const handleContentAdded = () => {
-    setMessage({ type: 'success', text: 'Ekstra içerik başarıyla eklendi!' });
+    showToast('success', 'Ekstra içerik başarıyla eklendi!');
     setShowAdder(false);
     setEditingContent(null);
     fetchData(); // Listeyi yenile
@@ -330,14 +333,37 @@ const ExtraContentManagement: React.FC = () => {
     }
   };
 
-  // İstatistikler
+  // Grup sayısını, dillerden bağımsız ve aynı order içinde birden fazla grup olma durumunu doğru hesaplayan yardımcı
+  const computeGroupCount = (contents: ExtraContent[]): number => {
+    // order -> language -> count
+    const byOrder: Record<number, Record<string, number>> = {};
+    contents.forEach((c) => {
+      if (!byOrder[c.order]) byOrder[c.order] = {};
+      const langCounts = byOrder[c.order];
+      langCounts[c.language] = (langCounts[c.language] || 0) + 1;
+    });
+    // Her order için; dillerdeki maksimum adet kadar grup vardır
+    return Object.values(byOrder).reduce((sum, langCounts) => {
+      const counts = Object.values(langCounts);
+      const maxPerOrder = counts.length > 0 ? Math.max(...counts) : 0;
+      return sum + maxPerOrder;
+    }, 0);
+  };
+
+  // İstatistikler (solution bazında doğru gruplayarak hesapla)
   const stats = {
-    total: extraContents.length,
+    // Toplam ekstra içerik sayısı (dillerden bağımsız, gerçek grup adedi)
+    total: solutions.reduce((sum, s) => {
+      const contentsOfSolution = extraContents.filter(c => c.solutionId === s.id);
+      return sum + computeGroupCount(contentsOfSolution);
+    }, 0),
+    // Dil versiyonları dahil toplam kayıt sayısı
+    totalRecords: extraContents.length,
     byType: {
-      text: extraContents.filter(c => c.type === 'text').length,
-      table: extraContents.filter(c => c.type === 'table').length,
-      list: extraContents.filter(c => c.type === 'list').length,
-      mixed: extraContents.filter(c => c.type === 'mixed').length,
+      text: solutions.reduce((sum, s) => sum + computeGroupCount(extraContents.filter(c => c.solutionId === s.id && c.type === 'text')), 0),
+      table: solutions.reduce((sum, s) => sum + computeGroupCount(extraContents.filter(c => c.solutionId === s.id && c.type === 'table')), 0),
+      list: solutions.reduce((sum, s) => sum + computeGroupCount(extraContents.filter(c => c.solutionId === s.id && c.type === 'list')), 0),
+      mixed: solutions.reduce((sum, s) => sum + computeGroupCount(extraContents.filter(c => c.solutionId === s.id && c.type === 'mixed')), 0),
     },
     byLanguage: {
       tr: extraContents.filter(c => c.language === 'tr').length,
@@ -372,6 +398,9 @@ const ExtraContentManagement: React.FC = () => {
                 Ekstra İçerik Yönetimi
               </h1>
               <p className="text-gray-600 mt-2">Solution'larınızın ekstra içeriklerini yönetin</p>
+              <p className="text-sm text-gray-500 mt-1">
+                Toplam {stats.total} ekstra içerik bulunmaktadır ({stats.totalRecords} dil versiyonu)
+              </p>
             </div>
             
             <div className="flex flex-wrap gap-3">
@@ -391,7 +420,7 @@ const ExtraContentManagement: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="px-4 py-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
             <div className="flex items-center">
               <div className="p-3 bg-blue-100 rounded-xl">
@@ -402,6 +431,7 @@ const ExtraContentManagement: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Toplam İçerik</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-xs text-gray-500">({stats.totalRecords} dil versiyonu)</p>
               </div>
             </div>
           </div>
@@ -416,6 +446,7 @@ const ExtraContentManagement: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Metin İçerik</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.byType.text}</p>
+                <p className="text-xs text-gray-500">({extraContents.filter(c => c.type === 'text').length} dil versiyonu)</p>
               </div>
             </div>
           </div>
@@ -430,6 +461,7 @@ const ExtraContentManagement: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Tablo İçerik</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.byType.table}</p>
+                <p className="text-xs text-gray-500">({extraContents.filter(c => c.type === 'table').length} dil versiyonu)</p>
               </div>
             </div>
           </div>
@@ -444,6 +476,22 @@ const ExtraContentManagement: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Karışık İçerik</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.byType.mixed}</p>
+                <p className="text-xs text-gray-500">({extraContents.filter(c => c.type === 'mixed').length} dil versiyonu)</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+            <div className="flex items-center">
+              <div className="p-3 bg-indigo-100 rounded-xl">
+                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Liste İçerik</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.byType.list}</p>
+                <p className="text-xs text-gray-500">({extraContents.filter(c => c.type === 'list').length} dil versiyonu)</p>
               </div>
             </div>
           </div>
@@ -630,9 +678,9 @@ const ExtraContentManagement: React.FC = () => {
                       <h3 className="text-xl font-semibold text-gray-900">
                         {group.solution.title}
                       </h3>
-                        <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+                      <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
                         {(() => {
-                          // Gerçek içerik sayısını hesapla
+                          // Gerçek içerik sayısını hesapla (solution bazında)
                           const byOrderBuckets: Record<number, Record<string, ExtraContent[]>> = {};
                           group.contents
                             .sort((a, b) => a.order - b.order || a.id - b.id)
@@ -643,7 +691,6 @@ const ExtraContentManagement: React.FC = () => {
 
                           const orders = Object.keys(byOrderBuckets).map(Number).sort((a, b) => a - b);
                           let totalContentGroups = 0;
-                          
                           orders.forEach((order) => {
                             const langLists = byOrderBuckets[order];
                             const maxLen = Math.max(
@@ -654,12 +701,8 @@ const ExtraContentManagement: React.FC = () => {
                             );
                             totalContentGroups += maxLen;
                           });
-                          
                           return totalContentGroups;
                         })()} içerik
-                      </span>
-                        <span className="text-sm text-gray-500">
-                          #{group.solution.id}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -752,13 +795,15 @@ const ExtraContentManagement: React.FC = () => {
                                                    'bg-orange-100 text-orange-800'
                                                  }`}>
                                                    {getTypeLabel(content.type)}
-                              </span>
+                                                 </span>
                                                  <span className="text-[10px] text-gray-500">#{content.id}</span>
-                            </div>
-                                                                                               <div className="text-gray-900 font-medium truncate">{content.title}</div>
-                                                <div className="text-gray-600 line-clamp-1">{getContentPreview(content)}</div>
-                              </div>
-                            ) : (
+                                               </div>
+                                               <div className="text-gray-900 font-medium truncate">{content.title}</div>
+                                               <div className="text-gray-600 line-clamp-1">{getContentPreview(content)}</div>
+                                               
+                                                {/* Tek tek işlem butonları kaldırıldı */}
+                                             </div>
+                                           ) : (
                                              <span className="text-gray-400">—</span>
                                            )}
                                          </td>
@@ -808,6 +853,39 @@ const ExtraContentManagement: React.FC = () => {
               </div>
             ))
           )}
+        </div>
+      )}
+      
+      {/* Silme Onay Modal'ı */}
+      {showDeleteModal && deleteModalData && (
+        <ExtraContentDeleteModal
+          isOpen={showDeleteModal}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          contentLabel={deleteModalData.label}
+          contentCount={deleteModalData.ids.length}
+        />
+      )}
+
+      {/* Tek tek içerik silme modalı kaldırıldı */}
+
+      {/* Toast Bildirimi */}
+      {toast && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className={`px-6 py-4 rounded-lg shadow-lg text-white font-medium transform transition-all duration-300 ${
+            toast.type === 'success' ? 'bg-green-500' :
+            toast.type === 'error' ? 'bg-red-500' :
+            'bg-blue-500'
+          }`}>
+            <div className="flex items-center space-x-2">
+              <span>
+                {toast.type === 'success' ? '✅' :
+                 toast.type === 'error' ? '❌' :
+                 'ℹ️'}
+              </span>
+              <span>{toast.message}</span>
+            </div>
+          </div>
         </div>
       )}
       </div>

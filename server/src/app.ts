@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import authRoutes from "./routes/authRoutes";
 import productGroupRoutes from "./routes/ProductGroupRoutes";
 import productRoutes from "./routes/productRoutes";
 import solutionRoutes from "./routes/solutionRoutes";
@@ -9,6 +10,10 @@ import uploadRoutes from "./routes/uploadRoutes";
 import catalogRoutes from "./routes/catalogRoutes";
 import qmDocumentsAndCertificatesRoutes from "./routes/qmDocumentsAndCertificatesRoutes";
 import marketRoutes from "./routes/marketRoutes";
+import pageRoutes from "./routes/pageRoutes";
+import aboutPageRoutes from "./routes/aboutPageRoutes";
+import aboutPageExtraContentRoutes from "./routes/aboutPageExtraContentRoutes";
+
 
 const app = express();
 
@@ -29,6 +34,7 @@ app.use("/uploads", cors({
 }), express.static(path.join(__dirname, "../public/uploads")));
 
 // Route'lar
+app.use("/api/auth", authRoutes);
 app.use("/api/product-groups", productGroupRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/solutions", solutionRoutes);
@@ -37,5 +43,9 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/catalogs", catalogRoutes);
 app.use("/api/qm-documents-and-certificates", qmDocumentsAndCertificatesRoutes);
 app.use("/api/markets", marketRoutes);
+app.use("/api/pages", pageRoutes);
+app.use("/api/about-page", aboutPageRoutes);
+app.use("/api/about-page-extra-content", aboutPageExtraContentRoutes);
+
 
 export default app;

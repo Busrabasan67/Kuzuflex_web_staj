@@ -1,5 +1,5 @@
 import express from "express";
-import { uploadQMDocumentsFile } from "../controllers/uploadController";
+import { uploadQMDocumentsFile, uploadPage } from "../controllers/uploadController";
 
 const router = express.Router();
 
@@ -56,6 +56,12 @@ const router = express.Router();
  */
 router.post("/qm-documents", uploadQMDocumentsFile);
 
+// About/Page hero upload
+router.post("/page-hero", uploadPage.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Dosya seçilmedi' });
+  const url = `/uploads/images/Pages/${req.file.filename}`;
+  return res.status(200).json({ url });
+});
 
 
 export default router;

@@ -47,7 +47,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     if (editor.innerHTML !== value) {
       editor.innerHTML = value || '';
     }
-  }, [value]);
+    
+    // Mevcut metin hizalamasını kontrol et ve state'i güncelle
+    if (editor.innerHTML) {
+      const computedStyle = window.getComputedStyle(editor);
+      const currentAlign = computedStyle.textAlign as 'left' | 'center' | 'right' | 'justify';
+      if (currentAlign && currentAlign !== textAlign) {
+        setTextAlign(currentAlign);
+      }
+    }
+  }, [value, textAlign]);
 
   const execCommand = (command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -96,8 +105,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   };
 
   const setAlignment = (align: 'left' | 'center' | 'right' | 'justify') => {
+    // Sadece hizalama komutunu uygula, diğer formatlamayı koru
     execCommand(`justify${align.charAt(0).toUpperCase() + align.slice(1)}`);
+    
+    // State'i güncelle
     setTextAlign(align);
+    
+    // Editörü yeniden odakla
+    editorRef.current?.focus();
   };
 
   // Liste ve link özellikleri kaldırıldı

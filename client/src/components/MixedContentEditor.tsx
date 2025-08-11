@@ -10,6 +10,11 @@ interface ContentElement {
   content: any;
   position?: 'left' | 'right' | 'full';
   width?: '25%' | '50%' | '75%' | '100%';
+  // Optional styles
+  fontSizePx?: number;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  imageWidthPercent?: number;
+  imageMaxHeightPx?: number;
 }
 
 interface MixedContentEditorProps {
@@ -31,10 +36,14 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [previewMode, setPreviewMode] = useState<'inline' | 'side'>('inline');
+  const [expandedElements, setExpandedElements] = useState<Set<string>>(new Set());
 
   // Debug: Log when elements change
   useEffect(() => {
     console.log('MixedContentEditor elements changed:', elements);
+    // Tüm elemanları başlangıçta açık hale getir
+    setExpandedElements(new Set(elements.map(e => e.id)));
   }, [elements]);
 
   const addElement = (type: 'text' | 'image' | 'table' | 'list') => {
@@ -77,6 +86,15 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
     const newElements = [...elements];
     [newElements[currentIndex], newElements[newIndex]] = [newElements[newIndex], newElements[currentIndex]];
     onElementsChange(newElements);
+  };
+
+  const toggleElementExpanded = (elementId: string) => {
+    setExpandedElements(prev => {
+      const next = new Set(prev);
+      if (next.has(elementId)) next.delete(elementId);
+      else next.add(elementId);
+      return next;
+    });
   };
 
   const getDefaultContent = (type: string) => {
@@ -131,6 +149,33 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
     }
     
     onLayoutChange(newLayout);
+  };
+
+  const getTypeStyleClasses = (type: ContentElement['type']) => {
+    switch (type) {
+      case 'text':
+        return {
+          header: 'bg-blue-50 text-blue-700',
+          border: 'border-blue-200'
+        };
+      case 'image':
+        return {
+          header: 'bg-green-50 text-green-700',
+          border: 'border-green-200'
+        };
+      case 'table':
+        return {
+          header: 'bg-purple-50 text-purple-700',
+          border: 'border-purple-200'
+        };
+      case 'list':
+        return {
+          header: 'bg-orange-50 text-orange-700',
+          border: 'border-orange-200'
+        };
+      default:
+        return { header: 'bg-gray-50 text-gray-700', border: 'border-gray-200' };
+    }
   };
 
   const handleImageUpload = async (elementId: string, event: React.ChangeEvent<HTMLInputElement>) => {
@@ -220,6 +265,21 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
                       onChange={(value) => updateElement(element.id, { content: value })}
                       placeholder="Metninizi yazın..."
                     />
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Yazı Boyutu (px)</label>
+                        <input type="number" min={10} max={48} value={element.fontSizePx || 16} onChange={(e)=>updateElement(element.id,{ fontSizePx: Number(e.target.value) })} className="w-full border rounded px-2 py-1 text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">Hizalama</label>
+                        <select value={element.textAlign || 'left'} onChange={(e)=>updateElement(element.id,{ textAlign: e.target.value as any })} className="w-full border rounded px-2 py-1 text-sm">
+                          <option value="left">Sola</option>
+                          <option value="center">Ortala</option>
+                          <option value="right">Sağa</option>
+                          <option value="justify">İki Yana</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 );
 
@@ -271,6 +331,16 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
                         >
                           Resmi Kaldır
                         </button>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Genişlik (%)</label>
+                            <input type="number" min={10} max={100} value={element.imageWidthPercent || 100} onChange={(e)=>updateElement(element.id,{ imageWidthPercent: Number(e.target.value) })} className="w-full border rounded px-2 py-1 text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Maks. Yükseklik (px)</label>
+                            <input type="number" min={50} max={1200} value={element.imageMaxHeightPx || 0} onChange={(e)=>updateElement(element.id,{ imageMaxHeightPx: Number(e.target.value) })} className="w-full border rounded px-2 py-1 text-sm" />
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
@@ -304,163 +374,172 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
     );
   };
 
-  return (
-    <div className="mixed-content-editor space-y-6">
-      {/* Başlık */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          İçerik Bloğu Başlığı:
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="İçerik bloğu başlığını girin..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+  const topControls = (
+    <div className="space-y-4">
+      {/* Başlık ve Önizleme Modu */}
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-2">İçerik Bloğu Başlığı:</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            placeholder="İçerik bloğu başlığını girin..."
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className={`px-3 py-2 text-sm rounded-lg border ${showPreview ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}
+          >
+            {showPreview ? '👁️ Önizlemeyi Gizle' : '👁️ Önizlemeyi Göster'}
+          </button>
+          <button
+            onClick={() => setPreviewMode(previewMode === 'inline' ? 'side' : 'inline')}
+            className="px-3 py-2 text-sm rounded-lg border bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+          >
+            {previewMode === 'inline' ? '↔️ Yan Önizleme' : '⬇️ Alt Önizleme'}
+          </button>
+        </div>
       </div>
 
       {/* Layout Seçimi */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Düzen:
-        </label>
-        <select
-          value={layout}
-          onChange={(e) => handleLayoutChange(e.target.value as 'vertical' | 'horizontal' | 'grid')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="vertical">📄 Dikey (Alt alta)</option>
-          <option value="horizontal">↔️ Yatay (Yan yana)</option>
-          <option value="grid">🔲 Grid (Izgara)</option>
-        </select>
-      </div>
-
-      {/* Element Ekleme Butonları */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          İçerik Ekle:
-        </label>
-        <div className="flex flex-wrap gap-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Düzen:</label>
+        <div className="inline-flex rounded-lg border border-gray-200 overflow-hidden shadow-sm">
           <button
-            onClick={() => addElement('text')}
-            className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+            onClick={() => handleLayoutChange('vertical')}
+            className={`px-4 py-2 text-sm ${layout === 'vertical' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
           >
-            📝 Metin Ekle
+            📄 Dikey
           </button>
           <button
-            onClick={() => addElement('image')}
-            className="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm"
+            onClick={() => handleLayoutChange('horizontal')}
+            className={`px-4 py-2 text-sm border-l border-gray-200 ${layout === 'horizontal' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
           >
-            🖼️ Resim Ekle
+            ↔️ Yatay
           </button>
           <button
-            onClick={() => addElement('table')}
-            className="px-3 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 text-sm"
+            onClick={() => handleLayoutChange('grid')}
+            className={`px-4 py-2 text-sm border-l border-gray-200 ${layout === 'grid' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
           >
-            📊 Tablo Ekle
-          </button>
-          <button
-            onClick={() => addElement('list')}
-            className="px-3 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 text-sm"
-          >
-            📋 Liste Ekle
+            🔲 Grid
           </button>
         </div>
       </div>
 
-      {/* Elementler Listesi */}
-      <div className="space-y-4">
-        {elements.map((element, index) => (
-          <div key={element.id} className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium text-gray-900">
-                {index + 1}. {getElementTypeName(element.type)}
-              </h4>
+      {/* Element Ekle */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">İçerik Ekle:</label>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => addElement('text')} className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm shadow-sm">📝 Metin</button>
+          <button onClick={() => addElement('image')} className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm shadow-sm">🖼️ Resim</button>
+          <button onClick={() => addElement('table')} className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm shadow-sm">📊 Tablo</button>
+          <button onClick={() => addElement('list')} className="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm shadow-sm">📋 Liste</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const elementsEditor = (
+    <div className="space-y-4">
+      {elements.map((element, index) => {
+        const styles = getTypeStyleClasses(element.type);
+        const isOpen = expandedElements.has(element.id);
+        return (
+          <div key={element.id} className={`border ${styles.border} rounded-xl overflow-hidden shadow-sm`}>
+            <div className={`flex items-center justify-between px-4 py-2 ${styles.header}`}>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => moveElement(element.id, 'up')}
-                  className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
-                  title="Yukarı taşı"
-                >▲</button>
-                <button
-                  onClick={() => moveElement(element.id, 'down')}
-                  className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
-                  title="Aşağı taşı"
-                >▼</button>
-                <button
-                  onClick={() => removeElement(element.id)}
-                  className="text-red-500 hover:text-red-700 text-sm"
-                >
-                  ❌ Kaldır
+                <span className="text-xs font-semibold px-2 py-0.5 bg-white bg-opacity-70 rounded">
+                  #{index + 1}
+                </span>
+                <h4 className="font-medium">{getElementTypeName(element.type)}</h4>
+                <span className="text-xs text-gray-500">{element.position === 'left' ? '⬅️ Sol' : element.position === 'right' ? '➡️ Sağ' : '🔄 Tam'} · {element.width}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {(() => {
+                  const isFirst = index === 0;
+                  const isLast = index === elements.length - 1;
+                  return (
+                    <>
+                      <button
+                        onClick={() => { if (!isFirst) moveElement(element.id, 'up'); }}
+                        className={`px-2 py-1 text-xs rounded ${isFirst ? 'bg-white/50 text-gray-400 cursor-not-allowed' : 'bg-white/80 hover:bg-white'}`}
+                        title="Yukarı taşı"
+                        disabled={isFirst}
+                        aria-disabled={isFirst}
+                      >
+                        ▲
+                      </button>
+                      <button
+                        onClick={() => { if (!isLast) moveElement(element.id, 'down'); }}
+                        className={`px-2 py-1 text-xs rounded ${isLast ? 'bg-white/50 text-gray-400 cursor-not-allowed' : 'bg-white/80 hover:bg-white'}`}
+                        title="Aşağı taşı"
+                        disabled={isLast}
+                        aria-disabled={isLast}
+                      >
+                        ▼
+                      </button>
+                    </>
+                  );
+                })()}
+                <button onClick={() => removeElement(element.id)} className="px-2 py-1 text-xs bg-red-50 text-red-600 rounded hover:bg-red-100" title="Kaldır">🗑️</button>
+                <button onClick={() => toggleElementExpanded(element.id)} className="ml-2 px-2 py-1 text-xs bg-white/80 rounded hover:bg-white" title={isOpen ? 'Daralt' : 'Genişlet'}>
+                  {isOpen ? '–' : '+'}
                 </button>
               </div>
             </div>
-
-            {renderElementEditor(element)}
+            {isOpen && (
+              <div className="p-4 bg-white">{renderElementEditor(element)}</div>
+            )}
           </div>
-        ))}
-      </div>
+        );
+      })}
+    </div>
+  );
 
-      {/* Önizleme */}
-      {elements.length > 0 && (
-        <div className="border-t pt-6">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-gray-900">Önizleme:</h4>
-            <button
-              onClick={() => setShowPreview(!showPreview)}
-              className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-            >
-              {showPreview ? '👁️ Gizle' : '👁️ Göster'}
-            </button>
+  const previewPanel = (
+    elements.length > 0 && showPreview ? (
+      <div className="space-y-4">
+        <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+          <div className="flex items-center gap-2 text-sm text-blue-700">
+            <span className="font-medium">📐 Seçili Düzen:</span>
+            <span className="px-2 py-1 bg-blue-100 rounded">
+              {layout === 'vertical' && '📄 Dikey (Alt alta)'}
+              {layout === 'horizontal' && '↔️ Yatay (Yan yana)'}
+              {layout === 'grid' && '🔲 Grid (Izgara)'}
+            </span>
           </div>
-          
-          {showPreview && (
-            <>
-              {/* Layout Bilgisi */}
-              <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-2 text-sm text-blue-700">
-                  <span className="font-medium">📐 Seçili Düzen:</span>
-                  <span className="px-2 py-1 bg-blue-100 rounded">
-                    {layout === 'vertical' && '📄 Dikey (Alt alta)'}
-                    {layout === 'horizontal' && '↔️ Yatay (Yan yana)'}
-                    {layout === 'grid' && '🔲 Grid (Izgara)'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Element Konum Bilgileri */}
-              <div className="mb-4 p-3 bg-green-50 rounded-lg">
-                <h5 className="text-sm font-medium text-green-700 mb-2">📍 Element Konumları:</h5>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {elements.map((element, index) => (
-                    <div key={element.id} className="text-xs bg-green-100 p-2 rounded">
-                      <div className="font-medium text-green-800">
-                        {index + 1}. {getElementTypeName(element.type)}
-                      </div>
-                      <div className="text-green-600">
-                        Konum: {element.position === 'left' ? '⬅️ Sol' : element.position === 'right' ? '➡️ Sağ' : '🔄 Tam'}
-                      </div>
-                      <div className="text-green-600">
-                        Boyut: {element.width}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Canlı Önizleme */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <div className="mb-2 text-xs text-gray-500 font-medium">🎯 Canlı Önizleme:</div>
-                <div 
-                  dangerouslySetInnerHTML={{ 
-                    __html: generateMixedContentHTML(title, layout, elements) 
-                  }}
-                />
-              </div>
-            </>
-          )}
         </div>
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+          <div className="mb-2 text-xs text-gray-500 font-medium">🎯 Canlı Önizleme</div>
+          <div dangerouslySetInnerHTML={{ __html: generateMixedContentHTML(title, layout, elements.map(el => ({
+            ...el,
+            // Görünüm seçeneklerini HTML generator'a geçir
+            content: el.type === 'image' && (el.imageWidthPercent || el.imageMaxHeightPx)
+              ? { url: el.content, widthPercent: el.imageWidthPercent, maxHeightPx: el.imageMaxHeightPx }
+              : el.content
+          }))) }} />
+        </div>
+      </div>
+    ) : null
+  );
+
+  return (
+    <div className="mixed-content-editor space-y-6">
+      {topControls}
+
+      {previewMode === 'side' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>{elementsEditor}</div>
+          <div>{previewPanel}</div>
+        </div>
+      ) : (
+        <>
+          {elementsEditor}
+          {previewPanel}
+        </>
       )}
     </div>
   );

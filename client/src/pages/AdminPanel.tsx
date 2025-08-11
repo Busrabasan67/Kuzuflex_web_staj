@@ -1,28 +1,104 @@
-import React, { useState } from "react";
-import SolutionExtraContentAdder from "../components/SolutionExtraContentAdder";
+import React, { useState, useEffect } from "react";
+// import SolutionExtraContentAdder from "../components/SolutionExtraContentAdder";
 import SolutionManagement from "../components/SolutionManagement";
 import ExtraContentManagement from "../components/ExtraContentManagement";
 import AdminProductGroups from "./AdminProductGroups";
 import AdminProducts from "../components/AdminProducts";
 import QMDocumentsManagement from "../components/QMDocumentsManagement";
+import AboutPageManager from "../components/AboutPageManager";
+import ChangePasswordForm from "../components/ChangePasswordForm";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 import MarketsManagement from "../components/MarketsManagement";
 import { 
   FiHome, 
   FiPackage, 
   FiGrid, 
-  FiSettings, 
-  FiUsers,
-  FiTrendingUp,
   FiFileText,
   FiTool,
   FiEdit3,
   FiAward,
-  FiGlobe
+  FiGlobe,
+  FiLock
 } from "react-icons/fi";
 
 const AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");  // admin panelinin başlangıçta hangi taba açılacağını belirler.
   const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar açık/kapalı durumu 
+  const { isAuthenticated, token } = useAuth();
+  const navigate = useNavigate();
+
+  // Güvenlik kontrolü
+  useEffect(() => {
+    if (!isAuthenticated || !token) {
+      navigate("/admin-login", { replace: true });
+      return;
+    }
+
+    // Token validasyonu
+    const validateToken = async () => {
+      try {
+        const response = await fetch('/api/auth/validate-token', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          localStorage.removeItem('adminToken');
+          navigate("/admin-login", { replace: true });
+          return;
+        }
+      } catch (error) {
+        localStorage.removeItem('adminToken');
+        navigate("/admin-login", { replace: true });
+      }
+    };
+
+    validateToken();
+
+    // History manipulation koruması
+    const handlePopState = (event: PopStateEvent) => {
+      // Geri/ileri tuşlarına basıldığında token kontrolü
+      validateToken();
+      
+      // Eğer admin paneline erişmeye çalışılıyorsa engelle
+      if (!isAuthenticated || !token) {
+        event.preventDefault();
+        window.history.pushState(null, '', '/admin-login');
+        navigate("/admin-login", { replace: true });
+      }
+    };
+
+    // Beforeunload event
+    const handleBeforeUnload = () => {
+      // Sayfa kapatılmadan önce token'ı temizle
+      localStorage.removeItem('adminToken');
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Component unmount olduğunda event listener'ları temizle
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isAuthenticated, token, navigate]);
+
+  // Eğer authenticate değilse loading göster
+  if (!isAuthenticated || !token) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Güvenlik kontrolü yapılıyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     { id: "dashboard", name: "Dashboard", icon: FiHome },
@@ -32,6 +108,8 @@ const AdminPanel: React.FC = () => {
     { id: "solutions", name: "Çözümler", icon: FiTool },
     { id: "solution-extra-content", name: "Solution İçerik Ekle", icon: FiEdit3 },
     { id: "qm-documents", name: "QM Documents & Certificates", icon: FiAward },
+    { id: "about", name: "Hakkımızda", icon: FiFileText },
+    { id: "change-password", name: "Şifre Değiştir", icon: FiLock },
   ];
 
   const renderTabContent = () => {
@@ -40,7 +118,7 @@ const AdminPanel: React.FC = () => {
         return (
           <div>
             <h2 className="text-2xl font-bold mb-4">Admin Dashboard</h2>
-            <p>Hoş geldiniz! Buradan sitenizi yönetebilirsiniz.</p>
+            <p className="mb-6">Hoş geldiniz! Buradan sitenizi yönetebilirsiniz.</p>
           </div>
         );
       case "markets":
@@ -55,6 +133,30 @@ const AdminPanel: React.FC = () => {
         return <ExtraContentManagement />;
       case "qm-documents":
         return <QMDocumentsManagement />;
+      case "about":
+        return <AboutPageManager />;
+      case "change-password":
+        return (
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Şifre Değiştir</h2>
+            <p className="mb-6">Hesap güvenliğiniz için şifrenizi güncelleyin.</p>
+            
+            {/* Şifre Değiştirme Formu */}
+            <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm max-w-2xl">
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <FiLock className="text-blue-600 text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Hesap Güvenliği</h3>
+                  <p className="text-gray-500">Şifrenizi güvenli bir şekilde değiştirin</p>
+                </div>
+              </div>
+              
+              <ChangePasswordForm />
+            </div>
+          </div>
+        );
       default:
         return null;
     }
