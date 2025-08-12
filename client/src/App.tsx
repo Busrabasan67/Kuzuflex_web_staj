@@ -21,6 +21,7 @@ import SolutionPage from "./pages/SolutionPage";
 import AdminProductGroups from "./pages/AdminProductGroups";
 import QMDocuments from "./pages/QMDocuments";
 import MarketDetail from "./pages/MarketDetail";
+import Breadcrumb from "./components/Breadcrumb";
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -32,6 +33,9 @@ function AppContent() {
     <>
       {/* Normal Sayfalarda Navbar Göster */}
       {!isAdminRoute && <Navbar isAdminLoggedIn={isAuthenticated} />}
+
+      {/* Breadcrumb Component */}
+      {!isAdminRoute && <Breadcrumb />}
 
       <div className="min-h-screen flex flex-col">
         <div className="flex-grow">

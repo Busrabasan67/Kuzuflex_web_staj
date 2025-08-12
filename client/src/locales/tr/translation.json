@@ -17,6 +17,17 @@
     "searchPlaceholder": "Ürün, kategori veya içerik ara...",
     "professionalSolutions": "Profesyonel Endüstriyel Çözümler"
   },
+  "breadcrumb": {
+    "home": "Anasayfa",
+    "products": "Ürünler",
+    "about": "Hakkımızda",
+    "contact": "İletişim",
+    "solutions": "Çözümler",
+    "qmDocuments": "Belgeler ve Sertifikalar",
+    "markets": "Pazarlar",
+    "adminPanel": "Admin Panel",
+    "login": "Giriş Yap"
+  },
   "form": {
     "name": "İsim",
     "email": "E-posta",

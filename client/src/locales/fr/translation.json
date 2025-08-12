@@ -17,6 +17,17 @@
     "searchPlaceholder": "Rechercher des produits, catégories ou contenu...",
     "professionalSolutions": "Solutions Industrielles Professionnelles"
   },
+  "breadcrumb": {
+    "home": "Accueil",
+    "products": "Produits",
+    "about": "À Propos",
+    "contact": "Contact",
+    "solutions": "Solutions",
+    "qmDocuments": "Documents QM & Certificats",
+    "markets": "Marchés",
+    "adminPanel": "Panneau Admin",
+    "login": "Se Connecter"
+  },
   "form": {
     "name": "Nom",
     "email": "E-mail",

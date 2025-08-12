@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getCatalogUrl } from "../utils/catalogUtils";
-import { FiChevronRight, FiDownload, FiX, FiArrowRight, FiEye, FiHome, FiPackage, FiAward, FiStar, FiShield, FiTrendingUp, FiCheckCircle } from "react-icons/fi";
+import { FiDownload, FiX, FiArrowRight, FiEye, FiAward, FiStar, FiShield, FiTrendingUp, FiCheckCircle } from "react-icons/fi";
 
 const API_BASE = "http://localhost:5000";
 
@@ -101,33 +101,7 @@ const ProductGroupPage = () => {
   if (groupData.products && groupData.products.length > 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        {/* Breadcrumb Section - URL'de nerede olduğumuzu gösteren */}
-        <section className="bg-white border-b border-gray-200 py-4">
-          <div className="max-w-7xl mx-auto px-4 lg:px-8">
-            <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
-              <button 
-                onClick={() => navigate('/')}
-                className="flex items-center hover:text-blue-600 transition-all duration-300 hover:scale-105"
-              >
-                <FiHome className="w-4 h-4 mr-2" />
-                Ana Sayfa
-              </button>
-              <FiChevronRight className="w-4 h-4 text-gray-400" />
-              <button 
-                onClick={() => navigate('/products')}
-                className="flex items-center hover:text-blue-600 transition-all duration-300 hover:scale-105"
-              >
-                <FiPackage className="w-4 h-4 mr-2" />
-                Ürünler
-              </button>
-              <FiChevronRight className="w-4 h-4 text-gray-400" />
-              <span className="text-blue-600 font-medium flex items-center">
-                <FiAward className="w-4 h-4 mr-2" />
-                {groupData.translation?.name || 'Ürün Grubu'}
-              </span>
-            </div>
-          </div>
-        </section>
+
 
         {/* Hero Section - Modern Temiz Tasarım */}
         <section className="relative h-96 bg-gradient-to-r from-blue-600 to-blue-800 text-white relative overflow-hidden">
@@ -347,33 +321,7 @@ const ProductGroupPage = () => {
   // Eğer alt ürün yoksa, üst kategorinin kendisini göster
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Breadcrumb Section */}
-      <section className="bg-white border-b border-gray-200 py-4">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
-            <button 
-              onClick={() => navigate('/')}
-              className="flex items-center hover:text-blue-600 transition-all duration-300 hover:scale-105"
-            >
-              <FiHome className="w-4 h-4 mr-2" />
-              Ana Sayfa
-            </button>
-            <FiChevronRight className="w-4 h-4 text-gray-400" />
-            <button 
-              onClick={() => navigate('/products')}
-              className="flex items-center hover:text-blue-600 transition-all duration-300 hover:scale-105"
-            >
-              <FiPackage className="w-4 h-4 mr-2" />
-              Ürünler
-            </button>
-            <FiChevronRight className="w-4 h-4 text-gray-400" />
-            <span className="text-blue-600 font-medium flex items-center">
-              <FiAward className="w-4 h-4 mr-2" />
-              {groupData.translation?.name || 'Ürün Grubu'}
-            </span>
-          </div>
-        </div>
-      </section>
+
 
       {/* Hero Section - Endüstriyel Tasarım */}
       <section className="relative h-96 bg-gradient-to-r from-blue-600 to-blue-800 text-white relative overflow-hidden">
