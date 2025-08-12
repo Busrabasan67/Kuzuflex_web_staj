@@ -12,6 +12,7 @@
     "documents": "Documents",
     "manufacturing": "Fabrication",
     "quality": "Qualité",
+    "qmDocuments": "Documents QM & Certificats",
     "adminPanel": "Panneau Admin",
     "searchPlaceholder": "Rechercher des produits, catégories ou contenu...",
     "professionalSolutions": "Solutions Industrielles Professionnelles"
@@ -62,6 +63,27 @@
       "solutionsDesc": "Solutions innovantes pour l'industrie moderne",
       "qualityDesc": "Normes de qualité élevées et fiabilité",
       "servicesDesc": "Service professionnel et support",
+      "products": {
+        "title": "Tous Nos Produits",
+        "subtitle": "Découvrez nos produits de qualité et fiables.",
+        "subcategories": "Sous-catégories",
+        "exploreButton": "Explorer le Groupe de Produits",
+        "subProductCount": "sous-produits",
+        "allProducts": "Tous les Produits",
+        "product": "produit",
+        "filtering": "Filtrage",
+        "filterOptions": "Options de filtre",
+        "totalProductGroups": "Total des groupes de produits",
+        "totalFilterOptions": "Total des options de filtre",
+        "card": "carte"
+      },
+      "solutions": {
+        "title": "SOLUTIONS",
+        "subtitle": "Solutions de pointe qui stimulent l'innovation et l'efficacité",
+        "defaultDescription": "Solution innovante",
+        "exploreButton": "Explorer",
+        "viewAll": "Voir Toutes les Solutions"
+      },
       "markets": {
         "title": "MARCHÉS",
         "subtitle": "Découvrez nos solutions innovantes dans divers marchés et applications",
@@ -69,7 +91,62 @@
         "learnMore": "En Savoir Plus",
         "viewAll": "Voir Tous les Marchés",
         "titleCard": "MARCHÉS"
+      },
+      "quality": {
+        "title": "LA QUALITÉ NE VIENT JAMAIS PAR HASARD",
+        "description": "FLEXIBLES À HAUTE ENDURANCE ET CERTIFIÉS",
+        "ctaButton": "Découvrez Notre Qualité"
+      },
+      "loading": "Chargement de la page d'accueil...",
+      "hero": {
+        "loading": "Chargement de la vidéo...",
+        "error": "Échec du chargement de la vidéo",
+        "fallback": "Utilisation de l'arrière-plan dégradé",
+        "tagline": "Solutions Métalliques Flexibles pour Demain",
+        "description": "Nous sommes LES experts dans la fabrication de tuyaux métalliques et nous développons constamment de nouvelles solutions innovantes pour tous types d'applications flexibles.",
+        "discoverButton": "Découvrir",
+        "contactButton": "Contact"
       }
+    },
+    "qmDocuments": {
+      "title": "Certificats & Documents",
+      "description": "Découvrez nos documents de gestion de la qualité et certificats",
+      "internationalCertificates": "Certificats Internationaux",
+      "certificates": "Certificats",
+      "documents": "Documents",
+      "certificate": "Certificat",
+      "document": "Document",
+      "viewDocument": "Voir le Document",
+      "noImage": "Aucune Image",
+      "noDocuments": "Aucun document disponible pour le moment",
+      "noDocumentsDesc": "Il n'y a actuellement aucun document à afficher."
+    },
+    "interactive": {
+      "contactTitle": "Contact",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "address": "Adresse",
+      "newsletterTitle": "Restez à jour",
+      "newsletterDescription": "Obtenez des informations sur les derniers produits et solutions",
+      "emailPlaceholder": "Votre adresse e-mail",
+      "subscribedMessage": "Abonnement réussi !",
+      "liveChatTitle": "Support en direct",
+      "liveChatStatus": "Actuellement actif",
+      "startChatButton": "Démarrer le chat",
+      "quickContactTitle": "Contact rapide",
+      "namePlaceholder": "Votre nom",
+      "messagePlaceholder": "Votre message",
+      "sendMessageButton": "Envoyer le message",
+      "socialTitle": "Suivez-nous"
+    },
+    "hero": {
+      "loading": "Chargement de la vidéo...",
+      "error": "Échec du chargement de la vidéo",
+      "fallback": "Utilisation de l'arrière-plan dégradé",
+      "tagline": "Solutions métalliques flexibles pour demain",
+      "description": "Nous sommes LES experts dans la fabrication de tuyaux métalliques et nous développons constamment de nouvelles solutions innovantes pour toutes sortes d'applications flexibles.",
+      "discoverButton": "Découvrir",
+      "contactButton": "Contact"
     },
     "about": {
       "title": "À Propos de Nous",

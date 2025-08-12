@@ -88,7 +88,11 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   };
 
   const toggleDropdown = (title: string) => {
-    setOpenDropdown(openDropdown === title ? null : title);
+    // Sadece alt menüsü olan item'lar için dropdown açılsın
+    const menuItem = menuItems.find(item => item.title === title);
+    if (menuItem && menuItem.submenu && menuItem.submenu.length > 0) {
+      setOpenDropdown(openDropdown === title ? null : title);
+    }
   };
 
   // 🟢 Ürün gruplarını ve solution'ları API'den al
@@ -142,13 +146,6 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
               { title: t('navbar.qmDocuments'), path: "/qm-documents" },
             ],
           },
-          {
-            title: t('navbar.services'),
-            submenu: [
-              { title: t('navbar.manufacturing'), path: "/hizmetler/imalat" },
-              { title: t('navbar.quality'), path: "/hizmetler/kalite" },
-            ],
-          },
         ];
 
         setMenuItems([...staticMenus, dynamicProductsMenu, solutionsMenu]);
@@ -191,37 +188,81 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                 {item.path && (!item.submenu || item.submenu.length === 0) ? (
                   <Link
                     to={item.path}
-                    className={`px-4 py-3 font-medium text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 flex items-center ${
-                      location.pathname === item.path ? "text-okuma-600 bg-okuma-100 font-semibold" : ""
-                    }`}
+                                    className={`px-4 py-3 font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center ${
+                  location.pathname === item.path ? "text-blue-700 bg-blue-100 font-semibold" : ""
+                }`}
                   >
                     {item.title}
                   </Link>
                 ) : (
-                  <button onClick={() => toggleDropdown(item.title)} className="px-4 py-3 font-medium text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 flex items-center">
-                    {item.title}
-                    {item.submenu && item.submenu.length > 0 && (
-                      <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path d="M19 9l-7 7-7-7" />
-                      </svg>
-                    )}
-                  </button>
+                  <div 
+                    className="relative"
+                    onMouseEnter={() => {
+                      if (item.submenu && item.submenu.length > 0) {
+                        setOpenDropdown(item.title);
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      // Eğer dropdown'a geçiyorsak ana menü item'ından çıkmış sayılmamalıyız
+                      const relatedTarget = e.relatedTarget as HTMLElement;
+                      if (relatedTarget && relatedTarget.closest('.dropdown-container')) {
+                        return; // Dropdown'a geçiyorsak kapatma
+                      }
+                      setOpenDropdown(null);
+                    }}
+                  >
+                    <button 
+                      onClick={() => toggleDropdown(item.title)} 
+                      className="px-4 py-3 font-medium text-gray-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center"
+                    >
+                      {item.title}
+                      {item.submenu && item.submenu.length > 0 && (
+                        <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path d="M19 9l-7 7-7-7" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 )}
 
                 {/* Alt Kategoriler - Okuma.com tarzı */}
-                {item.submenu && openDropdown === item.title && (
-                  <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[250px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 ${
-                    darkMode ? "bg-okuma-gray-800 text-white" : "bg-white text-okuma-gray-900"
-                  }`}>
+                {item.submenu && item.submenu.length > 0 && (
+                  <div 
+                    className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 min-w-[250px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 transition-all duration-300 ease-in-out ${
+                      darkMode ? "bg-okuma-gray-800 text-white" : "bg-white text-okuma-gray-900"
+                    } ${
+                      openDropdown === item.title 
+                        ? "opacity-100 visible translate-y-0" 
+                        : "opacity-0 invisible -translate-y-2 pointer-events-none"
+                    }`}
+                    onMouseEnter={() => {
+                      // Dropdown'a girince açık tut
+                      setOpenDropdown(item.title);
+                    }}
+                    onMouseLeave={() => {
+                      // Dropdown'dan çıkınca kapat
+                      setOpenDropdown(null);
+                    }}
+                  >
                     {item.submenu.map((sub) => (
                       <div
                         key={sub.key || sub.title}
                         className="relative group"
-                        onMouseEnter={() => setOpenSubDropdown(sub.title)}
-                        onMouseLeave={() => setOpenSubDropdown(null)}
+                        onMouseEnter={() => {
+                          // Alt alt menüye girince açık tut
+                          setOpenSubDropdown(sub.title);
+                        }}
+                        onMouseLeave={() => {
+                          // Alt alt menüden çıkarken biraz gecikme ekleyelim
+                          setTimeout(() => {
+                            if (openSubDropdown === sub.title) {
+                              setOpenSubDropdown(null);
+                            }
+                          }, 100);
+                        }}
                       >
                         {sub.path ? (
-                          <Link to={sub.path} className="block px-4 py-3 hover:bg-okuma-50 hover:text-okuma-600 transition-all duration-200 rounded-lg mx-2">
+                          <Link to={sub.path} className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-lg mx-2">
                             {sub.title}
                           </Link>
                         ) : (
@@ -229,13 +270,27 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                         )}
 
                         {/* ALT ALT MENÜ - Okuma.com tarzı */}
-                        {sub.submenu && openSubDropdown === sub.title && (
-                          <div className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 ${
-                            darkMode ? "bg-okuma-gray-700 text-white" : "bg-white text-okuma-gray-900"
-                          }`}>
+                        {sub.submenu && sub.submenu.length > 0 && (
+                          <div 
+                            className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 transition-all duration-300 ease-in-out ${
+                              darkMode ? "bg-okuma-gray-700 text-white" : "bg-white text-okuma-gray-900"
+                            } ${
+                              openSubDropdown === sub.title 
+                                ? "opacity-100 visible translate-x-0" 
+                                : "opacity-0 invisible -translate-x-2 pointer-events-none"
+                            }`}
+                            onMouseEnter={() => {
+                              // Alt alt menü container'ına girince açık tut
+                              setOpenSubDropdown(sub.title);
+                            }}
+                            onMouseLeave={() => {
+                              // Alt alt menü container'ından çıkınca kapat
+                              setOpenSubDropdown(null);
+                            }}
+                          >
                             {sub.submenu.map((subItem) =>
                               subItem.path ? (
-                                <Link key={subItem.key || subItem.title} to={subItem.path} className="block px-4 py-3 hover:bg-okuma-50 hover:text-okuma-600 transition-all duration-200 rounded-lg mx-2">
+                                <Link key={subItem.key || subItem.title} to={subItem.path} className="block px-4 py-3 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-lg mx-2">
                                   {subItem.title}
                                 </Link>
                               ) : (
@@ -256,20 +311,20 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
 
           {/* Aksiyonlar - Okuma.com tarzı */}
           <div className="flex items-center gap-4">
-            <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200">
+                            <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">
               <FiSearch className="w-5 h-5" />
             </button>
-            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200">
+                            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">
               {darkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
             </button>
             
             {/* LanguageSwitcher Component'i */}
             <LanguageSwitcher />
             
-            <Link to={isAdminLoggedIn ? "/admin" : "/admin-login"} className="bg-okuma-600 text-white px-4 py-2 rounded-lg hover:bg-okuma-700 transition-all duration-200 font-medium shadow-okuma">
+                            <Link to={isAdminLoggedIn ? "/admin" : "/admin-login"} className="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-all duration-200 font-medium shadow-lg">
               {t('navbar.adminPanel')}
             </Link>
-            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200">☰</button>
+                            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">☰</button>
           </div>
         </div>
 
@@ -301,8 +356,8 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                       onClick={() => setMenuOpen(false)}
                       className={`block px-4 py-3 font-medium rounded-lg transition-all duration-200 ${
                         location.pathname === item.path 
-                          ? "text-okuma-600 bg-okuma-100 font-semibold" 
-                          : "text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50"
+                                          ? "text-blue-700 bg-blue-100 font-semibold"
+                : "text-gray-700 hover:text-blue-700 hover:bg-blue-50"
                       }`}
                     >
                       {item.title}
@@ -311,7 +366,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                     <div>
                       <button 
                         onClick={() => toggleDropdown(item.title)} 
-                        className="w-full text-left px-4 py-3 font-semibold text-okuma-gray-900 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 flex items-center justify-between bg-okuma-50 border border-okuma-gray-200"
+                        className="w-full text-left px-4 py-3 font-semibold text-gray-900 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 flex items-center justify-between bg-blue-50 border border-gray-200"
                       >
                         <span className="text-base font-bold">{item.title}</span>
                         {item.submenu && item.submenu.length > 0 && (
@@ -330,7 +385,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                       </button>
                       
                       {/* Alt Menü - Aşağıya doğru açılır */}
-                      {item.submenu && openDropdown === item.title && (
+                      {item.submenu && item.submenu.length > 0 && openDropdown === item.title && (
                         <div className="ml-4 mt-2 space-y-1">
                           {item.submenu.map((sub) => (
                             <div key={sub.key || sub.title}>
@@ -338,7 +393,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                                 <Link
                                   to={sub.path}
                                   onClick={() => setMenuOpen(false)}
-                                  className="block px-4 py-3 text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-100 rounded-lg transition-all duration-200 font-medium"
+                                  className="block px-4 py-3 text-gray-700 hover:text-blue-700 hover:bg-blue-100 rounded-lg transition-all duration-200 font-medium"
                                 >
                                   {sub.title}
                                 </Link>
@@ -347,7 +402,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                               )}
                               
                               {/* Alt Alt Menü - Daha da içeride */}
-                              {sub.submenu && (
+                              {sub.submenu && sub.submenu.length > 0 && (
                                 <div className="ml-4 mt-2 space-y-1">
                                   {sub.submenu.map((subItem) => (
                                     <div key={subItem.key || subItem.title}>
@@ -355,7 +410,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                                         <Link
                                           to={subItem.path}
                                           onClick={() => setMenuOpen(false)}
-                                          className="block px-4 py-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 text-sm"
+                                          className="block px-4 py-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 text-sm"
                                         >
                                           {subItem.title}
                                         </Link>

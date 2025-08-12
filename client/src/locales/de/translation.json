@@ -12,6 +12,7 @@
     "documents": "Dokumente",
     "manufacturing": "Fertigung",
     "quality": "Qualität",
+    "qmDocuments": "QM-Dokumente & Zertifikate",
     "adminPanel": "Admin-Panel",
     "searchPlaceholder": "Produkte, Kategorien oder Inhalte suchen...",
     "professionalSolutions": "Professionelle Industrielle Lösungen"
@@ -62,6 +63,27 @@
       "solutionsDesc": "Innovative Lösungen für moderne Industrie",
       "qualityDesc": "Hohe Qualitätsstandards und Zuverlässigkeit",
       "servicesDesc": "Professioneller Service und Support",
+      "products": {
+        "title": "Alle Unsere Produkte",
+        "subtitle": "Entdecken Sie unsere qualitativ hochwertigen und zuverlässigen Produkte.",
+        "subcategories": "Unterkategorien",
+        "exploreButton": "Produktgruppe Erkunden",
+        "subProductCount": "Unterprodukte",
+        "allProducts": "Alle Produkte",
+        "product": "Produkt",
+        "filtering": "Filterung",
+        "filterOptions": "Filteroptionen",
+        "totalProductGroups": "Gesamte Produktgruppen",
+        "totalFilterOptions": "Gesamte Filteroptionen",
+        "card": "Karte"
+      },
+      "solutions": {
+        "title": "LÖSUNGEN",
+        "subtitle": "Moderne Lösungen, die Innovation und Effizienz fördern",
+        "defaultDescription": "Innovative Lösung",
+        "exploreButton": "Erkunden",
+        "viewAll": "Alle Lösungen Anzeigen"
+      },
       "markets": {
         "title": "MÄRKTE",
         "subtitle": "Entdecken Sie unsere innovativen Lösungen in verschiedenen Märkten und Anwendungen",
@@ -69,7 +91,62 @@
         "learnMore": "Mehr Erfahren",
         "viewAll": "Alle Märkte Anzeigen",
         "titleCard": "MÄRKTE"
+      },
+      "quality": {
+        "title": "QUALITÄT KOMMT NIEMALS DURCH ZUFALL",
+        "description": "HOCHBELASTBARE UND ZERTIFIZIERTE FLEXIBLES",
+        "ctaButton": "Entdecken Sie Unsere Qualität"
+      },
+      "loading": "Startseite wird geladen...",
+      "hero": {
+        "loading": "Video wird geladen...",
+        "error": "Video konnte nicht geladen werden",
+        "fallback": "Gradient-Hintergrund wird verwendet",
+        "tagline": "Flexible Metalllösungen für morgen",
+        "description": "Wir sind DIE Experten in der Herstellung von Metallrohren und entwickeln ständig neue innovative Lösungen für alle Arten von flexiblen Anwendungen.",
+        "discoverButton": "Entdecken",
+        "contactButton": "Kontakt"
       }
+    },
+    "qmDocuments": {
+      "title": "Zertifikate & Dokumente",
+      "description": "Entdecken Sie unsere Qualitätsmanagement-Dokumente und Zertifikate",
+      "internationalCertificates": "Internationale Zertifikate",
+      "certificates": "Zertifikate",
+      "documents": "Dokumente",
+      "certificate": "Zertifikat",
+      "document": "Dokument",
+      "viewDocument": "Dokument Anzeigen",
+      "noImage": "Kein Bild",
+      "noDocuments": "Noch keine Dokumente verfügbar",
+      "noDocumentsDesc": "Derzeit sind keine Dokumente zum Anzeigen verfügbar."
+    },
+    "interactive": {
+      "contactTitle": "Kontakt",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "address": "Adresse",
+      "newsletterTitle": "Bleiben Sie auf dem Laufenden",
+      "newsletterDescription": "Erhalten Sie Informationen über die neuesten Produkte und Lösungen",
+      "emailPlaceholder": "Ihre E-Mail-Adresse",
+      "subscribedMessage": "Erfolgreich abonniert!",
+      "liveChatTitle": "Live-Support",
+      "liveChatStatus": "Derzeit aktiv",
+      "startChatButton": "Chat starten",
+      "quickContactTitle": "Schneller Kontakt",
+      "namePlaceholder": "Ihr Name",
+      "messagePlaceholder": "Ihre Nachricht",
+      "sendMessageButton": "Nachricht senden",
+      "socialTitle": "Folgen Sie uns"
+    },
+    "hero": {
+      "loading": "Video wird geladen...",
+      "error": "Video konnte nicht geladen werden",
+      "fallback": "Gradient-Hintergrund wird verwendet",
+      "tagline": "Flexible Metalllösungen für morgen",
+      "description": "Wir sind DIE Experten in der Herstellung von Metallrohren und entwickeln ständig neue innovative Lösungen für alle Arten von flexiblen Anwendungen.",
+      "discoverButton": "Entdecken",
+      "contactButton": "Kontakt"
     },
     "about": {
       "title": "Über Uns",

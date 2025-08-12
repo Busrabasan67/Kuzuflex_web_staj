@@ -12,7 +12,7 @@
     "documents": "Belgeler",
     "manufacturing": "İmalat",
     "quality": "Kalite",
-    "qmDocuments": "QM Documents & Certificates",
+    "qmDocuments": "Belgeler ve Sertifikalar",
     "adminPanel": "Admin Panel",
     "searchPlaceholder": "Ürün, kategori veya içerik ara...",
     "professionalSolutions": "Profesyonel Endüstriyel Çözümler"
@@ -25,7 +25,11 @@
   },
   "common": {
     "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com"
+    "email": "info@kuzuflex.com",
+    "search": "Ara...",
+    "imageLoadError": "Resim Yüklenemedi",
+    "noImage": "Resim Yok",
+    "noDescription": "Ürün açıklaması bulunmuyor"
   },
   "footer": {
     "companyDescription": "Esnek metal hortumda lider marka. Kalite, güven ve inovasyonun adresi.",
@@ -58,6 +62,27 @@
       "solutionsDesc": "Modern endüstri için yenilikçi çözümler",
       "qualityDesc": "Yüksek kalite standartları ve güvenilirlik",
       "servicesDesc": "Profesyonel hizmet ve destek",
+      "products": {
+        "title": "Tüm Ürünlerimiz",
+        "subtitle": "Kaliteli ve güvenilir ürünlerimizi keşfedin.",
+        "subcategories": "Alt Kategoriler",
+        "exploreButton": "Ürün Grubunu Keşfet",
+        "subProductCount": "alt ürün",
+        "allProducts": "Tüm Ürünler",
+        "product": "ürün",
+        "filtering": "Filtreleme",
+        "filterOptions": "Filtre seçenekleri",
+        "totalProductGroups": "Toplam ürün grubu",
+        "totalFilterOptions": "Toplam filtre seçeneği",
+        "card": "kart"
+      },
+      "solutions": {
+        "title": "ÇÖZÜMLER",
+        "subtitle": "Yenilik ve verimliliği destekleyen en son çözümler",
+        "defaultDescription": "Yenilikçi çözüm",
+        "exploreButton": "Keşfet",
+        "viewAll": "Tüm Çözümleri Gör"
+      },
       "markets": {
         "title": "PAZARLAR",
         "subtitle": "Çeşitli pazarlar ve uygulamalarda yenilikçi çözümlerimizi keşfedin",
@@ -65,7 +90,49 @@
         "learnMore": "Detaylı Bilgi",
         "viewAll": "Tüm Pazarları Gör",
         "titleCard": "PAZARLAR"
+      },
+      "quality": {
+        "title": "KALİTE ASLA TESADÜFEN GELMEZ",
+        "description": "YÜKSEK DAYANIMLI VE SERTİFİKALI FLEKSİBLER",
+        "ctaButton": "Kalitemizi Keşfedin"
+      },
+      "loading": "Ana sayfa yükleniyor...",
+      "hero": {
+        "loading": "Video Yükleniyor...",
+        "error": "Video Yüklenemedi",
+        "fallback": "Gradient background kullanılıyor",
+        "tagline": "Yarın İçin Esnek Metal Çözümleri",
+        "description": "Metal boru üretiminde UZMANIZ ve her türlü esnek uygulama için sürekli yeni yenilikçi çözümler geliştiriyoruz.",
+        "discoverButton": "Keşfet",
+        "contactButton": "İletişim"
       }
+    },
+    "interactive": {
+      "contactTitle": "İletişim",
+      "phone": "Telefon",
+      "email": "E-posta",
+      "address": "Adres",
+      "newsletterTitle": "Güncel Kalın",
+      "newsletterDescription": "En son ürünler ve çözümler hakkında bilgi alın",
+      "emailPlaceholder": "E-posta adresiniz",
+      "subscribedMessage": "Başarıyla abone oldunuz!",
+      "liveChatTitle": "Canlı Destek",
+      "liveChatStatus": "Şu anda aktif",
+      "startChatButton": "Sohbet Başlat",
+      "quickContactTitle": "Hızlı İletişim",
+      "namePlaceholder": "Adınız",
+      "messagePlaceholder": "Mesajınız",
+      "sendMessageButton": "Mesaj Gönder",
+      "socialTitle": "Bizi Takip Edin"
+    },
+    "hero": {
+      "loading": "Video Yükleniyor...",
+      "error": "Video Yüklenemedi",
+      "fallback": "Gradient background kullanılıyor",
+      "tagline": "Yarın İçin Esnek Metal Çözümleri",
+      "description": "Metal boru üretiminde UZMANIZ ve her türlü esnek uygulama için sürekli yeni yenilikçi çözümler geliştiriyoruz.",
+      "discoverButton": "Keşfet",
+      "contactButton": "İletişim"
     },
     "about": {
       "title": "Hakkımızda",
@@ -89,13 +156,15 @@
       "subject": "Konu"
     },
     "qmDocuments": {
-      "title": "QM Documents & Certificates",
+      "title": "Sertifikalar ve Belgeler",
       "description": "Kalite yönetimi belgelerimizi ve sertifikalarımızı inceleyin",
       "internationalCertificates": "Uluslararası Sertifikalar",
-      "documents": "Dokümantasyonlar",
+      "certificates": "Sertifikalar",
+      "documents": "Belgeler",
       "certificate": "Sertifika",
       "document": "Doküman",
       "viewDocument": "Belgeyi Görüntüle",
+      "noImage": "Resim Yok",
       "noDocuments": "Henüz belge bulunmuyor",
       "noDocumentsDesc": "Şu anda görüntülenecek belge bulunmuyor."
     }

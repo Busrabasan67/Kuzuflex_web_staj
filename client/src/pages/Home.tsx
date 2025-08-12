@@ -33,11 +33,11 @@ const Home: React.FC = () => {
         }
         
         const data = await response.json();
-        console.log('🏠 Ana sayfa verileri:', data);
-        console.log('🏠 Markets:', data.markets);
+        console.log('🏠', t('pages.home.loading'), ':', data);
+        console.log('🏠', t('pages.home.markets.title'), ':', data.markets);
         if (data.markets && data.markets.length > 0) {
-          console.log('🏠 İlk market:', data.markets[0]);
-          console.log('🏠 İlk market imageUrl:', data.markets[0].imageUrl);
+          console.log('🏠', t('pages.home.markets.title'), ':', data.markets[0]);
+          console.log('🏠', t('pages.home.markets.title'), ' imageUrl:', data.markets[0].imageUrl);
         }
         setHomeData(data);
       } catch (e) {
@@ -55,7 +55,7 @@ const Home: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-500">{t('loading.homeData', 'Ana sayfa yükleniyor...')}</p>
+          <p className="text-lg text-gray-500">{t('pages.home.loading')}</p>
         </div>
       </div>
     );
@@ -79,21 +79,21 @@ const Home: React.FC = () => {
         <HeroSection />
       </div>
 
-      {/* Markets Showcase */}
-      {homeData?.markets && homeData.markets.length > 0 && (
+      {/* Product Groups Showcase - Ürünler */}
+      {homeData?.productGroups && homeData.productGroups.length > 0 && (
         <div className="relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-cyan-600/5"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/5 to-teal-600/5"></div>
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230ea5e9' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.03'%3E%3Cpath d='M40 40c0 22.091-17.909 40-40 40s-40-17.909-40-40 17.909-40 40-40 40 17.909 40 40zm0-40c0-22.091-17.909-40-40-40s-40 17.909-40 40 17.909 40 40 40 40-17.909 40-40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}></div>
           <div className="relative z-10">
-            <MarketsShowcase markets={homeData.markets} />
+            <ProductGroupsShowcase productGroups={homeData.productGroups} />
           </div>
         </div>
       )}
 
-      {/* Solutions Carousel */}
+      {/* Solutions Carousel - Solutions */}
       {homeData?.solutions && homeData.solutions.length > 0 && (
         <div className="relative">
           {/* Background Pattern */}
@@ -107,16 +107,16 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Product Groups Showcase */}
-      {homeData?.productGroups && homeData.productGroups.length > 0 && (
+      {/* Markets Showcase - Markets */}
+      {homeData?.markets && homeData.markets.length > 0 && (
         <div className="relative">
           {/* Background Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/5 to-teal-600/5"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-cyan-600/5"></div>
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.03'%3E%3Cpath d='M40 40c0 22.091-17.909 40-40 40s-40-17.909-40-40 17.909-40 40-40 40 17.909 40 40zm0-40c0-22.091-17.909-40-40-40s-40 17.909-40 40 17.909 40 40 40 40-17.909 40-40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230ea5e9' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}></div>
           <div className="relative z-10">
-            <ProductGroupsShowcase productGroups={homeData.productGroups} />
+            <MarketsShowcase markets={homeData.markets} />
           </div>
         </div>
       )}
@@ -135,6 +135,9 @@ const Home: React.FC = () => {
 
       {/* Quality Slogan Section */}
       <section className="py-20 relative overflow-hidden">
+        {/* Top Section Divider */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-700/30 to-transparent z-20"></div>
+        
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/10 via-purple-600/10 to-pink-600/10"></div>
         <div className="absolute inset-0" style={{
@@ -144,16 +147,16 @@ const Home: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 text-center relative z-10">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-12 shadow-2xl border border-white/20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                {t('home.quality.title', 'QUALITÉ NEVER NE VIENT JAMAIS PAR HASARD')}
+              <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
+                {t('pages.home.quality.title')}
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              {t('home.quality.description', 'PRODUITS FLEXIBLES À HAUTE ENDURANCE ET FLEXIBLES CERTIFIÉS')}
+              {t('pages.home.quality.description')}
             </p>
             <div className="mt-8">
-              <button className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                {t('home.quality.ctaButton', 'Kalitemizi Keşfedin')}
+              <button className="bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                {t('pages.home.quality.ctaButton')}
               </button>
             </div>
           </div>

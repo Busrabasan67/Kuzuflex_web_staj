@@ -1,7 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getCatalogUrl } from "../utils/catalogUtils";
+import { FiChevronRight, FiHome, FiPackage, FiAward, FiShield, FiEye, FiDownload, FiX, FiFileText } from "react-icons/fi";
 
 const API_BASE = "http://localhost:5000";
 
@@ -31,6 +32,7 @@ const SubProductPage = () => {
   const [imageLoading, setImageLoading] = useState(true);
   const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Slug bazlı veri çekme
@@ -123,393 +125,224 @@ const SubProductPage = () => {
   );
 
   return (
-    <div className="sub-product-page" style={{ 
-      maxWidth: '1200px', 
-      margin: '0 auto', 
-      padding: '40px 20px',
-      fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
-    }}>
-      {/* Hero Section */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '60px',
-        alignItems: 'center',
-        marginBottom: '60px',
-        backgroundColor: '#f8fafc',
-        borderRadius: '20px',
-        padding: '40px',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-      }}>
-        {/* Product Image */}
-        <div style={{ textAlign: 'center' }}>
-          {imageLoading && (
-            <div 
-              className="image-loading"
-              style={{
-                width: "100%", 
-                maxWidth: "400px", 
-                height: "300px",
-                borderRadius: '16px',
-                margin: '0 auto'
-              }}
-            ></div>
-          )}
-          {product.imageUrl && (
-            <img
-              src={`${API_BASE}/${product.imageUrl.startsWith('/') ? product.imageUrl.slice(1) : product.imageUrl}`}
-              alt={product.title}
-            style={{ 
-              width: "100%", 
-              maxWidth: "400px", 
-              height: "auto", 
-              objectFit: "cover",
-              borderRadius: '16px',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
-              imageRendering: '-webkit-optimize-contrast',
-              opacity: imageLoading ? 0 : 1,
-              transition: 'opacity 0.3s ease'
-            }}
-            loading="eager"
-            onLoad={() => setImageLoading(false)}
-            onError={(e) => {
-              console.log("Resim yüklenemedi:", e);
-              setImageLoading(false);
-            }}
-          />
-          )}
-        </div>
-
-        {/* Product Info */}
-        <div>
-          <h1 style={{ 
-            fontSize: '2.5rem', 
-            fontWeight: '700', 
-            color: '#1e293b',
-            marginBottom: '20px',
-            lineHeight: '1.2'
-          }}>
-            {product.title}
-          </h1>
-          
-          <p style={{ 
-            fontSize: '1.1rem', 
-            color: '#64748b', 
-            lineHeight: '1.6',
-            marginBottom: '30px'
-          }}>
-            {product.description}
-          </p>
-
-          {product.standard && (
-            <div style={{
-              backgroundColor: '#e0f2fe',
-              border: '1px solid #0284c7',
-              borderRadius: '12px',
-              padding: '16px 20px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <span style={{ 
-                fontSize: '1.2rem', 
-                color: '#0284c7',
-                fontWeight: '600'
-              }}>
-                📋 Standard:
-              </span>
-              <span style={{ 
-                fontSize: '1rem', 
-                color: '#0369a1',
-                fontWeight: '500'
-              }}>
-                {product.standard}
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-      {/* Catalogs Section */}
-      {product.catalogs && product.catalogs.length > 0 && (
-        <div style={{ marginTop: '60px' }}>
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '40px'
-          }}>
-            <h2 style={{ 
-              fontSize: '2rem', 
-              fontWeight: '700', 
-              color: '#1e293b',
-              marginBottom: '12px'
-            }}>
-              📚 Kataloglar
-            </h2>
-            <p style={{ 
-              fontSize: '1.1rem', 
-              color: '#64748b',
-              maxWidth: '600px',
-              margin: '0 auto'
-            }}>
-              Ürünümüz hakkında detaylı bilgi ve teknik özellikler için kataloglarımızı inceleyebilirsiniz.
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Breadcrumb Section - URL'de nerede olduğumuzu gösteren */}
+      <section className="bg-white border-b border-gray-200 py-4">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="flex items-center space-x-3 text-sm text-gray-600 font-light">
+            <button 
+              onClick={() => navigate('/')}
+              className="flex items-center hover:text-blue-600 transition-all duration-300 hover:scale-105"
+            >
+              <FiHome className="w-4 h-4 mr-2" />
+              Ana Sayfa
+            </button>
+            <FiChevronRight className="w-4 h-4 text-gray-400" />
+            <button 
+              onClick={() => navigate('/products')}
+              className="flex items-center hover:text-blue-600 transition-all duration-300 hover:scale-105"
+            >
+              <FiPackage className="w-4 h-4 mr-2" />
+              Ürünler
+            </button>
+            <FiChevronRight className="w-4 h-4 text-gray-400" />
+            <button 
+              onClick={() => navigate(`/products/${product.groupSlug}`)}
+              className="flex items-center hover:text-blue-600 transition-all duration-300 hover:scale-105"
+            >
+              <FiAward className="w-4 h-4 mr-2" />
+              Ürün Grubu
+            </button>
+            <FiChevronRight className="w-4 h-4 text-gray-400" />
+            <span className="text-blue-600 font-medium flex items-center">
+              <FiShield className="w-4 h-4 mr-2" />
+              {product.title}
+            </span>
           </div>
+        </div>
+      </section>
 
-          <div className="catalog-grid" style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-            gap: '24px'
-          }}>
-            {product.catalogs.map((catalog) => {
-              const catalogUrl = getCatalogUrl(catalog.filePath);
-              return (
-                <div key={catalog.id} style={{ 
-                  backgroundColor: 'white',
-                  borderRadius: '16px', 
-                  padding: '32px',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                  border: '1px solid #e2e8f0',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-                }}
-                >
-                  {/* PDF Icon Background */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '-20px',
-                    right: '-20px',
-                    fontSize: '120px',
-                    color: '#f1f5f9',
-                    zIndex: 0
-                  }}>
-                    📄
+      {/* Hero Section - Modern Temiz Tasarım */}
+      <section className="relative h-96 bg-gradient-to-r from-blue-600 to-blue-800 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        
+        <div className="relative h-full flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">{product.title}</h1>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-blue-300 mx-auto rounded-full"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Ana Ürün Detayları - Modern Temiz */}
+      <section className="py-20 bg-white text-gray-800 relative">
+        {/* Subtle Grid Background */}
+        <div className="absolute inset-0 opacity-3">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Ürün Görseli - Modern Kart - SOLDA */}
+            {product.imageUrl && (
+              <div className="relative group">
+                <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl p-2">
+                  {imageLoading && (
+                    <div className="w-full h-96 bg-gray-200 rounded-xl animate-pulse flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                  )}
+                  <img
+                    src={`${API_BASE}/${product.imageUrl.startsWith('/') ? product.imageUrl.slice(1) : product.imageUrl}`}
+                    alt={product.title}
+                    className={`w-full h-96 object-cover rounded-xl transition-all duration-700 group-hover:scale-105 ${
+                      imageLoading ? 'opacity-0' : 'opacity-100'
+                    }`}
+                    loading="eager"
+                    onLoad={() => setImageLoading(false)}
+                    onError={() => setImageLoading(false)}
+                  />
+                  
+                  {/* Subtle Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-blue-50/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+              </div>
+            )}
+
+            {/* Ürün Bilgileri - Modern - SAĞDA */}
+            <div className="space-y-8">
+              {/* Ana Başlık */}
+              <div>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 font-poppins leading-tight">
+                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {product.title}
+                  </span>
+                </h2>
+                
+                {product.description && (
+                  <p className="text-xl text-gray-600 leading-relaxed font-roboto border-l-4 border-blue-500 pl-4">
+                    {product.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Ürün Özellikleri - Modern */}
+              <div className="space-y-6">
+                {/* Standard Bilgisi */}
+                {product.standard && (
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 hover:border-blue-400 transition-all duration-300">
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                        <FiAward className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-1">Standard</h3>
+                        <p className="text-blue-700 font-mono">
+                          {product.standard}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+                )}
+              </div>
 
-                  <div style={{ position: 'relative', zIndex: 1 }}>
-                    <h3 style={{ 
-                      margin: '0 0 20px 0', 
-                      fontSize: '1.5rem', 
-                      fontWeight: '700',
-                      color: '#1e293b'
-                    }}>
-                      {catalog.name}
-                    </h3>
-                    
-                    <p style={{
-                      color: '#64748b',
-                      marginBottom: '24px',
-                      lineHeight: '1.5'
-                    }}>
-                      Detaylı teknik bilgiler ve ürün özellikleri
-                    </p>
-
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: '12px', 
-                      flexWrap: 'wrap'
-                    }}>
+              {/* Kataloglar - Etiket Tasarımı */}
+              {product.catalogs && product.catalogs.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                      <FiFileText className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-800">Teknik Kataloglar</h3>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {product.catalogs.map((catalog) => (
                       <button
+                        key={catalog.id}
                         onClick={() => {
                           setSelectedCatalog(catalog);
                           setShowPdfModal(true);
                         }}
-                        style={{
-                          padding: '12px 24px',
-                          backgroundColor: '#3b82f6',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          transition: 'all 0.2s ease',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#2563eb';
-                          e.currentTarget.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#3b82f6';
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
+                        className="group flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-all duration-300 transform hover:scale-105 hover:shadow-sm border border-blue-200 hover:border-blue-300 text-sm"
                       >
-                        👁️ Görüntüle
+                        <FiFileText className="w-3 h-3 text-blue-600" />
+                        <span className="font-medium">{catalog.name}</span>
+                        <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          →
+                        </div>
                       </button>
-                      
-                      <a
-                        href={catalogUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                        style={{
-                          padding: '12px 24px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          textDecoration: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = '#059669';
-                          e.currentTarget.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = '#10b981';
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                      >
-                        ⬇️ İndir
-                      </a>
-                    </div>
+                    ))}
                   </div>
+                  
+                  <p className="text-xs text-gray-500 italic">
+                    Katalogları görüntüleyerek detaylı teknik bilgilere ulaşabilirsiniz
+                  </p>
                 </div>
-              );
-            })}
+              )}
+
+              {/* Contact Button - Modern */}
+              <div className="pt-6">
+                <button 
+                  onClick={() => navigate('/contact')}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <div className="flex items-center justify-center">
+                    <FiShield className="w-4 h-4 mr-2" />
+                    İletişime Geç
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      )}
+      </section>
 
-      {/* PDF Modal */}
+      {/* PDF Modal - Modern */}
       {showPdfModal && selectedCatalog && (
         <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 1000,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '20px',
-            animation: 'fadeIn 0.3s ease-out'
-          }}
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setShowPdfModal(false)}
         >
           <div 
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '20px',
-              width: '95%',
-              height: '95%',
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-              animation: 'slideIn 0.3s ease-out'
-            }}
+            className="bg-white rounded-2xl w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '24px 32px',
-              borderBottom: '1px solid #e2e8f0',
-              backgroundColor: '#f8fafc'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '24px' }}>📄</span>
-                <h3 style={{ 
-                  margin: 0, 
-                  fontSize: '1.5rem', 
-                  fontWeight: '700',
-                  color: '#1e293b'
-                }}>
+            <div className="flex justify-between items-center p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-3 rounded-2xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 font-poppins">
                   {selectedCatalog.name}
                 </h3>
               </div>
               <button
                 onClick={() => setShowPdfModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '28px',
-                  cursor: 'pointer',
-                  padding: '8px',
-                  borderRadius: '8px',
-                  color: '#64748b',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '40px',
-                  height: '40px'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f1f5f9';
-                  e.currentTarget.style.color = '#ef4444';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#64748b';
-                }}
+                className="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors"
               >
-                ✕
+                <FiX className="h-6 w-6" />
               </button>
             </div>
 
             {/* PDF Content */}
-            <div style={{ flex: 1, overflow: 'hidden', borderRadius: '0 0 20px 20px' }}>
+            <div className="flex-1 overflow-hidden">
               <iframe
                 src={`${getCatalogUrl(selectedCatalog.filePath)}#toolbar=1&navpanes=1&scrollbar=1`}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                  borderRadius: '0 0 20px 20px'
-                }}
+                className="w-full h-full"
                 title={selectedCatalog.name}
               />
             </div>
           </div>
         </div>
       )}
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        
-        @keyframes slideIn {
-          from { 
-            opacity: 0; 
-            transform: scale(0.9) translateY(-20px); 
-          }
-          to { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-        }
-        
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 };

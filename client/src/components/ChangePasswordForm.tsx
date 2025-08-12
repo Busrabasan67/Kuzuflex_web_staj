@@ -175,7 +175,7 @@ const ChangePasswordForm: React.FC = () => {
             <FiLock className="text-white text-xl" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">Şifre Değiştir</h3>
+            <h3 className="text-xl font-semibold text-gray-900">Şifre Güncelle</h3>
             <p className="text-gray-500">Hesap güvenliğiniz için güçlü bir şifre belirleyin</p>
           </div>
         </div>
@@ -337,7 +337,7 @@ const ChangePasswordForm: React.FC = () => {
               className="flex-1 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 rounded-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <FiLock className="text-lg" />
-              <span>{isLoading ? 'Değiştiriliyor...' : 'Şifreyi Değiştir'}</span>
+              <span>{isLoading ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}</span>
             </button>
           </div>
         </form>

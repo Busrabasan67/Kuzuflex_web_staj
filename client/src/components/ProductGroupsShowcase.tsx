@@ -82,9 +82,9 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                 
     productGroups.forEach((productGroup) => {
       // Debug: Üst ürün resim bilgilerini logla
-      console.log(`🔍 Ana Kategori: ${productGroup.title}`);
-      console.log(`📸 Resim URL: ${productGroup.imageUrl}`);
-      console.log(`🔗 Tam URL: ${buildImageUrl(productGroup.imageUrl)}`);
+      console.log(`🔍 ${t('pages.home.products.subcategories')}: ${productGroup.title}`);
+      console.log(`📸 ${t('common.imageLoadError')} URL: ${productGroup.imageUrl}`);
+      console.log(`🔗 ${t('pages.home.products.exploreButton')} URL: ${buildImageUrl(productGroup.imageUrl)}`);
       
                   // Ana kategori kartı
                   allCards.push(
@@ -100,10 +100,10 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             src={buildImageUrl(productGroup.imageUrl)}
                       alt={productGroup.title}
                             className="w-full h-full object-cover rounded-t-lg transition-transform duration-500 hover:scale-110"
-                            onLoad={() => console.log(`✅ Ana kategori resmi yüklendi: ${productGroup.title}`)}
+                            onLoad={() => console.log(`✅ ${t('pages.home.products.subcategories')} ${t('common.imageLoadError')} yüklendi: ${productGroup.title}`)}
                             onError={(e) => {
-                              console.log(`❌ Ana kategori resmi yüklenemedi: ${productGroup.title}`);
-                              console.log(`🔗 Hatalı URL: ${productGroup.imageUrl}`);
+                              console.log(`❌ ${t('pages.home.products.subcategories')} ${t('common.imageLoadError')} yüklenemedi: ${productGroup.title}`);
+                              console.log(`🔗 ${t('common.imageLoadError')} URL: ${productGroup.imageUrl}`);
                               // Resim yüklenemezse fallback göster
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
@@ -123,7 +123,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                               <span className="text-2xl text-white font-bold">{productGroup.title.charAt(0)}</span>
                     </div>
                             <span className="text-white text-sm font-medium">
-                              {productGroup.imageUrl ? 'Resim Yüklenemedi' : 'Resim Yok'}
+                              {productGroup.imageUrl ? t('common.imageLoadError') : t('common.noImage')}
                             </span>
                   </div>
                         </div>
@@ -144,10 +144,10 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                   {productGroup.subcategories && productGroup.subcategories.length > 0 && (
                           <div className="mb-3">
                             <p className="text-xs font-medium text-gray-600 mb-2 uppercase tracking-wide">
-                              Alt Kategoriler
+                              {t('pages.home.products.subcategories')}
                             </p>
                             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                              {productGroup.subcategories.length} alt ürün
+                              {productGroup.subcategories.length} {t('pages.home.products.subProductCount')}
                           </span>
                     </div>
                   )}
@@ -155,7 +155,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                         {/* CTA Button */}
                   <div className="flex items-center justify-between">
                           <span className="text-gray-600 font-medium text-sm">
-                            Ürün Grubunu Keşfet
+                            {t('pages.home.products.exploreButton')}
                           </span>
                           <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
                             <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -171,8 +171,8 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                   if (productGroup.subcategories && productGroup.subcategories.length > 0) {
                     productGroup.subcategories.forEach((subCategory) => {
                       // Debug: Alt ürün resim bilgilerini logla
-                      console.log(`🔍 Alt Ürün: ${subCategory.title}`);
-                      console.log(`📸 Resim URL: ${subCategory.imageUrl}`);
+                      console.log(`🔍 ${t('pages.home.products.subProductCount')}: ${subCategory.title}`);
+                      console.log(`📸 ${t('common.imageLoadError')} URL: ${subCategory.imageUrl}`);
                       
                       allCards.push(
                         <div
@@ -187,9 +187,9 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                                 src={buildImageUrl(subCategory.imageUrl)}
                                 alt={subCategory.title}
                                 className="w-full h-full object-cover rounded-t-lg transition-transform duration-500 hover:scale-110"
-                                onLoad={() => console.log(`✅ Alt ürün resmi yüklendi: ${subCategory.title}`)}
+                                onLoad={() => console.log(`✅ ${t('pages.home.products.subProductCount')} ${t('common.imageLoadError')} yüklendi: ${subCategory.title}`)}
                                 onError={(e) => {
-                                  console.log(`❌ Alt ürün resmi yüklenemedi: ${subCategory.title}`);
+                                  console.log(`❌ ${t('pages.home.products.subProductCount')} ${t('common.imageLoadError')} yüklenemedi: ${subCategory.title}`);
                                   // Resim yüklenemezse fallback göster
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
@@ -209,7 +209,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                                   <span className="text-2xl text-white font-bold">{subCategory.title.charAt(0)}</span>
                                 </div>
                                 <span className="text-white text-sm font-medium">
-                                  {subCategory.imageUrl ? 'Resim Yüklenemedi' : 'Resim Yok'}
+                                  {subCategory.imageUrl ? t('common.imageLoadError') : t('common.noImage')}
                                 </span>
                               </div>
                             </div>
@@ -234,7 +234,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             {/* Ana Kategori Bilgisi */}
                             <div className="mb-3">
                               <p className="text-xs font-medium text-gray-600 mb-2 uppercase tracking-wide">
-                                Ana Kategori
+                                {t('pages.home.products.subcategories')}
                               </p>
                               <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                                 {productGroup.title}
@@ -244,7 +244,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             {/* CTA Button */}
                             <div className="flex items-center justify-between">
                               <span className="text-gray-600 font-medium text-sm">
-                                Alt Ürün Detayı
+                                {t('pages.home.products.subcategories')}
                               </span>
                               <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
                                 <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -264,11 +264,11 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
 
   // Filtreleme işlemi
   const applyFilter = (cards: React.ReactElement[], filter: string) => {
-    console.log(`🔍 Filtreleme başladı: ${filter}`);
-    console.log(`📊 Toplam kart sayısı: ${cards.length}`);
+    console.log(`🔍 ${t('pages.home.products.filtering')} başladı: ${filter}`);
+    console.log(`📊 Toplam ${t('pages.home.products.card')} sayısı: ${cards.length}`);
     
     if (filter === 'all') {
-      console.log(`✅ Tüm ürünler gösteriliyor: ${cards.length} kart`);
+      console.log(`✅ Tüm ürünler gösteriliyor: ${cards.length} ${t('pages.home.products.card')}`);
       return cards;
     }
     
@@ -282,15 +282,15 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
         const productGroup = productGroups.find(group => group.id.toString() === productGroupId);
         
         if (!productGroup) {
-          console.log(`❌ Ana kategori bulunamadı: ${productGroupId}`);
+          console.log(`❌ ${t('pages.home.products.subcategories')} bulunamadı: ${productGroupId}`);
           return false;
         }
         
-        console.log(`🔍 Ana kategori filtresi: ${productGroup.title} (ID: ${productGroupId})`);
+        console.log(`🔍 ${t('pages.home.products.subcategories')} filtresi: ${productGroup.title} (ID: ${productGroupId})`);
         
         // Ana kategori kartı
         if (key === `main-${productGroupId}`) {
-          console.log(`✅ Ana kategori kartı eklendi: ${key}`);
+          console.log(`✅ ${t('pages.home.products.subcategories')} kartı eklendi: ${key}`);
           return true;
         }
         
@@ -300,9 +300,9 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
           const isSubOfThisGroup = productGroup.subcategories?.some(sub => sub.id.toString() === subId) || false;
           
           if (isSubOfThisGroup) {
-            console.log(`✅ Alt ürün kartı eklendi: ${key} (${productGroup.title} altında)`);
+            console.log(`✅ ${t('pages.home.products.subProductCount')} kartı eklendi: ${key} (${productGroup.title} altında)`);
           } else {
-            console.log(`❌ Alt ürün kartı filtrelendi: ${key} (${productGroup.title} altında değil)`);
+            console.log(`❌ ${t('pages.home.products.subProductCount')} kartı filtrelendi: ${key} (${productGroup.title} altında değil)`);
           }
           
           return isSubOfThisGroup;
@@ -314,17 +314,17 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
       return false;
     });
     
-    console.log(`📊 Filtreleme sonucu: ${filteredCards.length} kart`);
+    console.log(`📊 ${t('pages.home.products.filtering')} sonucu: ${filteredCards.length} ${t('pages.home.products.card')}`);
     return filteredCards;
   };
 
   // Filtre seçeneklerini oluştur
   const generateFilterOptions = () => {
-    console.log('🔧 Filtre seçenekleri oluşturuluyor...');
-    console.log(`📊 Toplam ürün grubu sayısı: ${productGroups.length}`);
+    console.log('🔧', t('pages.home.products.filterOptions'), 'oluşturuluyor...');
+    console.log(`📊 ${t('pages.home.products.totalProductGroups')} sayısı: ${productGroups.length}`);
     
     const options = [
-      { key: 'all', label: 'Tüm Ürünler', count: productGroups.length + productGroups.reduce((acc, group) => acc + (group.subcategories?.length || 0), 0) }
+      { key: 'all', label: t('pages.home.products.allProducts'), count: productGroups.length + productGroups.reduce((acc, group) => acc + (group.subcategories?.length || 0), 0) }
     ];
     
     // Sadece ana kategoriler - alt ürünler ayrı ayrı listelenmesin
@@ -336,15 +336,15 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
         count: 1 + subCount // Ana kategori + alt ürünler
       };
       options.push(option);
-      console.log(`🔧 Ana kategori filtresi eklendi: ${option.label} (${option.count} ürün)`);
+      console.log(`🔧 ${t('pages.home.products.subcategories')} filtresi eklendi: ${option.label} (${option.count} ${t('pages.home.products.product')})`);
     });
     
-    console.log(`🔧 Toplam ${options.length} filtre seçeneği oluşturuldu`);
+          console.log(`🔧 ${t('pages.home.products.totalFilterOptions')} ${options.length} ${t('pages.home.products.filterOptions')} oluşturuldu`);
     return options;
   };
 
   useEffect(() => {
-    console.log('🔄 ProductGroupsShowcase - productGroups updated:', productGroups);
+    console.log('🔄 ProductGroupsShowcase -', t('pages.home.products.filterOptions'), 'updated:', productGroups);
     
     // Tüm kartları oluştur ve filtrele
     const allCards = generateAllCards();
@@ -361,15 +361,15 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-6">
-        {/* Header */}
+                {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Tüm Ürünlerimiz
+            {t('pages.home.products.title')}
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Kaliteli ve güvenilir ürünlerimizi keşfedin.
+            {t('pages.home.products.subtitle')}
           </p>
-                      </div>
+        </div>
                       
         {/* Filtreleme Tab'ları */}
         <div className="mb-12">
@@ -381,7 +381,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                 onClick={() => handleFilterChange(option.key)}
                 className={`px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 ${
                   activeFilter === option.key
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-blue-700 text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300 shadow-md'
                 }`}
               >
@@ -439,9 +439,9 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                     <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-2">
                       <span className="text-2xl text-white font-bold">{selectedProductGroup.title.charAt(0)}</span>
                     </div>
-                    <span className="text-white text-sm font-medium">
-                      {selectedProductGroup.imageUrl ? 'Resim Yüklenemedi' : 'Resim Yok'}
-                    </span>
+                                    <span className="text-white text-sm font-medium">
+                  {selectedProductGroup.imageUrl ? t('common.imageLoadError', 'Resim Yüklenemedi') : t('common.noImage', 'Resim Yok')}
+                </span>
                   </div>
                 </div>
 
@@ -450,17 +450,17 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
 
               {/* Sağ - İçerik */}
                 <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                    {selectedProductGroup.title}
-                  </h3>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  {selectedProductGroup.title}
+                </h3>
                 <p className="text-gray-600 mb-6">
-                  {selectedProductGroup.description || 'Ürün açıklaması bulunmuyor'}
-                  </p>
+                  {selectedProductGroup.description || t('common.noDescription', 'Ürün açıklaması bulunmuyor')}
+                </p>
                   
                 {/* Alt kategoriler */}
                   {selectedProductGroup.subcategories && selectedProductGroup.subcategories.length > 0 && (
                     <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-gray-800 mb-3">Alt Kategoriler</h4>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-3">{t('pages.home.products.subcategories')}</h4>
                       <div className="space-y-2">
                         {selectedProductGroup.subcategories.map((sub) => (
                           <div
@@ -479,16 +479,18 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                   )}
                   
                 {/* Keşfet butonu */}
-                  <button
+                                    <button
                     onClick={() => handleExploreClick(selectedProductGroup)}
-                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors"
                   >
-                   Ürün Grubunu Keşfet
+                    {t('pages.home.products.exploreButton')}
                   </button>
               </div>
             </div>
           </div>
         )}
+
+
       </div>
     </section>
   );

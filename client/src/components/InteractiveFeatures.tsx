@@ -18,7 +18,10 @@ const InteractiveFeatures: React.FC = () => {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 text-white">
+    <section className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 text-white relative">
+      {/* Top Section Divider */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"></div>
+      
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left Side - Contact & Newsletter */}
@@ -27,7 +30,7 @@ const InteractiveFeatures: React.FC = () => {
             <div>
               <h3 className="text-3xl font-bold mb-8">
                 <span className="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
-                  {t('home.interactive.contactTitle', 'İletişim')}
+                  {t('pages.home.interactive.contactTitle')}
                 </span>
               </h3>
               
@@ -37,7 +40,7 @@ const InteractiveFeatures: React.FC = () => {
                     <FiPhone className="w-6 h-6 text-blue-300" />
                   </div>
                   <div>
-                    <p className="text-blue-200 text-sm">{t('home.interactive.phone', 'Telefon')}</p>
+                    <p className="text-blue-200 text-sm">{t('pages.home.interactive.phone')}</p>
                     <p className="text-white font-semibold">+90 850 800 22</p>
                   </div>
                 </div>
@@ -47,7 +50,7 @@ const InteractiveFeatures: React.FC = () => {
                     <FiMail className="w-6 h-6 text-blue-300" />
                   </div>
                   <div>
-                    <p className="text-blue-200 text-sm">{t('home.interactive.email', 'E-posta')}</p>
+                    <p className="text-blue-200 text-sm">{t('pages.home.interactive.email')}</p>
                     <p className="text-white font-semibold">info@kuzuflex.com</p>
                   </div>
                 </div>
@@ -57,7 +60,7 @@ const InteractiveFeatures: React.FC = () => {
                     <FiMapPin className="w-6 h-6 text-blue-300" />
                   </div>
                   <div>
-                    <p className="text-blue-200 text-sm">{t('home.interactive.address', 'Adres')}</p>
+                    <p className="text-blue-200 text-sm">{t('pages.home.interactive.address')}</p>
                     <p className="text-white font-semibold">İstanbul, Türkiye</p>
                   </div>
                 </div>
@@ -67,10 +70,10 @@ const InteractiveFeatures: React.FC = () => {
             {/* Newsletter Signup */}
             <div>
               <h4 className="text-2xl font-bold mb-4">
-                {t('home.interactive.newsletterTitle', 'Güncel Kalın')}
+                {t('pages.home.interactive.newsletterTitle')}
               </h4>
               <p className="text-blue-200 mb-6">
-                {t('home.interactive.newsletterDescription', 'En son ürünler ve çözümler hakkında bilgi alın')}
+                {t('pages.home.interactive.newsletterDescription')}
               </p>
               
               <form onSubmit={handleNewsletterSubmit} className="space-y-4">
@@ -79,13 +82,13 @@ const InteractiveFeatures: React.FC = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t('home.interactive.emailPlaceholder', 'E-posta adresiniz')}
+                    placeholder={t('pages.home.interactive.emailPlaceholder')}
                     className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:border-blue-400 transition-colors duration-300"
                     required
                   />
                   <button
                     type="submit"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md transition-colors duration-300"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md transition-colors duration-300"
                   >
                     <FiSend className="w-4 h-4" />
                   </button>
@@ -93,7 +96,7 @@ const InteractiveFeatures: React.FC = () => {
                 
                 {isSubscribed && (
                   <div className="bg-green-500/20 border border-green-400/40 text-green-300 px-4 py-2 rounded-lg text-sm">
-                    {t('home.interactive.subscribedMessage', 'Başarıyla abone oldunuz!')}
+                    {t('pages.home.interactive.subscribedMessage')}
                   </div>
                 )}
               </form>
@@ -110,44 +113,44 @@ const InteractiveFeatures: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-white">
-                    {t('home.interactive.liveChatTitle', 'Canlı Destek')}
+                    {t('pages.home.interactive.liveChatTitle')}
                   </h4>
                   <p className="text-blue-200 text-sm">
-                    {t('home.interactive.liveChatStatus', 'Şu anda aktif')}
+                    {t('pages.home.interactive.liveChatStatus')}
                   </p>
                 </div>
               </div>
               
               <button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25">
-                {t('home.interactive.startChatButton', 'Sohbet Başlat')}
+                {t('pages.home.interactive.startChatButton')}
               </button>
             </div>
 
             {/* Quick Contact Form */}
             <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
               <h4 className="text-xl font-bold text-white mb-6">
-                {t('home.interactive.quickContactTitle', 'Hızlı İletişim')}
+                {t('pages.home.interactive.quickContactTitle')}
               </h4>
               
               <div className="space-y-4">
                 <input
                   type="text"
-                  placeholder={t('home.interactive.namePlaceholder', 'Adınız')}
+                  placeholder={t('pages.home.interactive.namePlaceholder')}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:border-blue-400 transition-colors duration-300"
                 />
                 <input
                   type="email"
-                  placeholder={t('home.interactive.emailPlaceholder', 'E-posta')}
+                  placeholder={t('pages.home.interactive.emailPlaceholder')}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:border-blue-400 transition-colors duration-300"
                 />
                 <textarea
-                  placeholder={t('home.interactive.messagePlaceholder', 'Mesajınız')}
+                  placeholder={t('pages.home.interactive.messagePlaceholder')}
                   rows={3}
                   className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-blue-200 focus:outline-none focus:border-blue-400 transition-colors duration-300 resize-none"
                 ></textarea>
                 
-                <button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25">
-                  {t('home.interactive.sendMessageButton', 'Mesaj Gönder')}
+                <button className="w-full bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-600/25">
+                  {t('pages.home.interactive.sendMessageButton')}
                 </button>
               </div>
             </div>
@@ -157,7 +160,7 @@ const InteractiveFeatures: React.FC = () => {
         {/* Social Media Links */}
         <div className="text-center mt-16 pt-16 border-t border-white/20">
           <h4 className="text-2xl font-bold text-white mb-8">
-            {t('home.interactive.socialTitle', 'Bizi Takip Edin')}
+            {t('pages.home.interactive.socialTitle')}
           </h4>
           
           <div className="flex justify-center space-x-6">
@@ -169,9 +172,14 @@ const InteractiveFeatures: React.FC = () => {
                 <span className="text-white font-semibold text-sm">{platform.charAt(0)}</span>
               </button>
             ))}
-          </div>
-        </div>
+                     </div>
+         </div>
+
+
       </div>
+
+      {/* Bottom Section Divider */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"></div>
     </section>
   );
 };

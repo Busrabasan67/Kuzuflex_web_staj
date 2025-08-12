@@ -25,7 +25,8 @@
   },
   "common": {
     "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com"
+    "email": "info@kuzuflex.com",
+    "search": "Search..."
   },
   "footer": {
     "companyDescription": "Leading brand in flexible metal hose. The address of quality, trust and innovation.",
@@ -58,6 +59,27 @@
       "solutionsDesc": "Innovative solutions for modern industry",
       "qualityDesc": "High quality standards and reliability",
       "servicesDesc": "Professional service and support",
+      "products": {
+        "title": "All Our Products",
+        "subtitle": "Discover our quality and reliable products.",
+        "subcategories": "Subcategories",
+        "exploreButton": "Explore Product Group",
+        "subProductCount": "sub products",
+        "allProducts": "All Products",
+        "product": "product",
+        "filtering": "Filtering",
+        "filterOptions": "Filter options",
+        "totalProductGroups": "Total product groups",
+        "totalFilterOptions": "Total filter options",
+        "card": "card"
+      },
+      "solutions": {
+        "title": "SOLUTIONS",
+        "subtitle": "Cutting-edge solutions that drive innovation and efficiency",
+        "defaultDescription": "Innovative solution",
+        "exploreButton": "Explore",
+        "viewAll": "View All Solutions"
+      },
       "markets": {
         "title": "MARKETS",
         "subtitle": "Discover our innovative solutions across diverse markets and applications",
@@ -65,7 +87,49 @@
         "learnMore": "Learn More",
         "viewAll": "View All Markets",
         "titleCard": "MARKETS"
+      },
+      "quality": {
+        "title": "QUALITY NEVER COMES BY CHANCE",
+        "description": "HIGH ENDURANCE AND CERTIFIED FLEXIBLES",
+        "ctaButton": "Discover Our Quality"
+      },
+      "loading": "Loading home page...",
+      "hero": {
+        "loading": "Video Loading...",
+        "error": "Video Failed to Load",
+        "fallback": "Using gradient background",
+        "tagline": "Flexible Metal Solutions for Tomorrow",
+        "description": "We are THE experts in manufacturing metal pipes and we constantly develop new innovative solutions for all kinds of flexible applications.",
+        "discoverButton": "Discover",
+        "contactButton": "Contact"
       }
+    },
+    "interactive": {
+      "contactTitle": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "newsletterTitle": "Stay Updated",
+      "newsletterDescription": "Get information about the latest products and solutions",
+      "emailPlaceholder": "Your email address",
+      "subscribedMessage": "Successfully subscribed!",
+      "liveChatTitle": "Live Support",
+      "liveChatStatus": "Currently active",
+      "startChatButton": "Start Chat",
+      "quickContactTitle": "Quick Contact",
+      "namePlaceholder": "Your name",
+      "messagePlaceholder": "Your message",
+      "sendMessageButton": "Send Message",
+      "socialTitle": "Follow Us"
+    },
+    "hero": {
+      "loading": "Video Loading...",
+      "error": "Video Failed to Load",
+      "fallback": "Using gradient background",
+      "tagline": "Flexible Metal Solutions for Tomorrow",
+      "description": "We are THE experts in manufacturing metal pipes and we constantly develop new innovative solutions for all kinds of flexible applications.",
+      "discoverButton": "Discover",
+      "contactButton": "Contact"
     },
     "about": {
       "title": "About Us",
@@ -89,13 +153,15 @@
       "subject": "Subject"
     },
     "qmDocuments": {
-      "title": "QM Documents & Certificates",
+      "title": "Certificates & Documents",
       "description": "Explore our quality management documents and certificates",
       "internationalCertificates": "International Certificates",
-      "documents": "Documentation",
+      "certificates": "Certificates",
+      "documents": "Documents",
       "certificate": "Certificate",
       "document": "Document",
       "viewDocument": "View Document",
+      "noImage": "No Image",
       "noDocuments": "No documents available yet",
       "noDocumentsDesc": "There are currently no documents to display."
     }

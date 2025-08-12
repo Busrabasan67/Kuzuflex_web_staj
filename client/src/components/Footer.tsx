@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 interface ProductGroupFooter {
   id: number;
   name: string;
+  slug: string;
 }
 
 // Markets için tip
@@ -58,8 +59,12 @@ const Footer = () => {
     fetch(`http://localhost:5000/api/product-groups?lang=${i18n.language}`)
       .then((res) => res.json())
       .then((data) => {
-        // Sadece id ve name al
-        const groups = data.map((g: any) => ({ id: g.id, name: g.name }));
+        // API'den gelen veri yapısına göre name ve slug alanlarını doğru şekilde al
+        const groups = data.map((g: any) => ({ 
+          id: g.id, 
+          name: g.translation?.name || g.name || 'Ürün Grubu',
+          slug: g.slug || `group-${g.id}`
+        }));
         setProductGroups(groups);
       })
       .catch((err) => console.error("Footer ürün grupları alınamadı:", err));
@@ -127,19 +132,25 @@ const Footer = () => {
           {/* Products - Dinamik */}
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.ourProducts')}</h3>
-            <ul className="space-y-2">
-              {productGroups.map((group) => (
-                <li key={group.id}>
-                  <Link 
-                    to={`/Products/${group.id}`}
-                    className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
-                  >
-                    <ArrowRight className="h-3 w-3 mr-1" />
-                    {group.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {productGroups.length > 0 ? (
+              <ul className="space-y-2">
+                {productGroups.map((group) => (
+                  <li key={group.id}>
+                    <Link 
+                      to={`/products/${group.slug}`}
+                      className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
+                    >
+                      <ArrowRight className="h-3 w-3 mr-1" />
+                      {group.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-sm text-gray-500">
+                <p>Ürün grupları yükleniyor...</p>
+              </div>
+            )}
           </div>
           {/* Contact Info */}
           <div>

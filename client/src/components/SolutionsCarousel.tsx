@@ -83,17 +83,20 @@ const SolutionsCarousel: React.FC<SolutionsCarouselProps> = ({ solutions }) => {
   }
 
   return (
-    <section className="py-20 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-20 overflow-hidden bg-gradient-to-b from-gray-50 to-white relative">
+      {/* Top Section Divider */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-700/30 to-transparent"></div>
+      
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              {t('home.solutions.title', 'SOLUTIONS')}
+            <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
+              {t('pages.home.solutions.title')}
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            {t('home.solutions.subtitle', 'Cutting-edge solutions that drive innovation and efficiency')}
+            {t('pages.home.solutions.subtitle')}
           </p>
         </div>
 
@@ -169,7 +172,7 @@ const SolutionsCarousel: React.FC<SolutionsCarouselProps> = ({ solutions }) => {
                         <p className={`mb-6 transition-all duration-700 ${
                           isActive ? 'text-base opacity-90' : 'text-sm opacity-70'
                         }`}>
-                          {solution.description || t('home.solutions.defaultDescription', 'Innovative solution')}
+                          {solution.description || t('pages.home.solutions.defaultDescription')}
                         </p>
                         
                         {/* CTA Button */}
@@ -178,13 +181,13 @@ const SolutionsCarousel: React.FC<SolutionsCarouselProps> = ({ solutions }) => {
                             e.stopPropagation();
                             handleExploreClick(solution);
                           }}
-                          className={`bg-white text-blue-600 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
-                            isActive 
-                              ? 'opacity-100 hover:bg-blue-50 hover:scale-105' 
-                              : 'opacity-0 translate-y-2'
-                          }`}
+                                                     className={`bg-white text-blue-700 px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
+                             isActive 
+                               ? 'opacity-100 hover:bg-blue-50 hover:scale-105' 
+                               : 'opacity-0 translate-y-2'
+                           }`}
                         >
-                          {t('home.solutions.exploreButton', 'Explore')}
+                          {t('pages.home.solutions.exploreButton')}
                         </button>
                       </div>
                     </div>
@@ -196,33 +199,33 @@ const SolutionsCarousel: React.FC<SolutionsCarouselProps> = ({ solutions }) => {
 
           {/* Navigation Arrows - Centered */}
           <div className="flex justify-center items-center mt-10 space-x-8">
-            {/* Left Arrow */}
-            <button
-              onClick={() => {
-                const newIndex = activeIndex === 0 ? solutions.length - 1 : activeIndex - 1;
-                setActiveIndex(newIndex);
-                setIsPaused(true);
-                setTimeout(() => setIsPaused(false), 3000);
-              }}
-              className="w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white hover:scale-110 flex items-center justify-center text-blue-600 hover:text-blue-700 border border-gray-200"
-              aria-label="Previous solution"
-            >
+                         {/* Left Arrow */}
+             <button
+               onClick={() => {
+                 const newIndex = activeIndex === 0 ? solutions.length - 1 : activeIndex - 1;
+                 setActiveIndex(newIndex);
+                 setIsPaused(true);
+                 setTimeout(() => setIsPaused(false), 3000);
+               }}
+               className="w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white hover:scale-110 flex items-center justify-center text-blue-700 hover:text-blue-800 border border-gray-200"
+               aria-label="Previous solution"
+             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
 
-            {/* Right Arrow */}
-            <button
-              onClick={() => {
-                const newIndex = (activeIndex + 1) % solutions.length;
-                setActiveIndex(newIndex);
-                setIsPaused(true);
-                setTimeout(() => setIsPaused(false), 3000);
-              }}
-              className="w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white hover:scale-110 flex items-center justify-center text-blue-600 hover:text-blue-700 border border-gray-200"
-              aria-label="Next solution"
-            >
+                         {/* Right Arrow */}
+             <button
+               onClick={() => {
+                 const newIndex = (activeIndex + 1) % solutions.length;
+                 setActiveIndex(newIndex);
+                 setIsPaused(true);
+                 setTimeout(() => setIsPaused(false), 3000);
+               }}
+               className="w-12 h-12 bg-white/80 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-white hover:scale-110 flex items-center justify-center text-blue-700 hover:text-blue-800 border border-gray-200"
+               aria-label="Next solution"
+             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -230,22 +233,27 @@ const SolutionsCarousel: React.FC<SolutionsCarouselProps> = ({ solutions }) => {
           </div>
         </div>
 
-        {/* View All Solutions Button */}
+                {/* View All Solutions Button */}
         <div className="text-center mt-16">
           <button 
             onClick={() => navigate('/solutions')}
-            className="relative inline-flex items-center justify-center px-8 py-4 overflow-hidden text-lg font-semibold text-blue-600 rounded-full group border-2 border-blue-500 hover:text-white transition-all duration-300"
+            className="relative inline-flex items-center justify-center px-8 py-4 overflow-hidden text-lg font-semibold text-blue-700 rounded-full group border-2 border-blue-600 hover:text-white transition-all duration-300"
           >
-            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-700 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
             <span className="relative z-10 flex items-center">
-              {t('home.solutions.viewAll', 'View All Solutions')}
+              {t('pages.home.solutions.viewAll')}
               <svg className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
               </svg>
             </span>
           </button>
         </div>
+
+
       </div>
+
+      {/* Bottom Section Divider */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-700/30 to-transparent"></div>
     </section>
   );
 };

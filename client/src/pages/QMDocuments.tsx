@@ -90,27 +90,27 @@ const QMDocuments = () => {
               key={doc.id}
               className="bg-white rounded-xl shadow-md hover:shadow-xl transition overflow-hidden border"
             >
-                             {doc.imageUrl ? (
-                 <img
-                   src={`http://localhost:5000${doc.imageUrl}`}
-                   alt={doc.title}
-                   className="w-full h-48 object-contain cursor-pointer bg-gray-50"
-                   onClick={() => openModal(`http://localhost:5000${doc.imageUrl}`, doc.title)}
-                 />
-               ) : (
-                <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+              {doc.imageUrl ? (
+                <img
+                  src={`http://localhost:5000${doc.imageUrl}`}
+                  alt={doc.title}
+                  className="w-full h-80 object-contain cursor-pointer bg-gray-50 hover:scale-105 transition-transform duration-300"
+                  onClick={() => openModal(`http://localhost:5000${doc.imageUrl}`, doc.title)}
+                />
+              ) : (
+                <div className="w-full h-80 bg-gray-200 flex items-center justify-center">
                   <span className="text-gray-500">{t("pages.qmDocuments.noImage")}</span>
                 </div>
               )}
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">{doc.title}</h3>
-                <p className="text-gray-600 text-sm line-clamp-3 mb-3">{doc.description}</p>
+              <div className="p-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{doc.title}</h3>
+                <p className="text-gray-600 text-sm line-clamp-3 mb-4">{doc.description}</p>
                 {doc.pdfUrl && (
                   <a
                     href={`http://localhost:5000${doc.pdfUrl}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mt-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                    className="inline-block mt-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                   >
                     {t("pages.qmDocuments.viewDocument")}
                   </a>
