@@ -124,7 +124,7 @@ const ProductGroupPage = () => {
                     onLoad={() => setImageLoading(false)}
                     onError={() => setImageLoading(false)}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20"></div>
+                  {/* Removed overlay to preserve original image colors */}
                 </div>
               )}
 
@@ -181,7 +181,7 @@ const ProductGroupPage = () => {
                         }}
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      {/* Removed overlay to preserve original image colors */}
                     </div>
                   )}
 
@@ -303,7 +303,7 @@ const ProductGroupPage = () => {
                   alt={groupData.translation?.name || "Product Group"} // Use the translated name for alt text, fallback to "Product Group" if not available
                   className="w-full h-80 lg:h-96 object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20"></div>
+                {/* Removed overlay to preserve original image colors */}
               </div>
             )}
 

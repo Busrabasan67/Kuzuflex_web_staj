@@ -91,3 +91,13 @@ img[src*=".webp"] {
     background-position: -200% 0;
   }
 }
+
+/* Scrollbar hide utilities */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

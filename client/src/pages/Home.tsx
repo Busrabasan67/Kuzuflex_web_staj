@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import HeroSection from '../components/HeroSection';
 import MarketsShowcase from '../components/MarketsShowcase';
-import SolutionsHighlight from '../components/SolutionsHighlight';
+import SolutionsCarousel from '../components/SolutionsCarousel';
 import ProductGroupsShowcase from '../components/ProductGroupsShowcase';
 import InteractiveFeatures from '../components/InteractiveFeatures';
 
@@ -93,7 +93,7 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Solutions Highlight */}
+      {/* Solutions Carousel */}
       {homeData?.solutions && homeData.solutions.length > 0 && (
         <div className="relative">
           {/* Background Pattern */}
@@ -102,7 +102,7 @@ const Home: React.FC = () => {
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23a855f7' fill-opacity='0.03'%3E%3Cpath d='M20 20c0 11.046-8.954 20-20 20s-20-8.954-20-20 8.954-20 20-20 20 8.954 20 20zm0-20c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20z'/%3E%3C/g%3E%3C/svg%3E")`,
           }}></div>
           <div className="relative z-10">
-            <SolutionsHighlight solutions={homeData.solutions} />
+            <SolutionsCarousel solutions={homeData.solutions} />
           </div>
         </div>
       )}

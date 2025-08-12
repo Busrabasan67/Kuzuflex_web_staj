@@ -54,8 +54,8 @@ const HeroSection: React.FC = () => {
           </div>
         )}
 
-        {/* Overlay - Okuma.com tarzı */}
-        <div className="absolute inset-0 bg-gradient-to-r from-okuma-950/40 via-okuma-900/30 to-okuma-800/40" />
+        {/* Overlay - Minimal for text readability only */}
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       {/* Content - Okuma.com tarzı */}

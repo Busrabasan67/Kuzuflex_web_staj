@@ -158,7 +158,7 @@ const MarketDetail = () => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-2xl"></div>
+                    {/* Removed overlay to preserve original image colors */}
                   </div>
                   
                   {/* Floating Elements */}

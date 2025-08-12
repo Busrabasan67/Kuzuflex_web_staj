@@ -99,7 +99,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                     <img
                             src={buildImageUrl(productGroup.imageUrl)}
                       alt={productGroup.title}
-                            className="w-full h-full object-cover rounded-t-lg"
+                            className="w-full h-full object-cover rounded-t-lg transition-transform duration-500 hover:scale-110"
                             onLoad={() => console.log(`✅ Ana kategori resmi yüklendi: ${productGroup.title}`)}
                             onError={(e) => {
                               console.log(`❌ Ana kategori resmi yüklenemedi: ${productGroup.title}`);
@@ -127,8 +127,6 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             </span>
                   </div>
                         </div>
-
-
                 </div>
 
                       {/* İçerik */}
@@ -151,7 +149,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                               {productGroup.subcategories.length} alt ürün
                           </span>
-                          </div>
+                    </div>
                   )}
 
                         {/* CTA Button */}
@@ -188,7 +186,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                               <img
                                 src={buildImageUrl(subCategory.imageUrl)}
                                 alt={subCategory.title}
-                                className="w-full h-full object-cover rounded-t-lg"
+                                className="w-full h-full object-cover rounded-t-lg transition-transform duration-500 hover:scale-110"
                                 onLoad={() => console.log(`✅ Alt ürün resmi yüklendi: ${subCategory.title}`)}
                                 onError={(e) => {
                                   console.log(`❌ Alt ürün resmi yüklenemedi: ${subCategory.title}`);
@@ -215,8 +213,6 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                                 </span>
                               </div>
                             </div>
-
-
 
                             {/* Ana Kategori Badge */}
                             <div className="absolute top-3 right-3 bg-gray-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
@@ -312,8 +308,8 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
           return isSubOfThisGroup;
         }
         
-        return false;
-      }
+                      return false;
+                  }
       
       return false;
     });
@@ -373,8 +369,8 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Kaliteli ve güvenilir ürünlerimizi keşfedin.
           </p>
-        </div>
-
+                      </div>
+                      
         {/* Filtreleme Tab'ları */}
         <div className="mb-12">
           {/* Filtre Seçenekleri */}
@@ -398,11 +394,11 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                     : 'bg-gray-100 text-gray-600'
                 }`}>
                   {option.count}
-                </span>
+                        </span>
               </button>
             ))}
-          </div>
-        </div>
+                      </div>
+                    </div>
 
                 {/* Tüm Ürünler Grid - Ana kategoriler ve alt ürünler karışık */}
         <div className="mb-16">

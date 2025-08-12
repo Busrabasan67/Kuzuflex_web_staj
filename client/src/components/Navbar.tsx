@@ -285,6 +285,98 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
             />
           </form>
         )}
+
+        {/* Mobil Menü - Okuma.com tarzı */}
+        {menuOpen && (
+          <div className={`lg:hidden border-t border-okuma-gray-200 ${
+            darkMode ? "bg-okuma-gray-800 text-white" : "bg-white text-okuma-gray-900"
+          }`}>
+            <div className="px-6 py-4 space-y-2">
+              {menuItems.map((item) => (
+                <div key={item.title}>
+                  {/* Ana Menü Item */}
+                  {item.path && (!item.submenu || item.submenu.length === 0) ? (
+                    <Link
+                      to={item.path}
+                      onClick={() => setMenuOpen(false)}
+                      className={`block px-4 py-3 font-medium rounded-lg transition-all duration-200 ${
+                        location.pathname === item.path 
+                          ? "text-okuma-600 bg-okuma-100 font-semibold" 
+                          : "text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50"
+                      }`}
+                    >
+                      {item.title}
+                    </Link>
+                  ) : (
+                    <div>
+                      <button 
+                        onClick={() => toggleDropdown(item.title)} 
+                        className="w-full text-left px-4 py-3 font-semibold text-okuma-gray-900 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 flex items-center justify-between bg-okuma-50 border border-okuma-gray-200"
+                      >
+                        <span className="text-base font-bold">{item.title}</span>
+                        {item.submenu && item.submenu.length > 0 && (
+                          <svg 
+                            className={`w-5 h-5 transition-transform duration-200 ${
+                              openDropdown === item.title ? 'rotate-180' : ''
+                            }`} 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth={2} 
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M19 9l-7 7-7-7" />
+                          </svg>
+                        )}
+                      </button>
+                      
+                      {/* Alt Menü - Aşağıya doğru açılır */}
+                      {item.submenu && openDropdown === item.title && (
+                        <div className="ml-4 mt-2 space-y-1">
+                          {item.submenu.map((sub) => (
+                            <div key={sub.key || sub.title}>
+                              {sub.path ? (
+                                <Link
+                                  to={sub.path}
+                                  onClick={() => setMenuOpen(false)}
+                                  className="block px-4 py-3 text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-100 rounded-lg transition-all duration-200 font-medium"
+                                >
+                                  {sub.title}
+                                </Link>
+                              ) : (
+                                <span className="block px-4 py-3 text-okuma-gray-600 font-medium">{sub.title}</span>
+                              )}
+                              
+                              {/* Alt Alt Menü - Daha da içeride */}
+                              {sub.submenu && (
+                                <div className="ml-4 mt-2 space-y-1">
+                                  {sub.submenu.map((subItem) => (
+                                    <div key={subItem.key || subItem.title}>
+                                      {subItem.path ? (
+                                        <Link
+                                          to={subItem.path}
+                                          onClick={() => setMenuOpen(false)}
+                                          className="block px-4 py-2 text-okuma-gray-600 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 text-sm"
+                                        >
+                                          {subItem.title}
+                                        </Link>
+                                      ) : (
+                                        <span className="block px-4 py-2 text-okuma-gray-500 text-sm">{subItem.title}</span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
