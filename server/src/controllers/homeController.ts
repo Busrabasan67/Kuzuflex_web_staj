@@ -32,12 +32,17 @@ export const getHomeData = async (req: Request, res: Response) => {
     const productGroups = await productGroupsRepository.find({
       relations: ['translations']
     });
+    
+    console.log('Product Groups fetched:', productGroups.length);
 
-    // Products verilerini çek
+    // Products verilerini çek - translation'lar ve grup bilgileri ile
     const productsRepository = AppDataSource.getRepository(Product);
     const products = await productsRepository.find({
-      take: 6
+      relations: ['translations', 'group', 'group.translations'],
+      order: { id: 'ASC' }
     });
+
+    console.log('Products fetched:', products.length);
 
     // Markets verilerini formatla - translation'lı
     const formattedMarkets = markets.map(market => {
@@ -65,33 +70,60 @@ export const getHomeData = async (req: Request, res: Response) => {
       };
     });
 
-    // Product Groups verilerini formatla - translation'lı
+    // Product Groups verilerini formatla - doğru ilişki yapısı ile
     const formattedProductGroups = productGroups.map(group => {
       const translation = group.translations?.find(t => t.language === language);
-      return {
+      console.log(`Formatting group: ${group.slug}, translation:`, translation);
+      
+      // Bu gruba ait ürünleri bul
+      const groupProducts = products.filter(product => product.group?.id === group.id);
+      console.log(`  Group ${group.slug} has ${groupProducts.length} products`);
+      
+      const formattedGroup = {
         id: group.id,
         slug: group.slug,
         title: translation?.name || group.slug,
         description: translation?.description || 'Product group description',
         imageUrl: group.imageUrl,
-        order: group.id
+        order: group.id,
+        // Alt ürünleri (subcategories) ekle - doğru ilişki ile
+        subcategories: groupProducts.map(product => {
+          const productTranslation = product.translations?.find(t => t.language === language);
+          console.log(`    Product: ${product.slug}, translation:`, productTranslation);
+          
+          return {
+            id: product.id,
+            slug: product.slug,
+            title: productTranslation?.title || product.slug,
+            description: productTranslation?.description || 'Product description',
+            imageUrl: product.imageUrl
+          };
+        })
       };
+      
+      console.log(`Formatted group: ${formattedGroup.title}, subcategories: ${formattedGroup.subcategories.length}`);
+      return formattedGroup;
     });
 
     // Products verilerini formatla
-    const formattedProducts = products.map(product => ({
-      id: product.id,
-      slug: product.slug,
-      title: product.slug || `Product ${product.id}`,
-      description: 'Product description',
-      imageUrl: product.imageUrl,
-      productGroup: {
-        id: 1,
-        slug: 'default-group',
-        title: 'Default Group'
-      },
-      order: product.id
-    }));
+    const formattedProducts = products.slice(0, 6).map(product => {
+      const translation = product.translations?.find(t => t.language === language);
+      const groupTranslation = product.group?.translations?.find(t => t.language === language);
+      
+      return {
+        id: product.id,
+        slug: product.slug,
+        title: translation?.title || product.slug,
+        description: translation?.description || 'Product description',
+        imageUrl: product.imageUrl,
+        productGroup: {
+          id: product.group?.id || 0,
+          slug: product.group?.slug || 'default-group',
+          title: groupTranslation?.name || product.group?.slug || 'Default Group'
+        },
+        order: product.id
+      };
+    });
 
     const responseData = {
       markets: formattedMarkets,

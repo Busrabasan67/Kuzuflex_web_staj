@@ -130,7 +130,11 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
         };
 
         const staticMenus: MenuItem[] = [
-          { title: t('navbar.home'), path: "/" },
+          { 
+            title: t('navbar.home'), 
+            path: "/",
+            submenu: [] // Empty submenu to ensure consistent styling
+          },
           {
             title: t('navbar.corporate'),
             submenu: [
@@ -184,10 +188,10 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
             {menuItems.map((item) => (
               <div key={item.title} className="relative group">
                 {/* Ana Menü */}
-                {item.path ? (
+                {item.path && (!item.submenu || item.submenu.length === 0) ? (
                   <Link
                     to={item.path}
-                    className={`px-4 py-3 font-medium text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 ${
+                    className={`px-4 py-3 font-medium text-okuma-gray-700 hover:text-okuma-600 hover:bg-okuma-50 rounded-lg transition-all duration-200 flex items-center ${
                       location.pathname === item.path ? "text-okuma-600 bg-okuma-100 font-semibold" : ""
                     }`}
                   >
