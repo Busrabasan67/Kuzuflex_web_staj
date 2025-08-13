@@ -15,6 +15,7 @@ import aboutPageRoutes from "./routes/aboutPageRoutes";
 import aboutPageExtraContentRoutes from "./routes/aboutPageExtraContentRoutes";
 import homeRoutes from "./routes/homeRoutes";
 import contactRoutes from "./routes/contactRoutes";
+import emailSettingsRoutes from "./routes/emailSettingsRoutes";
 
 
 const app = express();
@@ -50,6 +51,7 @@ app.use("/api/about-page", aboutPageRoutes);
 app.use("/api/about-page-extra-content", aboutPageExtraContentRoutes);
 app.use("/api/home", homeRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/email-settings", emailSettingsRoutes);
 
 
 export default app;

@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import AppDataSource from '../data-source';
+import { EmailSettings } from '../entity/EmailSettings';
 
 interface ContactFormData {
   name: string;
@@ -13,19 +12,51 @@ interface ContactFormData {
 }
 
 class MailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST || 'smtp.office365.com',
-      port: parseInt(process.env.MAIL_PORT || '587'),
-      secure: false, // false for 587, true for 465
+    // Constructor'da transporter oluşturmayız, dinamik olarak oluşturacağız
+  }
+
+  private async getEmailSettings(): Promise<EmailSettings> {
+    try {
+      const emailSettingsRepository = AppDataSource.getRepository(EmailSettings);
+      let settings = await emailSettingsRepository.findOne({ where: { id: 1 } });
+      
+      if (!settings) {
+        // Varsayılan ayarları oluştur
+        settings = emailSettingsRepository.create({
+          smtpHost: 'smtp.office365.com',
+          smtpPort: 587,
+          encryption: 'TLS',
+          authentication: true,
+          smtpUsername: 'wifi@kuzuflex.com',
+          smtpPassword: 'Kuzu.328899?!#.',
+          contactFormRecipient: 'bilgiislem@kuzuflex.com'
+        });
+        
+        await emailSettingsRepository.save(settings);
+      }
+      
+      return settings;
+    } catch (error) {
+      console.error('Email ayarları alınamadı:', error);
+      throw new Error('Email ayarları alınamadı');
+    }
+  }
+
+  private async createTransporter(): Promise<nodemailer.Transporter> {
+    const settings = await this.getEmailSettings();
+    
+    return nodemailer.createTransport({
+      host: settings.smtpHost,
+      port: settings.smtpPort,
+      secure: settings.encryption === 'SSL',
       auth: {
-        user: process.env.MAIL_USER || 'wifi@kuzuflex.com',
-        pass: process.env.MAIL_PASS || 'Kuzu.328899?!#.',
+        user: settings.smtpUsername,
+        pass: settings.smtpPassword
       },
       tls: {
-        ciphers: 'SSLv3',
         rejectUnauthorized: false
       }
     });
@@ -33,9 +64,12 @@ class MailService {
 
   async sendContactFormEmail(formData: ContactFormData): Promise<boolean> {
     try {
+      const settings = await this.getEmailSettings();
+      const transporter = await this.createTransporter();
+      
       const mailOptions = {
-        from: `"Kuzuflex Contact System" <${process.env.MAIL_USER || 'wifi@kuzuflex.com'}>`,
-        to: process.env.CONTACT_FORM_RECIPIENT || 'wifi@kuzuflex.com',
+        from: `"Kuzuflex Contact System" <${settings.smtpUsername}>`,
+        to: settings.contactFormRecipient,
         replyTo: formData.email, // Formu dolduran kişinin email'i reply-to olarak eklensin
         subject: `Yeni İletişim Formu: ${formData.subject}`,
         html: `
@@ -119,7 +153,7 @@ info@kuzuflex.com
 www.kuzuflex.com`
       };
 
-      await this.transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
       return true;
     } catch (error) {
       console.error('Mail gönderme hatası:', error);
@@ -129,8 +163,11 @@ www.kuzuflex.com`
 
   async sendDirectEmail(to: string, subject: string, message: string): Promise<boolean> {
     try {
+      const settings = await this.getEmailSettings();
+      const transporter = await this.createTransporter();
+      
       const mailOptions = {
-        from: `"Kuzuflex Contact System" <${process.env.MAIL_USER || 'wifi@kuzuflex.com'}>`,
+        from: `"Kuzuflex Contact System" <${settings.smtpUsername}>`,
         to: to,
         subject: subject,
         html: `
@@ -173,7 +210,7 @@ www.kuzuflex.com`
         `,
       };
 
-      await this.transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions);
       return true;
     } catch (error) {
       console.error('Mail gönderme hatası:', error);
@@ -184,7 +221,8 @@ www.kuzuflex.com`
   // Test connection
   async verifyConnection(): Promise<boolean> {
     try {
-      await this.transporter.verify();
+      const transporter = await this.createTransporter();
+      await transporter.verify();
       return true;
     } catch (error) {
       console.error('Mail bağlantı hatası:', error);

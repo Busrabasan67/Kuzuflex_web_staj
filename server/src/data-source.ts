@@ -18,6 +18,7 @@ import { MarketTranslation } from "./entity/MarketTranslation";
 import { AboutPage } from "./entity/AboutPage";
 import { AboutPageTranslation } from "./entity/AboutPageTranslation";
 import { AboutPageExtraContent } from "./entity/AboutPageExtraContent";
+import { EmailSettings } from "./entity/EmailSettings";
 
 
 const AppDataSource = new DataSource({
@@ -29,7 +30,7 @@ const AppDataSource = new DataSource({
   database: "KuzuflexDB",
   synchronize: false,
   logging: false,
-  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation, Solution, SolutionTranslation, SolutionExtraContent, QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslations, Market, MarketContent, MarketTranslation, AboutPage, AboutPageTranslation, AboutPageExtraContent],  
+  entities: [Product, Catalog, Admin, ProductGroup, ProductTranslation, ProductGroupTranslation, CatalogTranslation, Solution, SolutionTranslation, SolutionExtraContent, QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslations, Market, MarketContent, MarketTranslation, AboutPage, AboutPageTranslation, AboutPageExtraContent, EmailSettings],  
   migrations: [__dirname + "/migrations/*.ts"],
   options: {
     encrypt: true,

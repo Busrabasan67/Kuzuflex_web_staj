@@ -7,6 +7,7 @@ import AdminProducts from "../components/AdminProducts";
 import QMDocumentsManagement from "../components/QMDocumentsManagement";
 import AboutPageManager from "../components/AboutPageManager";
 import ChangePasswordForm from "../components/ChangePasswordForm";
+import EmailSettings from "../components/EmailSettings";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +21,8 @@ import {
   FiEdit3,
   FiAward,
   FiGlobe,
-  FiLock
+  FiLock,
+  FiMail
 } from "react-icons/fi";
 
 const AdminPanel: React.FC = () => {
@@ -109,6 +111,7 @@ const AdminPanel: React.FC = () => {
     { id: "solution-extra-content", name: "Çözüm İçerik Ekle", icon: FiEdit3 },
     { id: "qm-documents", name: "Kalite Belgeleri", icon: FiAward },
     { id: "about", name: "Hakkımızda Sayfası", icon: FiFileText },
+    { id: "email-settings", name: "Email Ayarları", icon: FiMail },
     { id: "change-password", name: "Şifre Güncelle", icon: FiLock },
   ];
 
@@ -135,6 +138,8 @@ const AdminPanel: React.FC = () => {
         return <QMDocumentsManagement />;
       case "about":
         return <AboutPageManager />;
+      case "email-settings":
+        return <EmailSettings />;
       case "change-password":
         return (
           <div className="max-w-6xl mx-auto">
