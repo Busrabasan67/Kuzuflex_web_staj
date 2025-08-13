@@ -31,6 +31,8 @@
   "form": {
     "name": "İsim",
     "email": "E-posta",
+    "phone": "Telefon",
+    "message": "Mesaj",
     "submit": "Gönder",
     "required": "Bu alan zorunludur"
   },
@@ -40,7 +42,8 @@
     "search": "Ara...",
     "imageLoadError": "Resim Yüklenemedi",
     "noImage": "Resim Yok",
-    "noDescription": "Ürün açıklaması bulunmuyor"
+    "noDescription": "Ürün açıklaması bulunmuyor",
+    "languageName": "Türkçe"
   },
   "footer": {
     "companyDescription": "Esnek metal hortumda lider marka. Kalite, güven ve inovasyonun adresi.",
@@ -164,7 +167,19 @@
       "email": "E-posta",
       "sendMessage": "Mesaj Gönder",
       "message": "Mesaj",
-      "subject": "Konu"
+      "subject": "Konu",
+      "formTitle": "İLETİŞİM FORMU",
+      "namePlaceholder": "Ad Soyad *",
+      "emailPlaceholder": "E-Posta *",
+      "phonePlaceholder": "Telefon *",
+      "messagePlaceholder": "Mesaj *",
+      "sendButton": "GÖNDER",
+      "sending": "Gönderiliyor...",
+      "successMessage": "Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.",
+      "errorMessage": "Mesaj gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.",
+      "connectionError": "Bağlantı hatası oluştu. Lütfen daha sonra tekrar deneyiniz.",
+      "locationsTitle": "Konumlarımız",
+      "locationsSubtitle": "Türkiye ve Almanya'daki ofislerimizi ziyaret edin"
     },
     "qmDocuments": {
       "title": "Sertifikalar ve Belgeler",

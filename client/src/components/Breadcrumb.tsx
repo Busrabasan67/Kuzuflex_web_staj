@@ -162,7 +162,7 @@ const Breadcrumb = () => {
         case "hakkimizda":
           label = t("breadcrumb.about");
           break;
-        case "iletisim":
+        case "contact":
           label = t("breadcrumb.contact");
           break;
         case "products":

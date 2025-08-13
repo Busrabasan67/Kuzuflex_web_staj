@@ -40,7 +40,7 @@ const Footer = () => {
     { key: "home", label: t('navbar.home'), to: "/" },
     { key: "products", label: t('navbar.products'), to: "/Products" },
     { key: "aboutus", label: t('navbar.about'), to: "/hakkimizda" },
-    { key: "contact", label: t('navbar.contact'), to: "/iletisim" },
+            { key: "contact", label: t('navbar.contact'), to: "/contact" },
   ];
 
   // Market verilerini yükleme fonksiyonu

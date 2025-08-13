@@ -43,7 +43,7 @@ function AppContent() {
             {/* Normal Kullanıcı Sayfaları */}
             <Route path="/" element={<Home />} />
             <Route path="/hakkimizda" element={<About />} />
-            <Route path="/iletisim" element={<Contact />} />
+            <Route path="/contact" element={<Contact />} />
             
             {/* Slug bazlı ürün sayfaları */}
             <Route path="/products/:groupSlug" element={<ProductGroupPage />} />

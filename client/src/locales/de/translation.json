@@ -31,12 +31,15 @@
   "form": {
     "name": "Name",
     "email": "E-Mail",
+    "phone": "Telefon",
+    "message": "Nachricht",
     "submit": "Senden",
     "required": "Dieses Feld ist erforderlich"
   },
   "common": {
     "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com"
+    "email": "info@kuzuflex.com",
+    "languageName": "Deutsch"
   },
   "footer": {
     "companyDescription": "Führende Marke für flexible Metallschläuche. Die Adresse für Qualität, Vertrauen und Innovation.",
@@ -178,7 +181,19 @@
       "email": "E-Mail",
       "sendMessage": "Nachricht Senden",
       "message": "Nachricht",
-      "subject": "Betreff"
+      "subject": "Betreff",
+      "formTitle": "KONTAKTFORMULAR",
+      "namePlaceholder": "Name Vorname *",
+      "emailPlaceholder": "E-Mail *",
+      "phonePlaceholder": "Telefon *",
+      "messagePlaceholder": "Nachricht *",
+      "sendButton": "SENDEN",
+      "sending": "Wird gesendet...",
+      "successMessage": "Ihre Nachricht wurde erfolgreich gesendet. Wir werden uns so schnell wie möglich bei Ihnen melden.",
+      "errorMessage": "Beim Senden der Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.",
+      "connectionError": "Verbindungsfehler aufgetreten. Bitte versuchen Sie es später erneut.",
+      "locationsTitle": "Unsere Standorte",
+      "locationsSubtitle": "Besuchen Sie unsere Büros in der Türkei und Deutschland"
     }
   }
 }

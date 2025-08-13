@@ -31,12 +31,15 @@
   "form": {
     "name": "Nom",
     "email": "E-mail",
+    "phone": "Téléphone",
+    "message": "Message",
     "submit": "Envoyer",
     "required": "Ce champ est obligatoire"
   },
   "common": {
     "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com"
+    "email": "info@kuzuflex.com",
+    "languageName": "Français"
   },
   "footer": {
     "companyDescription": "Marque leader dans le tuyau métallique flexible. L'adresse de la qualité, de la confiance et de l'innovation.",
@@ -178,7 +181,19 @@
       "email": "E-mail",
       "sendMessage": "Envoyer un Message",
       "message": "Message",
-      "subject": "Sujet"
+      "subject": "Sujet",
+      "formTitle": "FORMULAIRE DE CONTACT",
+      "namePlaceholder": "Nom Prénom *",
+      "emailPlaceholder": "E-Mail *",
+      "phonePlaceholder": "Téléphone *",
+      "messagePlaceholder": "Message *",
+      "sendButton": "ENVOYER",
+      "sending": "Envoi en cours...",
+      "successMessage": "Votre message a été envoyé avec succès. Nous vous répondrons dès que possible.",
+      "errorMessage": "Une erreur s'est produite lors de l'envoi du message. Veuillez réessayer plus tard.",
+      "connectionError": "Erreur de connexion. Veuillez réessayer plus tard.",
+      "locationsTitle": "Nos Emplacements",
+      "locationsSubtitle": "Visitez nos bureaux en Turquie et en Allemagne"
     }
   }
 }

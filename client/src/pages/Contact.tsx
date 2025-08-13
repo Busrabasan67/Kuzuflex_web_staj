@@ -1,19 +1,86 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MapPin, Phone, Mail, Send, Building2, Globe } from 'lucide-react';
 
 const Contact = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  
+  // Debug: i18n durumunu kontrol et
+  console.log('i18n object:', i18n);
+  console.log('i18n.language:', i18n.language);
+  console.log('i18n.languages:', i18n.languages);
+  console.log('i18n.isInitialized:', i18n.isInitialized);
+  console.log('Translation test:', t('common.languageName'));
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Form gönderme işlemi burada yapılacak
-    console.log('Form data:', formData);
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: '' });
+
+    try {
+      // Dil adını manuel olarak belirle
+      const getLanguageName = (lang: string) => {
+        switch(lang) {
+          case 'tr': return 'Türkçe';
+          case 'en': return 'English';
+          case 'de': return 'Deutsch';
+          case 'fr': return 'Français';
+          default: return 'Türkçe';
+        }
+      };
+
+      const formDataWithLanguage = {
+        ...formData,
+        language: i18n.language, // Mevcut dili ekle
+        languageName: getLanguageName(i18n.language) // Dil adını manuel olarak ekle
+      };
+      
+      console.log('Gönderilen Form Verisi:', formDataWithLanguage);
+      console.log('Mevcut Dil:', i18n.language);
+      console.log('Dil Adı:', getLanguageName(i18n.language));
+      
+      const response = await fetch('http://localhost:5000/api/contact/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formDataWithLanguage),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSubmitStatus({
+          type: 'success',
+          message: result.message
+        });
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setSubmitStatus({
+          type: 'error',
+          message: result.message
+        });
+      }
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: t('pages.contact.connectionError')
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -23,152 +90,289 @@ const Contact = () => {
     });
   };
 
+  const handleEmailClick = (email: string, subject: string = '') => {
+    const mailtoLink = `mailto:${email}${subject ? `?subject=${encodeURIComponent(subject)}` : ''}`;
+    window.open(mailtoLink);
+  };
+
+  const handleDirectionsClick = (address: string) => {
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    window.open(googleMapsUrl, '_blank');
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Hero Section */}
-      <div className="bg-blue-600 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4">
-            {t('pages.contact.title')}
-          </h1>
-          <p className="text-xl opacity-90">
-            {t('pages.contact.subtitle')}
-          </p>
+      <section className="relative h-96 bg-gradient-to-r from-blue-600 to-blue-800 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        
+        <div className="relative h-full flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">{t('pages.contact.title')}</h1>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-blue-300 mx-auto rounded-full"></div>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Content Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
-            <div>
-              <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-                {t('pages.contact.subtitle')}
-              </h2>
-              <p className="text-gray-600 mb-8">
-                {t('pages.contact.description')}
-              </p>
-
-              {/* Contact Details */}
-              <div className="space-y-6">
+      <div className="container mx-auto px-4 py-20 -mt-10 relative z-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Contact Cards */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-20">
+            {/* KUZUFLEX TURKEY */}
+            <div className="group bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                  <Building2 className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800">KUZUFLEX TURKEY</h3>
+              </div>
+              
+              <div className="space-y-4 mb-8">
                 <div className="flex items-start">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
+                  <MapPin className="w-5 h-5 text-blue-500 mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold text-gray-800">{t('pages.contact.address')}</h3>
-                    <p className="text-gray-600">{t('pages.contact.addressText')}</p>
+                    <p className="text-gray-700 font-medium">KUZU FLEX METAL SAN. Ve TIC. A.Ş</p>
+                    <p className="text-gray-600 text-sm">Ata Mh. Serbest Bölge Gelincik Cd. No:1</p>
+                    <p className="text-gray-600 text-sm">TR 16600 Gemlik / BURSA</p>
                   </div>
                 </div>
-
-                <div className="flex items-start">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{t('pages.contact.phone')}</h3>
-                    <p className="text-gray-600">{t('common.phone')}</p>
-                  </div>
+                
+                <div className="flex items-center">
+                  <Phone className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <p className="text-gray-700">+90 850 800 2222</p>
                 </div>
-
-                <div className="flex items-start">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800">{t('pages.contact.email')}</h3>
-                    <p className="text-gray-600">{t('common.email')}</p>
-                  </div>
+                
+                <div className="flex items-center">
+                  <Mail className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <button
+                    onClick={() => handleEmailClick('basanbusra1767@gmail.com')}
+                    className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 underline decoration-blue-300 hover:decoration-blue-600"
+                  >
+                    basanbusra1767@gmail.com
+                  </button>
                 </div>
               </div>
+              
+              <button
+                onClick={() => handleDirectionsClick('KUZU FLEX METAL SAN. Ve TIC. A.Ş, Ata Mh. Serbest Bölge Gelincik Cd. No:1, Gemlik, Bursa')}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center group"
+              >
+                <MapPin className="w-5 h-5 mr-2" />
+                DIRECTIONS
+              </button>
+            </div>
+
+            {/* KUZUFLEX GERMANY */}
+            <div className="group bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                  <Globe className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800">KUZUFLEX GERMANY</h3>
+              </div>
+              
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start">
+                  <MapPin className="w-5 h-5 text-blue-500 mt-1 mr-3 flex-shrink-0" />
+                  <div>
+                    <p className="text-gray-700 font-medium">KUZU FLEX DEUTSCHLAND GmbH</p>
+                    <p className="text-gray-600 text-sm">Max-Planck-Strasse 2</p>
+                    <p className="text-gray-600 text-sm">D - 21502 Geesthacht</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center">
+                  <Phone className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <p className="text-gray-700">+49 (0) 4152 889 256</p>
+                </div>
+                
+                <div className="flex items-center">
+                  <Phone className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <p className="text-gray-700">+49 (0) 152 288 30 946</p>
+                </div>
+                
+                <div className="flex items-center">
+                  <Mail className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                  <button
+                    onClick={() => handleEmailClick('deutschland@kuzuflex.com')}
+                    className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 underline decoration-blue-300 hover:decoration-blue-600"
+                  >
+                    deutschland@kuzuflex.com
+                  </button>
+                </div>
+              </div>
+              
+              <button
+                onClick={() => handleDirectionsClick('KUZU FLEX DEUTSCHLAND GmbH, Max-Planck-Strasse 2, Geesthacht, Germany')}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center group"
+              >
+                <MapPin className="w-5 h-5 mr-2" />
+                DIRECTIONS
+              </button>
             </div>
 
             {/* Contact Form */}
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-                {t('pages.contact.sendMessage')}
-              </h2>
+            <div className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                  <Send className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800">{t('pages.contact.formTitle')}</h3>
+              </div>
               
+              {submitStatus.type && (
+                <div className={`mb-6 p-4 rounded-xl border-l-4 ${
+                  submitStatus.type === 'success' 
+                    ? 'bg-green-50 text-green-800 border-green-400' 
+                    : 'bg-red-50 text-red-800 border-red-400'
+                }`}>
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 rounded-full mr-3 ${
+                      submitStatus.type === 'success' ? 'bg-green-400' : 'bg-red-400'
+                    }`}></div>
+                    <p className="font-medium">{submitStatus.message}</p>
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('form.name')}
-                  </label>
+                <div className="group">
                   <input
                     type="text"
-                    id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder={t('form.name')}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white"
+                    placeholder={t('pages.contact.namePlaceholder')}
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('form.email')}
-                  </label>
+                <div className="group">
                   <input
                     type="email"
-                    id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder={t('form.email')}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white"
+                    placeholder={t('pages.contact.emailPlaceholder')}
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('pages.contact.subject')}
-                  </label>
+                <div className="group">
                   <input
                     type="text"
-                    id="subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder={t('pages.contact.subject')}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white"
+                    placeholder={t('pages.contact.phonePlaceholder')}
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('pages.contact.message')}
-                  </label>
+                <div className="group">
                   <textarea
-                    id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    rows={5}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder={t('pages.contact.message')}
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white resize-none"
+                    placeholder={t('pages.contact.messagePlaceholder')}
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                  disabled={isSubmitting}
+                  className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center ${
+                    isSubmitting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                  }`}
                 >
-                  {t('pages.contact.sendMessage')}
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      {t('pages.contact.sending')}
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      {t('pages.contact.sendButton')}
+                    </>
+                  )}
                 </button>
               </form>
+            </div>
+          </div>
+
+          {/* Google Maps Section */}
+          <div className="mb-20">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  {t('pages.contact.locationsTitle')}
+                </span>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                {t('pages.contact.locationsSubtitle')}
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Turkey Location */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative">
+                <div className="p-6 border-b border-gray-100">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
+                      <Building2 className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800">TURKEY LOCATION</h3>
+                  </div>
+                </div>
+                <div className="h-96 relative">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d97223.14666542292!2d29.113093!3d40.403903!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14ca5b99ff1b86c7%3A0xbc9757ae16e82dc2!2sKuzuflex!5e0!3m2!1sen!2sus!4v1755072453498!5m2!1sen!2sus"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="KUZUFLEX Turkey Location"
+                  ></iframe>
+
+                </div>
+              </div>
+
+              {/* Germany Location */}
+              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative">
+                <div className="p-6 border-b border-gray-100">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
+                      <Globe className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800">GERMANY LOCATION</h3>
+                  </div>
+                </div>
+                <div className="h-96 relative">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d9513.541661738538!2d10.422818!3d53.407933!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47b1e5abe7fbb269%3A0x6c17ee569e4d7c9e!2sKuzuflex%20Deutschland%20GmbH!5e0!3m2!1sen!2sus!4v1755072274852!5m2!1sen!2sus"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="KUZUFLEX Germany Location"
+                  ></iframe>
+
+                </div>
+              </div>
             </div>
           </div>
         </div>
