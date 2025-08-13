@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getCatalogUrl } from "../utils/catalogUtils";
-import { FiDownload, FiX, FiArrowRight, FiEye, FiAward, FiStar, FiShield, FiTrendingUp, FiCheckCircle } from "react-icons/fi";
+import { FiX, FiArrowRight, FiAward,  FiShield } from "react-icons/fi";
 
 const API_BASE = "http://localhost:5000";
 
