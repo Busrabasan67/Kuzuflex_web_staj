@@ -11,6 +11,8 @@ const extraContentRepository = AppDataSource.getRepository(AboutPageExtraContent
 // Hakkımızda sayfasını getir
 export const getAboutPage = async (req: Request, res: Response) => {
   try {
+    const { lang } = req.query;
+    
     const aboutPage = await aboutPageRepository.findOne({
       where: { slug: 'about-us' },
       relations: ['translations', 'extraContents'],
@@ -23,6 +25,16 @@ export const getAboutPage = async (req: Request, res: Response) => {
 
     if (!aboutPage) {
       return res.status(404).json({ message: 'Hakkımızda sayfası bulunamadı' });
+    }
+
+    // Eğer dil belirtilmişse, sadece o dildeki verileri döndür
+    if (lang) {
+      const filteredData = {
+        ...aboutPage,
+        translations: aboutPage.translations.filter(t => t.language === lang),
+        extraContents: aboutPage.extraContents.filter(c => c.language === lang)
+      };
+      return res.json(filteredData);
     }
 
     res.json(aboutPage);

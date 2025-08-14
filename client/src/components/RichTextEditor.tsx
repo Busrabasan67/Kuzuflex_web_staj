@@ -31,11 +31,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   ];
 
   const fontSizes = [
-    { name: 'Küçük', value: '12px' },
-    { name: 'Normal', value: '16px' },
-    { name: 'Büyük', value: '20px' },
-    { name: 'Çok Büyük', value: '24px' },
-    { name: 'Başlık', value: '32px' }
+    { name: '8px - Çok Küçük', value: '8px' },
+    { name: '10px - Küçük', value: '10px' },
+    { name: '12px - Normal Küçük', value: '12px' },
+    { name: '14px - Küçük', value: '14px' },
+    { name: '16px - Normal', value: '16px' },
+    { name: '18px - Orta', value: '18px' },
+    { name: '20px - Büyük', value: '20px' },
+    { name: '24px - Çok Büyük', value: '24px' },
+    { name: '28px - Başlık', value: '28px' },
+    { name: '32px - Ana Başlık', value: '32px' },
+    { name: '36px - Büyük Başlık', value: '36px' },
+    { name: '48px - Çok Büyük Başlık', value: '48px' }
   ];
 
   // renk paleti ileride görsel palet butonunda kullanılabilir
@@ -100,9 +107,56 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   };
 
   const setSize = (size: string) => {
-    execCommand('fontSize', size.replace('px', ''));
+    const selection = window.getSelection();
+    
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      
+      if (range.toString()) {
+        // Seçili metne font size uygula
+        const span = document.createElement('span');
+        span.setAttribute('style', `font-size: ${size} !important;`);
+        span.innerHTML = range.toString();
+        range.deleteContents();
+        range.insertNode(span);
+      } else {
+        // Seçili metin yoksa, imlecin bulunduğu yere font size uygula
+        const span = document.createElement('span');
+        span.setAttribute('style', `font-size: ${size} !important;`);
+        span.textContent = '\u200B'; // Zero-width space for cursor position
+        range.insertNode(span);
+        range.setStartAfter(span);
+        range.setEndAfter(span);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    } else {
+      // Seçim yoksa, editörün başına font size uygula
+      if (editorRef.current) {
+        const span = document.createElement('span');
+        span.setAttribute('style', `font-size: ${size} !important;`);
+        span.textContent = '\u200B';
+        editorRef.current.insertBefore(span, editorRef.current.firstChild);
+        
+        // İmleci yeni span'a taşı
+        const newRange = document.createRange();
+        newRange.setStart(span, 0);
+        newRange.setEnd(span, 0);
+        selection?.removeAllRanges();
+        selection?.addRange(newRange);
+      }
+    }
+    
     setFontSize(size);
+    editorRef.current?.focus();
+    
+    // Input event'ini tetikle
+    setTimeout(() => {
+      handleInput();
+    }, 100);
   };
+
+
 
   const setAlignment = (align: 'left' | 'center' | 'right' | 'justify') => {
     // Sadece hizalama komutunu uygula, diğer formatlamayı koru
@@ -159,7 +213,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <select
           value={fontFamily}
           onChange={(e) => setFont(e.target.value)}
-          className="px-2 py-1 border border-gray-300 rounded text-xs"
+          className="px-3 py-1 border border-gray-300 rounded text-xs bg-white hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+          title="Font Türü Seçin"
         >
           {fonts.map(font => (
             <option key={font.value} value={font.value}>{font.name}</option>
@@ -169,12 +224,21 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <select
           value={fontSize}
           onChange={(e) => setSize(e.target.value)}
-          className="px-2 py-1 border border-gray-300 rounded text-xs"
+          className="px-3 py-1 border border-gray-300 rounded text-xs bg-white hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+          title="Font Boyutu Seçin"
+          style={{ fontSize: '12px' }}
         >
           {fontSizes.map(size => (
-            <option key={size.value} value={size.value}>{size.name}</option>
+            <option key={size.value} value={size.value} style={{ fontSize: size.value }}>
+              {size.name}
+            </option>
           ))}
         </select>
+        
+        {/* Font Size Önizleme */}
+        <div className="text-xs text-gray-500 ml-2">
+          Seçili: <span className="font-medium" style={{ fontSize: fontSize }}>{fontSize}</span>
+        </div>
 
         {/* Text Formatting */}
         <button
@@ -276,7 +340,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         className="min-h-[200px] p-4 focus:outline-none"
         style={{
           fontFamily,
-          fontSize,
+          fontSize: '16px', // Varsayılan font size - sadece editör için
           color: textColor,
           backgroundColor,
           textAlign: textAlign,

@@ -215,6 +215,27 @@
       "certificates": "Sertifikalar",
       "aboutUs": "Hakkımızda",
       "contactUs": "İletişim"
+    },
+    "resources": {
+      "title": "Kaynaklar",
+      "heading": "Çözümlerimiz",
+      "description": "İhtiyaçlarınıza özel olarak hazırlanmış kapsamlı ürün ve çözüm yelpazemizi keşfedin"
+    },
+    "stats": {
+      "totalResources": "Toplam Kaynak",
+      "products": "Ürünler",
+      "certificates": "Sertifikalar"
+    },
+    "tabs": {
+      "all": "Tümü",
+      "products": "Ürünler",
+      "certificates": "Sertifikalar",
+      "contact": "İletişim"
+    },
+    "types": {
+      "product": "Ürün",
+      "certificate": "Sertifika",
+      "contact": "İletişim"
     }
   }
 }

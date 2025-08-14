@@ -195,5 +195,39 @@
       "locationsTitle": "Nos Emplacements",
       "locationsSubtitle": "Visitez nos bureaux en Turquie et en Allemagne"
     }
+  },
+  "market": {
+    "mainContents": "Contenu Principal",
+    "subContents": "Contenu Secondaire",
+    "additionalResources": "Ressources Supplémentaires",
+    "viewDetails": "Voir les Détails",
+    "noContents": "Aucun Contenu Disponible",
+    "noContentsDesc": "Ce marché n'a actuellement aucun contenu à afficher.",
+    "buttons": {
+      "certificates": "Certificats",
+      "aboutUs": "À Propos de Nous",
+      "contactUs": "Contact"
+    },
+    "resources": {
+      "title": "Ressources",
+      "heading": "Nos Solutions pour",
+      "description": "Découvrez notre gamme complète de produits et solutions adaptés spécifiquement à vos besoins"
+    },
+    "stats": {
+      "totalResources": "Total des Ressources",
+      "products": "Produits",
+      "certificates": "Certificats"
+    },
+    "tabs": {
+      "all": "Tout",
+      "products": "Produits",
+      "certificates": "Certificats",
+      "contact": "Contact"
+    },
+    "types": {
+      "product": "Produit",
+      "certificate": "Certificat",
+      "contact": "Contact"
+    }
   }
 }

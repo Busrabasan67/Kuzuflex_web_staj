@@ -216,6 +216,27 @@
       "certificates": "Certificates",
       "aboutUs": "About Us",
       "contactUs": "Contact Us"
+    },
+    "resources": {
+      "title": "Resources",
+      "heading": "Our Solutions for",
+      "description": "Discover our comprehensive range of products and solutions tailored specifically for your needs"
+    },
+    "stats": {
+      "totalResources": "Total Resources",
+      "products": "Products",
+      "certificates": "Certificates"
+    },
+    "tabs": {
+      "all": "All",
+      "products": "Products",
+      "certificates": "Certificates",
+      "contact": "Contact"
+    },
+    "types": {
+      "product": "Product",
+      "certificate": "Certificate",
+      "contact": "Contact"
     }
   }
 }

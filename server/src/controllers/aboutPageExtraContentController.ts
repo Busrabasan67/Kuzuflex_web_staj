@@ -20,6 +20,16 @@ export const createMultiLanguageExtraContent = async (req: Request, res: Respons
       return res.status(404).json({ message: 'Hakkımızda sayfası bulunamadı' });
     }
 
+    // Eğer order belirtilmemişse, mevcut en yüksek order'ı bul ve +1 ekle
+    let finalOrder = order;
+    if (!finalOrder) {
+      const maxOrderContent = await extraContentRepository.findOne({
+        where: { page: { id: aboutPage.id } },
+        order: { order: 'DESC' }
+      });
+      finalOrder = maxOrderContent ? maxOrderContent.order + 1 : 1;
+    }
+
     // Her dil için içerik oluştur
     const savedContents = [];
     for (const content of contents) {
@@ -28,7 +38,7 @@ export const createMultiLanguageExtraContent = async (req: Request, res: Respons
         title: content.title,
         content: content.content,
         type,
-        order: order || 1,
+        order: finalOrder,
         page: aboutPage
       });
 
@@ -161,8 +171,14 @@ export const updateGroupExtraContent = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Hakkımızda sayfası bulunamadı' });
     }
 
-    // Mevcut grup içeriklerini sil
-    await extraContentRepository.delete({ page: { id: aboutPage.id }, type });
+    // Mevcut grup içeriklerini bul ve sil (order'a göre)
+    const existingContents = await extraContentRepository.find({
+      where: { page: { id: aboutPage.id }, order: order }
+    });
+
+    if (existingContents.length > 0) {
+      await extraContentRepository.remove(existingContents);
+    }
 
     // Yeni içerikleri ekle
     const savedContents = [];

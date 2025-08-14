@@ -98,193 +98,125 @@ const MarketDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Hero Section with Enhanced Design */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white min-h-screen">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20"></div>
-        </div>
+      {/* Hero Section - Modern Temiz Tasarım */}
+      <section className="relative h-96 bg-gradient-to-r from-blue-600 to-blue-800 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         
-        <div className="container mx-auto px-4 py-16 lg:py-32 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            {/* Content */}
-            <div className="lg:w-1/2 space-y-10">
-              <Link 
-                to="/" 
-                className="inline-flex items-center text-blue-200 hover:text-white transition-all duration-300 group bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 hover:bg-white/20"
-              >
-                <ArrowLeft className="h-5 w-5 mr-3 group-hover:-translate-x-1 transition-transform" />
-                <span className="font-medium">{t('navbar.home')}</span>
-              </Link>
-              
-              <div className="space-y-6">
-                <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium text-blue-200">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                  <span>Market Solutions</span>
-                </div>
-                
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
-                  {market.name}
-                </h1>
-                
-                {/* Enhanced Bullet Points */}
-                <div className="space-y-6 pt-4">
-                  {market.description && market.description.split('.').filter(sentence => sentence.trim().length > 0).map((sentence, index) => (
-                    <div key={index} className="group flex items-start space-x-4 p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300">
-                      <div className="flex-shrink-0 mt-2">
-                        <div className="w-4 h-4 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full shadow-lg group-hover:scale-110 transition-transform duration-300"></div>
-                      </div>
-                      <p className="text-blue-100 text-lg leading-relaxed font-medium">{sentence.trim() + '.'}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Enhanced Image */}
-            <div className="lg:w-1/2 relative">
-              {market.imageUrl ? (
-                <div className="relative group">
-                  {/* Glow Effect */}
-                  <div className="absolute -inset-6 bg-gradient-to-r from-blue-500/30 via-indigo-500/30 to-purple-500/30 rounded-3xl blur-2xl group-hover:blur-3xl transition-all duration-500"></div>
-                  
-                  {/* Image Container */}
-                  <div className="relative z-10 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-3xl p-2 border border-white/20">
-                    <img 
-                      src={`http://localhost:5000${market.imageUrl}`}
-                      alt={market.name}
-                      className="w-full h-auto max-h-[600px] rounded-2xl object-cover shadow-2xl transform group-hover:scale-[1.03] transition-all duration-700"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                    {/* Removed overlay to preserve original image colors */}
-                  </div>
-                  
-                  {/* Floating Elements */}
-                  <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full opacity-80 animate-bounce"></div>
-                  <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full opacity-60 animate-pulse"></div>
-                </div>
-              ) : (
-                <div className="w-full h-[600px] rounded-3xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-2xl">
-                  <div className="text-center">
-                    <svg className="w-32 h-32 text-white/60 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2-2H3a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <p className="text-white/60 text-lg font-medium">Market Image</p>
-                  </div>
-                </div>
-              )}
-            </div>
+        <div className="relative h-full flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-4xl md:text-6xl font-bold mb-4">{market.name}</h1>
+            <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-blue-300 mx-auto rounded-full"></div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Contents Section - Asymmetric Design */}
-      <div className="relative py-16 lg:py-24 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"></div>
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl"></div>
+      {/* Market Information Section */}
+      <section className="py-20 bg-white text-gray-800 relative">
+        {/* Subtle Grid Background */}
+        <div className="absolute inset-0 opacity-3">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
         
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-7xl mx-auto">
-            {/* Asymmetric Header */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
-              <div className="lg:col-span-2">
-                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full px-6 py-2 mb-6">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  <span className="text-blue-800 text-sm font-semibold">{t('market.mainContents')}</span>
-                </div>
-                <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                  Our Solutions for <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{market.name}</span>
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Market Information - Modern - LEFT */}
+            <div className="space-y-8">
+              {/* Main Title */}
+              <div>
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 leading-tight">
+                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {market.name}
+                  </span>
                 </h2>
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  Discover our comprehensive range of products and solutions tailored specifically for your needs
-                </p>
+                
+                {market.description && (
+                  <p className="text-xl text-gray-600 leading-relaxed border-l-4 border-blue-500 pl-4 mb-8">
+                    {market.description}
+                  </p>
+                )}
               </div>
-              <div className="lg:col-span-1 flex items-center justify-center">
-                <div className="relative">
-                  <div className="w-32 h-32 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl">
-                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                        {mainContents.length}
-                      </div>
-                    </div>
+
+              {/* Action Buttons - Integrated with Market Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {mainContents.map((content) => (
+                  <div key={content.id} className="w-full">
+                    {content.type === 'product' ? (
+                      <button 
+                        onClick={() => navigate(content.targetUrl)}
+                        className="w-full group/btn relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1"
+                      >
+                        <span className="relative z-10 flex items-center justify-center">
+                          <span>{content.name || t(`market.buttons.${content.type}`)}</span>
+                          <ChevronRight className="h-4 w-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                      </button>
+                    ) : content.type === 'certificate' ? (
+                      <a 
+                        href={content.targetUrl}
+                        className="w-full group/btn relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 inline-block text-center"
+                        target="_self"
+                        rel="noopener noreferrer"
+                      >
+                        <span className="relative z-10 flex items-center justify-center">
+                          <span>{content.name || t('market.buttons.certificates')}</span>
+                          <ChevronRight className="h-4 w-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                      </a>
+                    ) : content.type === 'contact' ? (
+                      <a 
+                        href={content.targetUrl}
+                        className="w-full group/btn relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 inline-block text-center"
+                        target="_self"
+                        rel="noopener noreferrer"
+                      >
+                        <span className="relative z-10 flex items-center justify-center">
+                          <span>{content.name || t('market.buttons.contactUs')}</span>
+                          <ChevronRight className="h-4 w-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                      </a>
+                    ) : (
+                      <a 
+                        href={content.targetUrl}
+                        className="w-full group/btn relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 inline-block text-center"
+                        target="_self"
+                        rel="noopener noreferrer"
+                      >
+                        <span className="relative z-10 flex items-center justify-center">
+                          <span>{content.name || t(`market.buttons.${content.type}`)}</span>
+                          <ChevronRight className="h-4 w-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                      </a>
+                    )}
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full animate-bounce"></div>
-                  <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-purple-500 rounded-full animate-pulse"></div>
-                </div>
+                ))}
               </div>
             </div>
-            
-            {/* Staggered Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {mainContents.map((content, index) => (
-                <div 
-                  key={content.id}
-                  className={`group relative bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-700 overflow-hidden border border-gray-100 hover:border-blue-200 transform hover:-translate-y-2 ${
-                    index % 2 === 0 ? 'lg:translate-y-8' : ''
-                  }`}
-                  style={{
-                    animationDelay: `${index * 200}ms`
-                  }}
-                >
-                  {/* 3D Background Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                  
-                  {/* Floating Decorative Elements */}
-                  <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                  <div className="absolute bottom-4 left-4 w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
-                  
-                  {/* Content Container */}
-                  <div className="relative z-10 p-8 h-full flex flex-col">
-                    {/* Type Badge with 3D Effect */}
-                    <div className="flex items-center justify-between mb-6">
-                      <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 ${
-                        content.type === 'product' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-blue-500/25' :
-                        content.type === 'certificate' ? 'bg-gradient-to-r from-green-500 to-emerald-600 shadow-green-500/25' :
-                        'bg-gradient-to-r from-purple-500 to-fuchsia-600 shadow-purple-500/25'
-                      } text-white`}>
-                        {content.type}
-                      </span>
-                      <span className="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full font-medium">#{content.order}</span>
-                    </div>
-                    
-                    {/* Title with Gradient Effect */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6 flex-grow group-hover:text-blue-600 transition-colors duration-500 leading-tight">
-                      {content.name || (content.type === 'certificate' ? t('market.buttons.certificates') : t(`market.buttons.${content.type}`))}
-                    </h3>
-                    
-                    {/* Enhanced Button */}
-                    <div className="mt-auto">
-                      {content.type === 'product' ? (
-                        <button 
-                          onClick={() => navigate(content.targetUrl)}
-                          className="w-full inline-flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-500 group-hover:shadow-lg group-hover:shadow-blue-500/25 transform group-hover:scale-[1.05] group-hover:-translate-y-1"
-                        >
-                          <span>{t('market.viewDetails')}</span>
-                          <ChevronRight className="h-5 w-5 ml-2 transform group-hover:translate-x-2 transition-transform duration-500" />
-                        </button>
-                      ) : (
-                        <a 
-                          href={content.targetUrl}
-                          className="w-full inline-flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-500 group-hover:shadow-lg group-hover:shadow-blue-500/25 transform group-hover:scale-[1.05] group-hover:-translate-y-1"
-                          target="_self"
-                          rel="noopener noreferrer"
-                        >
-                          <span>{t('market.viewDetails')}</span>
-                          <ChevronRight className="h-5 w-5 ml-2 transform group-hover:translate-x-2 transition-transform duration-500" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
+
+            {/* Market Image - Modern Card - RIGHT */}
+            {market.imageUrl && (
+              <div className="relative group">
+                <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl p-2">
+                  <img
+                    src={`http://localhost:5000${market.imageUrl}`}
+                    alt={market.name}
+                    className="w-full h-96 object-cover rounded-xl transition-all duration-300 group-hover:scale-105"
+                  />
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </section>
+
+
 
       
 

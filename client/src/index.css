@@ -2,6 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Rich Text Content Font Size Styles */
+.rich-text-content {
+  /* Varsayılan font size */
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Span elementlerindeki font-size'ları kesin olarak uygula */
+.rich-text-content span[style*="font-size"] {
+  font-size: inherit !important;
+}
+
+/* Font size'ları kesin olarak uygula - !important ile */
+.rich-text-content span[style*="font-size: 8px"] { font-size: 8px !important; }
+.rich-text-content span[style*="font-size: 10px"] { font-size: 10px !important; }
+.rich-text-content span[style*="font-size: 12px"] { font-size: 12px !important; }
+.rich-text-content span[style*="font-size: 14px"] { font-size: 14px !important; }
+.rich-text-content span[style*="font-size: 16px"] { font-size: 16px !important; }
+.rich-text-content span[style*="font-size: 18px"] { font-size: 18px !important; }
+.rich-text-content span[style*="font-size: 20px"] { font-size: 20px !important; }
+.rich-text-content span[style*="font-size: 24px"] { font-size: 24px !important; }
+.rich-text-content span[style*="font-size: 28px"] { font-size: 28px !important; }
+.rich-text-content span[style*="font-size: 32px"] { font-size: 32px !important; }
+.rich-text-content span[style*="font-size: 36px"] { font-size: 36px !important; }
+.rich-text-content span[style*="font-size: 48px"] { font-size: 48px !important; }
+
+.rich-text-content font[size="1"] { font-size: 8px !important; }
+.rich-text-content font[size="2"] { font-size: 10px !important; }
+.rich-text-content font[size="3"] { font-size: 12px !important; }
+.rich-text-content font[size="4"] { font-size: 14px !important; }
+.rich-text-content font[size="5"] { font-size: 16px !important; }
+.rich-text-content font[size="6"] { font-size: 18px !important; }
+.rich-text-content font[size="7"] { font-size: 20px !important; }
+
+/* Modern font-size style attribute desteği */
+.rich-text-content [style*="font-size: 8px"] { font-size: 8px !important; }
+.rich-text-content [style*="font-size: 10px"] { font-size: 10px !important; }
+.rich-text-content [style*="font-size: 12px"] { font-size: 12px !important; }
+.rich-text-content [style*="font-size: 14px"] { font-size: 14px !important; }
+.rich-text-content [style*="font-size: 16px"] { font-size: 16px !important; }
+.rich-text-content [style*="font-size: 18px"] { font-size: 18px !important; }
+.rich-text-content [style*="font-size: 20px"] { font-size: 20px !important; }
+.rich-text-content [style*="font-size: 24px"] { font-size: 24px !important; }
+.rich-text-content [style*="font-size: 28px"] { font-size: 28px !important; }
+.rich-text-content [style*="font-size: 32px"] { font-size: 32px !important; }
+.rich-text-content [style*="font-size: 36px"] { font-size: 36px !important; }
+.rich-text-content [style*="font-size: 48px"] { font-size: 48px !important; }
+
+/* Font size için özel sınıflar */
+.rich-text-content .text-xs { font-size: 12px !important; }
+.rich-text-content .text-sm { font-size: 14px !important; }
+.rich-text-content .text-base { font-size: 16px !important; }
+.rich-text-content .text-lg { font-size: 18px !important; }
+.rich-text-content .text-xl { font-size: 20px !important; }
+.rich-text-content .text-2xl { font-size: 24px !important; }
+.rich-text-content .text-3xl { font-size: 28px !important; }
+.rich-text-content .text-4xl { font-size: 32px !important; }
+.rich-text-content .text-5xl { font-size: 36px !important; }
+.rich-text-content .text-6xl { font-size: 48px !important; }
+
+/* Rich text content için genel stiller */
+.rich-text-content {
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.rich-text-content p {
+  margin-bottom: 1rem;
+}
+
+.rich-text-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Font size'ları kesin olarak uygula - en yüksek öncelik */
+.rich-text-content *[style*="font-size"] {
+  font-size: inherit !important;
+}
+
+/* Her font size için ayrı CSS selector - en yüksek öncelik */
+.rich-text-content span[style*="font-size: 8px"] { font-size: 8px !important; }
+.rich-text-content span[style*="font-size: 10px"] { font-size: 10px !important; }
+.rich-text-content span[style*="font-size: 12px"] { font-size: 12px !important; }
+.rich-text-content span[style*="font-size: 14px"] { font-size: 14px !important; }
+.rich-text-content span[style*="font-size: 16px"] { font-size: 16px !important; }
+.rich-text-content span[style*="font-size: 18px"] { font-size: 18px !important; }
+.rich-text-content span[style*="font-size: 20px"] { font-size: 20px !important; }
+.rich-text-content span[style*="font-size: 24px"] { font-size: 24px !important; }
+.rich-text-content span[style*="font-size: 28px"] { font-size: 28px !important; }
+.rich-text-content span[style*="font-size: 32px"] { font-size: 32px !important; }
+.rich-text-content span[style*="font-size: 36px"] { font-size: 36px !important; }
+.rich-text-content span[style*="font-size: 48px"] { font-size: 48px !important; }
+
+/* !important ile font size'ları */
+.rich-text-content span[style*="font-size: 8px !important"] { font-size: 8px !important; }
+.rich-text-content span[style*="font-size: 10px !important"] { font-size: 10px !important; }
+.rich-text-content span[style*="font-size: 12px !important"] { font-size: 12px !important; }
+.rich-text-content span[style*="font-size: 14px !important"] { font-size: 14px !important; }
+.rich-text-content span[style*="font-size: 16px !important"] { font-size: 16px !important; }
+.rich-text-content span[style*="font-size: 18px !important"] { font-size: 18px !important; }
+.rich-text-content span[style*="font-size: 20px !important"] { font-size: 20px !important; }
+.rich-text-content span[style*="font-size: 24px !important"] { font-size: 24px !important; }
+.rich-text-content span[style*="font-size: 28px !important"] { font-size: 28px !important; }
+.rich-text-content span[style*="font-size: 32px !important"] { font-size: 32px !important; }
+.rich-text-content span[style*="font-size: 36px !important"] { font-size: 36px !important; }
+.rich-text-content span[style*="font-size: 48px !important"] { font-size: 48px !important; }
+
+/* Font size önizleme için responsive tasarım */
+@media (max-width: 640px) {
+  .rich-text-content [style*="font-size: 48px"] { font-size: 36px !important; }
+  .rich-text-content [style*="font-size: 36px"] { font-size: 28px !important; }
+  .rich-text-content [style*="font-size: 32px"] { font-size: 24px !important; }
+  .rich-text-content [style*="font-size: 28px"] { font-size: 20px !important; }
+}
+
+/* En güçlü font size override - inline style'ları bile override et */
+.rich-text-content span[style*="font-size"] {
+  font-size: inherit !important;
+}
+
+/* Her font size için kesin override */
+.rich-text-content span[style*="8px"] { font-size: 8px !important; }
+.rich-text-content span[style*="10px"] { font-size: 10px !important; }
+.rich-text-content span[style*="12px"] { font-size: 12px !important; }
+.rich-text-content span[style*="14px"] { font-size: 14px !important; }
+.rich-text-content span[style*="16px"] { font-size: 16px !important; }
+.rich-text-content span[style*="18px"] { font-size: 18px !important; }
+.rich-text-content span[style*="20px"] { font-size: 20px !important; }
+.rich-text-content span[style*="24px"] { font-size: 24px !important; }
+.rich-text-content span[style*="28px"] { font-size: 28px !important; }
+.rich-text-content span[style*="32px"] { font-size: 32px !important; }
+.rich-text-content span[style*="36px"] { font-size: 36px !important; }
+.rich-text-content span[style*="48px"] { font-size: 48px !important; }
+
 /* Modern Fonts Import */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');

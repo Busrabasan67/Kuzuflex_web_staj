@@ -39,6 +39,7 @@ interface AboutPageExtraContentAdderProps {
   onContentAdded?: () => void;
   onCancel?: () => void;
   editingContent?: ExtraContent | null;
+  currentMaxOrder?: number;
 }
 
 type Step = 'type' | 'content' | 'review';
@@ -46,7 +47,8 @@ type Step = 'type' | 'content' | 'review';
 const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({ 
   onContentAdded,
   onCancel,
-  editingContent = null
+  editingContent = null,
+  currentMaxOrder = 1
 }) => {
   const [currentStep, setCurrentStep] = useState<Step>('type');
   const [selectedType, setSelectedType] = useState<ContentType | null>(null);
@@ -122,6 +124,15 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
           
           setMixedElements(newMixedElements);
           setLayoutByLang(newLayoutByLang);
+          
+          // Başlıkları da yükle
+          const newMultiLanguageContent = {
+            tr: { title: multiData.tr?.title || '', content: null },
+            en: { title: multiData.en?.title || '', content: null },
+            de: { title: multiData.de?.title || '', content: null },
+            fr: { title: multiData.fr?.title || '', content: null }
+          };
+          setMultiLanguageContent(newMultiLanguageContent);
         } else {
           // Tüm dillerdeki mevcut içerikleri yükle
           const newMultiLanguageContent = {
@@ -336,7 +347,7 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
       const requestData: any = {
         type: selectedType,
         contents,
-        order: 1
+        order: currentMaxOrder + 1
       };
 
       // Düzenleme modu için özel kontrol
@@ -348,14 +359,17 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
         url = 'http://localhost:5000/api/about-page-extra-content/update-group';
         method = 'PUT';
         requestData.groupId = editingContent.id;
+        console.log('Grup düzenleme isteği:', requestData);
       } else if (editingContent) {
         // Tek içerik düzenleme
         url = `http://localhost:5000/api/about-page-extra-content/${editingContent.id}`;
         method = 'PUT';
+        console.log('Tek içerik düzenleme isteği:', requestData);
       } else {
         // Yeni içerik ekleme
         url = 'http://localhost:5000/api/about-page-extra-content/multi';
         method = 'POST';
+        console.log('Yeni içerik ekleme isteği:', requestData);
       }
 
       const response = await fetch(url, {
@@ -642,6 +656,43 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
 
                         {/* İçerik Editörü */}
                         {renderContentEditor(language)}
+                        
+                        {/* Font Size Bilgisi */}
+                        {selectedType === 'text' && (
+                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h5 className="text-sm font-medium text-blue-800 mb-2">💡 Font Boyutu Seçimi</h5>
+                            <p className="text-xs text-blue-700 mb-3">
+                              Rich text editor'da font boyutunu değiştirerek metninizin Hakkımızda sayfasında nasıl görüneceğini ayarlayabilirsiniz.
+                            </p>
+                            
+                            {/* Font Size Önizleme */}
+                            <div className="space-y-2">
+                              <div className="text-xs text-blue-600 font-medium">Önerilen boyutlar:</div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="text-center p-2 bg-white rounded border">
+                                  <div className="text-xs text-gray-500">Normal Metin</div>
+                                  <div className="text-base font-medium">16px</div>
+                                </div>
+                                <div className="text-center p-2 bg-white rounded border">
+                                  <div className="text-xs text-gray-500">Büyük Metin</div>
+                                  <div className="text-lg font-medium">20px</div>
+                                </div>
+                                <div className="text-center p-2 bg-white rounded border">
+                                  <div className="text-xs text-gray-500">Başlık</div>
+                                  <div className="text-xl font-medium">24px</div>
+                                </div>
+                                <div className="text-center p-2 bg-white rounded border">
+                                  <div className="text-xs text-gray-500">Ana Başlık</div>
+                                  <div className="text-2xl font-medium">32px</div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-3 text-xs text-blue-600">
+                              <strong>Nasıl kullanılır:</strong> Metni seçin → Font boyutu dropdown'ından istediğiniz boyutu seçin
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

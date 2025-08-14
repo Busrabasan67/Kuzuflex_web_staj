@@ -27,11 +27,11 @@ router.get('/', getAllExtraContents);
 // Dil bazında ekstra içerikleri getir
 router.get('/language/:language', getExtraContentsByLanguage);
 
+// Grup güncelleme - önce tanımlanmalı
+router.put('/update-group', updateGroupExtraContent);
+
 // Ekstra içerik güncelle
 router.put('/:id', updateExtraContent);
-
-// Grup güncelleme
-router.put('/update-group', updateGroupExtraContent);
 
 // Ekstra içerik sil
 router.delete('/:id', deleteExtraContent);

@@ -195,5 +195,39 @@
       "locationsTitle": "Unsere Standorte",
       "locationsSubtitle": "Besuchen Sie unsere Büros in der Türkei und Deutschland"
     }
+  },
+  "market": {
+    "mainContents": "Hauptinhalte",
+    "subContents": "Unterinhalte",
+    "additionalResources": "Zusätzliche Ressourcen",
+    "viewDetails": "Details anzeigen",
+    "noContents": "Keine Inhalte verfügbar",
+    "noContentsDesc": "Dieser Markt hat derzeit keine Inhalte zum Anzeigen.",
+    "buttons": {
+      "certificates": "Zertifikate",
+      "aboutUs": "Über Uns",
+      "contactUs": "Kontakt"
+    },
+    "resources": {
+      "title": "Ressourcen",
+      "heading": "Unsere Lösungen für",
+      "description": "Entdecken Sie unsere umfassende Palette an Produkten und Lösungen, die speziell auf Ihre Bedürfnisse zugeschnitten sind"
+    },
+    "stats": {
+      "totalResources": "Gesamtressourcen",
+      "products": "Produkte",
+      "certificates": "Zertifikate"
+    },
+    "tabs": {
+      "all": "Alle",
+      "products": "Produkte",
+      "certificates": "Zertifikate",
+      "contact": "Kontakt"
+    },
+    "types": {
+      "product": "Produkt",
+      "certificate": "Zertifikat",
+      "contact": "Kontakt"
+    }
   }
 }

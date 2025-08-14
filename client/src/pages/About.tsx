@@ -58,7 +58,15 @@ const About = () => {
           extraRes.json()
         ]);
         
-        setData(pageData);
+        // Dil bazında filtreleme yap
+        const currentLang = i18n.language;
+        const filteredPageData = {
+          ...pageData,
+          translations: pageData.translations?.filter((t: any) => t.language === currentLang) || [],
+          extraContents: pageData.extraContents?.filter((c: any) => c.language === currentLang) || []
+        };
+        
+        setData(filteredPageData);
         setExtraContents(extraData);
       } catch (e) {
         setError(e instanceof Error ? e.message : t('error.generalError'));
@@ -98,7 +106,9 @@ const About = () => {
         }
 
         textContent = decodeEntities(textContent);
-        return textContent;
+        
+        // Font size ve diğer stil bilgilerini koru
+        return `<div class="extra-content-text">${textContent}</div>`;
       }
 
       if (content.type === 'mixed') {
@@ -228,75 +238,73 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative h-72 md:h-96 bg-blue-600">
-        {data.heroImageUrl && (
+      {/* Hero Section - Sadece heroImageUrl varsa göster */}
+      {data.heroImageUrl && (
+        <div className="relative h-72 md:h-96 bg-blue-600">
           <img
             src={data.heroImageUrl.startsWith('http') ? data.heroImageUrl : `http://localhost:5000${data.heroImageUrl}`}
             alt={data.title}
             className="absolute inset-0 w-full h-full object-cover"
           />
-        )}
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-        <div className="relative h-full flex items-center justify-center text-center text-white px-4">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-3">{data.title || t('pages.about.title')}</h1>
-            {data.subtitle && (
-              <p className="text-lg md:text-xl opacity-90">{data.subtitle}</p>
-            )}
+          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+          <div className="relative h-full flex items-center justify-center text-center text-white px-4">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-3">{data.title || t('pages.about.title')}</h1>
+              {data.subtitle && (
+                <p className="text-lg md:text-xl opacity-90">{data.subtitle}</p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Body */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-lg shadow p-6 md:p-10 border border-gray-200">
-          <div className="prose prose-lg max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: fixImageUrls(data.bodyHtml) }} />
+      {/* Body - Sadece bodyHtml içeriği varsa göster */}
+      {data.bodyHtml && data.bodyHtml.trim() !== '' && (
+        <div className="max-w-7xl mx-auto px-6 py-16">
+          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-16 border border-gray-100">
+            <div className="prose prose-xl max-w-none text-center">
+              <div dangerouslySetInnerHTML={{ __html: fixImageUrls(data.bodyHtml) }} />
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Extra Contents Section - Yatay Kartlar */}
-        <div className="mt-12">
-            {!extraContents || extraContents.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
-                <div className="text-4xl mb-4">📝</div>
-                <h4 className="text-lg font-semibold mb-2">Henüz Ekstra İçerik Yok</h4>
-              <p className="text-gray-400">Admin panelinden ekstra içerik ekleyebilirsiniz.</p>
-              </div>
-            ) : (
-            <div className="space-y-8">
-                {extraContents
-                  .sort((a, b) => a.order - b.order)
-                  .map((content) => (
-                    <div
-                      key={content.id}
-                    className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              {/* Extra Contents Section - Yatay Kartlar */}
+        {extraContents && extraContents.length > 0 && (
+          <div className="max-w-7xl mx-auto px-6 py-16">
+            <div className="space-y-10">
+              {extraContents
+                .sort((a, b) => a.order - b.order)
+                .map((content) => (
+                  <div
+                    key={content.id}
+                    className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
                   >
                     {/* İçerik alanı - Tam genişlik */}
-                    <div className="p-8">
-                      <div className="prose prose-lg max-w-none">
+                    <div className="p-10 md:p-16">
+                      <div className="prose prose-xl max-w-none">
                         <div 
-                          className="text-gray-700"
+                          className="text-gray-700 rich-text-content"
                           dangerouslySetInnerHTML={{ __html: renderExtraContent(content) }}
                         />
                       </div>
-                      </div>
                     </div>
-                  ))}
-              </div>
-            )}
-        </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
 
-        {/* Contact CTA */}
-        <div className="mt-12 bg-blue-50 rounded-lg p-8 text-center">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+      {/* Contact CTA */}
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-10 md:p-16 text-center border border-blue-100">
+          <h3 className="text-2xl md:text-3xl font-semibold mb-6 text-gray-800">
             {t('pages.contact.subtitle')}
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
             {t('pages.contact.description')}
           </p>
-          <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+          <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-lg font-medium">
             {t('navbar.contact')}
           </button>
         </div>
