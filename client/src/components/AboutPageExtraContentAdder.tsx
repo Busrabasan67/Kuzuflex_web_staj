@@ -5,15 +5,7 @@ import SimpleListBuilder from './SimpleListBuilder';
 import MixedContentEditor from './MixedContentEditor';
 import RichTextEditor from './RichTextEditor';
 import { generateMixedContentHTML } from '../utils/htmlGenerators';
-
-// Local type definitions
-interface ContentElement {
-  id: string;
-  type: 'text' | 'image' | 'table' | 'list';
-  content: any;
-  position?: 'left' | 'right' | 'full';
-  width?: '25%' | '50%' | '75%' | '100%';
-}
+import type { ContentElement } from '../utils/htmlGenerators';
 
 type ContentType = 'text' | 'table' | 'list' | 'mixed';
 
@@ -40,6 +32,7 @@ interface AboutPageExtraContentAdderProps {
   onCancel?: () => void;
   editingContent?: ExtraContent | null;
   currentMaxOrder?: number;
+  aboutPageData?: any; // AboutPageData için prop ekle
 }
 
 type Step = 'type' | 'content' | 'review';
@@ -48,7 +41,8 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
   onContentAdded,
   onCancel,
   editingContent = null,
-  currentMaxOrder = 1
+  currentMaxOrder = 1,
+  aboutPageData
 }) => {
   const [currentStep, setCurrentStep] = useState<Step>('type');
   const [selectedType, setSelectedType] = useState<ContentType | null>(null);
@@ -359,6 +353,21 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
         url = 'http://localhost:5000/api/about-page-extra-content/update-group';
         method = 'PUT';
         requestData.groupId = editingContent.id;
+        requestData.order = editingContent.order; // Order'ı koru
+        requestData.existingIds = []; // Mevcut ID'leri topla
+        
+        // Mevcut ID'leri topla
+        if ((editingContent as any).multiLanguageData) {
+          Object.keys((editingContent as any).multiLanguageData).forEach(lang => {
+            const langContent = aboutPageData?.extraContents.find((c: any) => 
+              c.language === lang && c.order === editingContent.order
+            );
+            if (langContent) {
+              requestData.existingIds.push(langContent.id);
+            }
+          });
+        }
+        
         console.log('Grup düzenleme isteği:', requestData);
       } else if (editingContent) {
         // Tek içerik düzenleme
@@ -385,12 +394,16 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
         throw new Error(errorData.message || 'İçerik kaydedilirken hata oluştu');
       }
 
-      await response.json();
+      const result = await response.json();
+      console.log('Sunucu yanıtı:', result);
       
       setMessage({ type: 'success', text: editingContent ? 'İçerik başarıyla güncellendi!' : 'Tüm diller için içerik başarıyla eklendi!' });
       
+      // Düzenleme sonrası callback'i çağır
       if (onContentAdded) {
-        onContentAdded();
+        setTimeout(() => {
+          onContentAdded();
+        }, 500); // 500ms bekle
       }
     } catch (error) {
       console.error('handleSave error:', error);
@@ -553,7 +566,7 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
                 {editingContent ? 'İçerik Düzenle' : 'Yeni İçerik Ekle'}
               </h2>
               <p className="text-gray-600 mt-1">
-                {editingContent ? 'Mevcut içeriği güncelleyin' : 'Hakkımızda sayfası için yeni içerik oluşturun'}
+                {editingContent ? 'Mevcut içeriği güncelleyin' : 'İletişim sayfası için yeni içerik oluşturun'}
               </p>
             </div>
             <button
@@ -656,43 +669,6 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
 
                         {/* İçerik Editörü */}
                         {renderContentEditor(language)}
-                        
-                        {/* Font Size Bilgisi */}
-                        {selectedType === 'text' && (
-                          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <h5 className="text-sm font-medium text-blue-800 mb-2">💡 Font Boyutu Seçimi</h5>
-                            <p className="text-xs text-blue-700 mb-3">
-                              Rich text editor'da font boyutunu değiştirerek metninizin Hakkımızda sayfasında nasıl görüneceğini ayarlayabilirsiniz.
-                            </p>
-                            
-                            {/* Font Size Önizleme */}
-                            <div className="space-y-2">
-                              <div className="text-xs text-blue-600 font-medium">Önerilen boyutlar:</div>
-                              <div className="grid grid-cols-2 gap-2">
-                                <div className="text-center p-2 bg-white rounded border">
-                                  <div className="text-xs text-gray-500">Normal Metin</div>
-                                  <div className="text-base font-medium">16px</div>
-                                </div>
-                                <div className="text-center p-2 bg-white rounded border">
-                                  <div className="text-xs text-gray-500">Büyük Metin</div>
-                                  <div className="text-lg font-medium">20px</div>
-                                </div>
-                                <div className="text-center p-2 bg-white rounded border">
-                                  <div className="text-xs text-gray-500">Başlık</div>
-                                  <div className="text-xl font-medium">24px</div>
-                                </div>
-                                <div className="text-center p-2 bg-white rounded border">
-                                  <div className="text-xs text-gray-500">Ana Başlık</div>
-                                  <div className="text-2xl font-medium">32px</div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="mt-3 text-xs text-blue-600">
-                              <strong>Nasıl kullanılır:</strong> Metni seçin → Font boyutu dropdown'ından istediğiniz boyutu seçin
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

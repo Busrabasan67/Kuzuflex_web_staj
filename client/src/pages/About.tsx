@@ -249,7 +249,7 @@ const About = () => {
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           <div className="relative h-full flex items-center justify-center text-center text-white px-4">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-3">{data.title || t('pages.about.title')}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-3">{data.title || t('pages.contact.title')}</h1>
               {data.subtitle && (
                 <p className="text-lg md:text-xl opacity-90">{data.subtitle}</p>
               )}

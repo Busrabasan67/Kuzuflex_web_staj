@@ -3,19 +3,7 @@ import RichTextEditor from './RichTextEditor';
 import SimpleTableBuilder from './SimpleTableBuilder';
 import SimpleListBuilder from './SimpleListBuilder';
 import { generateMixedContentHTML } from '../utils/htmlGenerators';
-
-interface ContentElement {
-  id: string;
-  type: 'text' | 'image' | 'table' | 'list';
-  content: any;
-  position?: 'left' | 'right' | 'full';
-  width?: '25%' | '50%' | '75%' | '100%';
-  // Optional styles
-  fontSizePx?: number;
-  textAlign?: 'left' | 'center' | 'right' | 'justify';
-  imageWidthPercent?: number;
-  imageMaxHeightPx?: number;
-}
+import type { ContentElement } from '../utils/htmlGenerators';
 
 interface MixedContentEditorProps {
   title: string;
@@ -52,7 +40,26 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
       type,
       content: getDefaultContent(type),
       position: 'full',
-      width: '100%'
+      width: '100%',
+      // Default positioning
+      marginTop: 0,
+      marginBottom: 0,
+      marginLeft: 0,
+      marginRight: 0,
+      padding: 0,
+      // Default text styles
+      lineHeight: 1.6,
+      fontWeight: 'normal',
+      // Default image styles
+      imageWidthPercent: 100,
+      imageMaxHeightPx: 0,
+      imageAlign: 'center',
+      imageFloat: 'none',
+      // Default border styles
+      borderWidth: 0,
+      borderColor: '#e5e7eb',
+      borderRadius: 0,
+      backgroundColor: 'transparent'
     };
     onElementsChange([...elements, newElement]);
   };
@@ -124,26 +131,69 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
     if (newLayout === 'horizontal' && elements.length > 0) {
       const updatedElements = elements.map((element, index) => {
         if (index === 0) {
-          return { ...element, position: 'left' as const, width: '50%' as const };
+          return { 
+            ...element, 
+            position: 'left' as const, 
+            width: '50%' as const,
+            marginRight: 10,
+            marginLeft: 0
+          };
         } else if (index === 1) {
-          return { ...element, position: 'right' as const, width: '50%' as const };
+          return { 
+            ...element, 
+            position: 'right' as const, 
+            width: '50%' as const,
+            marginLeft: 10,
+            marginRight: 0
+          };
         } else {
-          return { ...element, position: 'full' as const, width: '100%' as const };
+          return { 
+            ...element, 
+            position: 'full' as const, 
+            width: '100%' as const,
+            marginTop: 20,
+            marginLeft: 0,
+            marginRight: 0
+          };
         }
       });
       onElementsChange(updatedElements);
     } else if (newLayout === 'grid') {
-      const updatedElements = elements.map((element) => ({
-        ...element,
-        position: 'full' as const,
-        width: '100%' as const
-      }));
+      const updatedElements = elements.map((element, index) => {
+        // Grid'de element sayısına göre genişlik belirle
+        let gridWidth: string;
+        let position: string;
+        
+        if (elements.length === 1) {
+          gridWidth = '100%';
+          position = 'center';
+        } else if (elements.length === 2) {
+          gridWidth = '50%';
+          position = index === 0 ? 'left' : 'right';
+        } else {
+          gridWidth = '33%';
+          position = 'full';
+        }
+        
+        return {
+          ...element,
+          position: position as any,
+          width: gridWidth as any,
+          marginRight: 10,
+          marginBottom: 20,
+          marginLeft: 10
+        };
+      });
       onElementsChange(updatedElements);
     } else if (newLayout === 'vertical') {
       const updatedElements = elements.map((element) => ({
         ...element,
         position: 'full' as const,
-        width: '100%' as const
+        width: '100%' as const,
+        marginTop: 0,
+        marginBottom: 20,
+        marginLeft: 0,
+        marginRight: 0
       }));
       onElementsChange(updatedElements);
     }
@@ -265,21 +315,6 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
                       onChange={(value) => updateElement(element.id, { content: value })}
                       placeholder="Metninizi yazın..."
                     />
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Yazı Boyutu (px)</label>
-                        <input type="number" min={10} max={48} value={element.fontSizePx || 16} onChange={(e)=>updateElement(element.id,{ fontSizePx: Number(e.target.value) })} className="w-full border rounded px-2 py-1 text-sm" />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-600 mb-1">Hizalama</label>
-                        <select value={element.textAlign || 'left'} onChange={(e)=>updateElement(element.id,{ textAlign: e.target.value as any })} className="w-full border rounded px-2 py-1 text-sm">
-                          <option value="left">Sola</option>
-                          <option value="center">Ortala</option>
-                          <option value="right">Sağa</option>
-                          <option value="justify">İki Yana</option>
-                        </select>
-                      </div>
-                    </div>
                   </div>
                 );
 
@@ -455,7 +490,11 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
                   #{index + 1}
                 </span>
                 <h4 className="font-medium">{getElementTypeName(element.type)}</h4>
-                <span className="text-xs text-gray-500">{element.position === 'left' ? '⬅️ Sol' : element.position === 'right' ? '➡️ Sağ' : '🔄 Tam'} · {element.width}</span>
+                <span className="text-xs text-gray-500">
+                  {element.position === 'left' ? '⬅️ Sol' : 
+                   element.position === 'right' ? '➡️ Sağ' : 
+                   element.position === 'center' ? '🎯 Merkez' : '🔄 Tam'} · {element.width}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 {(() => {
@@ -491,7 +530,78 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
               </div>
             </div>
             {isOpen && (
-              <div className="p-4 bg-white">{renderElementEditor(element)}</div>
+              <div className="p-4 bg-white">
+                {/* Positioning Controls - Layout'a göre farklı kontroller */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <h5 className="text-sm font-medium text-gray-700 mb-2">📍 Konum ve Boyut Ayarları</h5>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Genişlik</label>
+                      <select 
+                        value={element.width} 
+                        onChange={(e) => updateElement(element.id, { width: e.target.value as any })}
+                        className="w-full text-xs border rounded px-2 py-1"
+                      >
+                        <option value="25%">25%</option>
+                        <option value="33%">33%</option>
+                        <option value="50%">50%</option>
+                        <option value="66%">66%</option>
+                        <option value="75%">75%</option>
+                        <option value="100%">100%</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Üst Boşluk (px)</label>
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="100" 
+                        value={element.marginTop || 0} 
+                        onChange={(e) => updateElement(element.id, { marginTop: Number(e.target.value) })} 
+                        className="w-full text-xs border rounded px-2 py-1" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">Alt Boşluk (px)</label>
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="100" 
+                        value={element.marginBottom || 0} 
+                        onChange={(e) => updateElement(element.id, { marginBottom: Number(e.target.value) })} 
+                        className="w-full text-xs border rounded px-2 py-1" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">İç Boşluk (px)</label>
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="50" 
+                        value={element.padding || 0} 
+                        onChange={(e) => updateElement(element.id, { padding: Number(e.target.value) })} 
+                        className="w-full text-xs border rounded px-2 py-1" 
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Layout bilgisi */}
+                  {layout === 'grid' && (
+                    <div className="mt-2 p-2 bg-blue-50 rounded text-xs text-blue-700">
+                      💡 <strong>Grid Layout:</strong> Elementler otomatik olarak düzenli sıralanır. 
+                      {elements.length === 1 && ' Tek element merkezde.'}
+                      {elements.length === 2 && ' İki element yan yana.'}
+                      {elements.length >= 3 && ' Üç veya daha fazla element grid düzeninde.'}
+                      <br />
+                      🔄 Element sırasını değiştirmek için yukarı/aşağı ok butonlarını kullanın.
+                    </div>
+                  )}
+                </div>
+                
+                {/* Element Editor */}
+                {renderElementEditor(element)}
+              </div>
             )}
           </div>
         );

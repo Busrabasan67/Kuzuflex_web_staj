@@ -14,7 +14,7 @@ export const getAboutPage = async (req: Request, res: Response) => {
     const { lang } = req.query;
     
     const aboutPage = await aboutPageRepository.findOne({
-      where: { slug: 'about-us' },
+      where: { slug: 'contact' },
       relations: ['translations', 'extraContents'],
       order: {
         extraContents: {

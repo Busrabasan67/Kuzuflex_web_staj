@@ -13,7 +13,7 @@ export const createMultiLanguageExtraContent = async (req: Request, res: Respons
 
     // Hakkımızda sayfasını bul
     const aboutPage = await aboutPageRepository.findOne({
-      where: { slug: 'about-us' }
+      where: { slug: 'contact' }
     });
 
     if (!aboutPage) {
@@ -63,7 +63,7 @@ export const createExtraContent = async (req: Request, res: Response) => {
 
     // Hakkımızda sayfasını bul
     const aboutPage = await aboutPageRepository.findOne({
-      where: { slug: 'about-us' }
+      where: { slug: 'contact' }
     });
 
     if (!aboutPage) {
@@ -160,45 +160,64 @@ export const updateExtraContent = async (req: Request, res: Response) => {
 // Grup güncelleme (tüm diller için)
 export const updateGroupExtraContent = async (req: Request, res: Response) => {
   try {
-    const { groupId, type, contents, order } = req.body;
+    const { groupId, type, contents, order, existingIds } = req.body;
+
+    console.log('Grup güncelleme isteği:', { groupId, type, contents, order, existingIds });
 
     // Hakkımızda sayfasını bul
     const aboutPage = await aboutPageRepository.findOne({
-      where: { slug: 'about-us' }
+      where: { slug: 'contact' }
     });
 
     if (!aboutPage) {
       return res.status(404).json({ message: 'Hakkımızda sayfası bulunamadı' });
     }
 
-    // Mevcut grup içeriklerini bul ve sil (order'a göre)
+    // Mevcut grup içeriklerini bul (order'a göre)
     const existingContents = await extraContentRepository.find({
       where: { page: { id: aboutPage.id }, order: order }
     });
 
-    if (existingContents.length > 0) {
-      await extraContentRepository.remove(existingContents);
-    }
+    console.log('Mevcut içerikler bulundu:', existingContents.length);
 
-    // Yeni içerikleri ekle
-    const savedContents = [];
+    const updatedContents = [];
+
+    // Her dil için mevcut içeriği güncelle veya yeni oluştur
     for (const content of contents) {
-      const extraContent = extraContentRepository.create({
-        language: content.language,
-        title: content.title,
-        content: content.content,
-        type,
-        order: order || 1,
-        page: aboutPage
-      });
+      const existingContent = existingContents.find(ec => ec.language === content.language);
+      
+      if (existingContent) {
+        // Mevcut içeriği güncelle - ID korunur
+        existingContent.title = content.title;
+        existingContent.content = content.content;
+        existingContent.type = type;
+        
+        const updatedContent = await extraContentRepository.save(existingContent);
+        updatedContents.push(updatedContent);
+        console.log(`İçerik güncellendi: ID ${existingContent.id}, Dil: ${content.language}`);
+      } else {
+        // Yeni dil için içerik oluştur
+        const newContent = extraContentRepository.create({
+          language: content.language,
+          title: content.title,
+          content: content.content,
+          type,
+          order: order,
+          page: aboutPage
+        });
 
-      const savedContent = await extraContentRepository.save(extraContent);
-      savedContents.push(savedContent);
+        const savedContent = await extraContentRepository.save(newContent);
+        updatedContents.push(savedContent);
+        console.log(`Yeni içerik eklendi: ID ${savedContent.id}, Dil: ${content.language}`);
+      }
     }
+
+    console.log('Güncelleme tamamlandı. Toplam içerik:', updatedContents.length);
+    console.log('Güncellenen ID\'ler:', updatedContents.map(c => c.id));
 
     res.json({
       message: 'Grup içerikleri başarıyla güncellendi',
-      contents: savedContents
+      contents: updatedContents
     });
   } catch (error) {
     console.error('Error updating group extra content:', error);

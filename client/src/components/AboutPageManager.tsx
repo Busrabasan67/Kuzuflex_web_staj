@@ -122,13 +122,13 @@ const AboutPageManager: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          slug: 'about-us',
+          slug: 'contact',
           heroImageUrl: '',
           translations: [
-            { language: 'tr', title: 'Hakkımızda', subtitle: 'Kuzuflex\'in Hikayesi', bodyHtml: '<p>Kuzuflex hakkında bilgi...</p>' },
-            { language: 'en', title: 'About Us', subtitle: 'The Story of Kuzuflex', bodyHtml: '<p>Information about Kuzuflex...</p>' },
-            { language: 'de', title: 'Über Uns', subtitle: 'Die Geschichte von Kuzuflex', bodyHtml: '<p>Informationen über Kuzuflex...</p>' },
-            { language: 'fr', title: 'À Propos', subtitle: 'L\'Histoire de Kuzuflex', bodyHtml: '<p>Informations sur Kuzuflex...</p>' }
+            { language: 'tr', title: 'İletişim', subtitle: 'Kuzuflex ile İletişim', bodyHtml: '<p>Kuzuflex ile iletişime geçin...</p>' },
+            { language: 'en', title: 'Contact', subtitle: 'Get in Touch with Kuzuflex', bodyHtml: '<p>Contact Kuzuflex...</p>' },
+            { language: 'de', title: 'Kontakt', subtitle: 'Kontaktieren Sie Kuzuflex', bodyHtml: '<p>Kontaktieren Sie Kuzuflex...</p>' },
+            { language: 'fr', title: 'Contact', subtitle: 'Contactez Kuzuflex', bodyHtml: '<p>Contactez Kuzuflex...</p>' }
           ]
         }),
       });
@@ -204,9 +204,11 @@ const AboutPageManager: React.FC = () => {
     // Düzenlenecek içeriği multiLanguageData ile genişlet
     const editingContentWithMultiData = {
       ...content,
-      multiLanguageData
+      multiLanguageData,
+      order: content.order // Order bilgisini ekle
     };
     
+    console.log('Düzenlenecek içerik:', editingContentWithMultiData);
     setEditingExtraContent(editingContentWithMultiData);
     setShowExtraContentAdder(true);
   };
@@ -235,30 +237,63 @@ const AboutPageManager: React.FC = () => {
     setMessage(null);
 
     try {
-      // Tüm dil versiyonlarını paralel olarak sil
-      const deletePromises = contentsToDelete.map(content => 
-        fetch(`http://localhost:5000/api/about-page-extra-content/${content.id}`, {
-          method: 'DELETE',
-        })
-      );
+      // Backend sunucusunun çalışıp çalışmadığını kontrol et
+      const healthCheck = await fetch('http://localhost:5000/api/about-page', {
+        method: 'GET',
+        signal: AbortSignal.timeout(5000) // 5 saniye timeout
+      }).catch(() => null);
 
-      const responses = await Promise.all(deletePromises);
+      if (!healthCheck || !healthCheck.ok) {
+        throw new Error('Backend sunucusuna bağlanılamıyor. Lütfen sunucunun çalıştığından emin olun.');
+      }
+
+      // Tüm dil versiyonlarını paralel olarak sil
+      const deletePromises = contentsToDelete.map(async (content) => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/about-page-extra-content/${content.id}`, {
+            method: 'DELETE',
+            signal: AbortSignal.timeout(10000) // 10 saniye timeout
+          });
+          
+          if (!response.ok) {
+            throw new Error(`ID ${content.id} silinemedi: ${response.status}`);
+          }
+          
+          return { success: true, id: content.id, language: content.language };
+        } catch (error) {
+          console.error(`Silme hatası ID ${content.id}:`, error);
+          return { success: false, id: content.id, language: content.language, error };
+        }
+      });
+
+      const results = await Promise.all(deletePromises);
       
-      // Tüm silme işlemlerinin başarılı olup olmadığını kontrol et
-      const allSuccessful = responses.every(response => response.ok);
+      // Sonuçları analiz et
+      const successful = results.filter(r => r.success);
+      const failed = results.filter(r => !r.success);
       
-      if (allSuccessful) {
+      if (failed.length === 0) {
+        // Tüm silme işlemleri başarılı
         await fetchAboutPageData();
         setMessage({ 
           type: 'success', 
-          text: `${contentsToDelete.length} dil versiyonu (${languagesToDelete}) başarıyla silindi!` 
+          text: `${successful.length} dil versiyonu (${languagesToDelete}) başarıyla silindi!` 
+        });
+      } else if (successful.length > 0) {
+        // Bazıları başarılı, bazıları başarısız
+        await fetchAboutPageData();
+        setMessage({ 
+          type: 'error', 
+          text: `${successful.length} dil versiyonu silindi, ${failed.length} dil versiyonu silinemedi. Lütfen tekrar deneyin.` 
         });
       } else {
-        throw new Error('Bazı dil versiyonları silinemedi');
+        // Hiçbiri başarılı değil
+        throw new Error('Tüm silme işlemleri başarısız oldu');
       }
     } catch (error) {
       console.error('Error deleting extra content:', error);
-      setMessage({ type: 'error', text: 'Silme sırasında hata oluştu' });
+      const errorMessage = error instanceof Error ? error.message : 'Silme sırasında hata oluştu';
+      setMessage({ type: 'error', text: errorMessage });
     } finally {
       setDeleting(false);
     }
@@ -276,7 +311,7 @@ const AboutPageManager: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Hakkımızda Sayfası Yönetimi</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">İletişim Sayfası Yönetimi</h1>
         <p className="text-gray-600">Sayfa ana bilgilerini ve ekstra içerikleri yönetin</p>
       </div>
 
@@ -685,6 +720,7 @@ const AboutPageManager: React.FC = () => {
           }}
           editingContent={editingExtraContent}
           currentMaxOrder={aboutPageData?.extraContents ? Math.max(...aboutPageData.extraContents.map(c => c.order)) : 0}
+          aboutPageData={aboutPageData}
         />
       )}
     </div>

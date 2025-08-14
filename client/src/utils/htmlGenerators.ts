@@ -22,13 +22,29 @@ export interface ContentElement {
   id: string;
   type: 'text' | 'image' | 'table' | 'list';
   content: any;
-  position?: 'left' | 'right' | 'full';
-  width?: '25%' | '50%' | '75%' | '100%';
-  // Optional style settings
-  fontSizePx?: number; // for text
+  position?: 'left' | 'right' | 'full' | 'center';
+  width?: '25%' | '33%' | '50%' | '66%' | '75%' | '100%';
+  // Enhanced positioning
+  marginTop?: number;
+  marginBottom?: number;
+  marginLeft?: number;
+  marginRight?: number;
+  padding?: number;
+  // Text styles
+  fontSizePx?: number;
   textAlign?: 'left' | 'center' | 'right' | 'justify';
-  imageWidthPercent?: number; // 10-100
-  imageMaxHeightPx?: number; // limit image height
+  lineHeight?: number;
+  fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter';
+  // Image styles
+  imageWidthPercent?: number;
+  imageMaxHeightPx?: number;
+  imageAlign?: 'left' | 'center' | 'right';
+  imageFloat?: 'none' | 'left' | 'right';
+  // Border and background
+  borderWidth?: number;
+  borderColor?: string;
+  borderRadius?: number;
+  backgroundColor?: string;
 }
 
 // Tablo verilerini HTML'e çevir
@@ -93,7 +109,10 @@ export const generateListHTML = (listData: ListData): string => {
 };
 
 // Metin içeriğini HTML'e çevir
-export const generateTextHTML = (text: string, opts?: { fontSizePx?: number; textAlign?: 'left'|'center'|'right'|'justify' }): string => {
+export const generateTextHTML = (text: string, opts?: { 
+  lineHeight?: number;
+  fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter';
+}): string => {
   if (!text) return '';
   
   // HTML entity'leri decode et (JSON.stringify sırasında escape edilen karakterler)
@@ -128,21 +147,31 @@ export const generateTextHTML = (text: string, opts?: { fontSizePx?: number; tex
   
   // Sadece düz metin ise, satır sonlarını <br> ile değiştir ve div ile sar
   const formattedText = decodedText.replace(/\n/g, '<br>');
-  const fontStyle = opts?.fontSizePx ? `font-size: ${opts.fontSizePx}px;` : '';
-  const alignStyle = opts?.textAlign ? `text-align: ${opts.textAlign};` : '';
-  return `<div class="text-gray-700 leading-relaxed my-4 break-words whitespace-normal" style="${fontStyle}${alignStyle}">${formattedText}</div>`;
+  const lineHeightStyle = opts?.lineHeight ? `line-height: ${opts.lineHeight};` : '';
+  const fontWeightStyle = opts?.fontWeight && opts.fontWeight !== 'normal' ? `font-weight: ${opts.fontWeight};` : '';
+  const combinedStyle = [lineHeightStyle, fontWeightStyle].filter(Boolean).join(' ');
+  
+  return `<div class="text-gray-700 leading-relaxed my-4 break-words whitespace-normal" style="${combinedStyle}">${formattedText}</div>`;
 };
 
 // Resim HTML'i oluştur
 export const generateImageHTML = (
   image: string | { url: string; widthPercent?: number; maxHeightPx?: number; borderRadiusPx?: number },
-  alt: string = 'Image'
+  alt: string = 'Image',
+  opts?: {
+    widthPercent?: number;
+    maxHeightPx?: number;
+    align?: 'left' | 'center' | 'right';
+    float?: 'none' | 'left' | 'right';
+  }
 ): string => {
   if (!image) return '';
   const url = typeof image === 'string' ? image : image.url;
-  const widthPercent = typeof image === 'string' ? undefined : image.widthPercent;
-  const maxHeightPx = typeof image === 'string' ? undefined : image.maxHeightPx;
+  const widthPercent = opts?.widthPercent || (typeof image === 'string' ? undefined : image.widthPercent);
+  const maxHeightPx = opts?.maxHeightPx || (typeof image === 'string' ? undefined : image.maxHeightPx);
   const borderRadiusPx = typeof image === 'string' ? undefined : image.borderRadiusPx;
+  const align = opts?.align || 'center';
+  const float = opts?.float || 'none';
 
   const fullUrl = url.startsWith('http') ? url : `http://localhost:5000${url}`;
   const style = [
@@ -151,8 +180,24 @@ export const generateImageHTML = (
     borderRadiusPx ? `border-radius:${borderRadiusPx}px;` : ''
   ].join('');
 
+  // Alignment ve float için CSS sınıfları
+  let containerClasses = 'image-container my-4';
+  if (align === 'left') {
+    containerClasses += ' flex justify-start';
+  } else if (align === 'right') {
+    containerClasses += ' flex justify-end';
+  } else {
+    containerClasses += ' flex justify-center';
+  }
+  
+  if (float === 'left') {
+    containerClasses += ' float-left mr-4 mb-2';
+  } else if (float === 'right') {
+    containerClasses += ' float-right ml-4 mb-2';
+  }
+
   return `
-    <div class="image-container my-4 flex justify-center">
+    <div class="${containerClasses}">
       <img src="${fullUrl}" alt="${alt}" class="h-auto shadow-md" style="${style}" />
     </div>
   `;
@@ -268,16 +313,54 @@ export const generateMixedContentHTML = (
 
 // Tek bir element için HTML oluştur
 export const generateElementHTML = (element: ContentElement): string => {
+  // Element wrapper'ı için stil oluştur
+  const elementStyles = [];
+  
+  if (element.marginTop !== undefined) elementStyles.push(`margin-top: ${element.marginTop}px`);
+  if (element.marginBottom !== undefined) elementStyles.push(`margin-bottom: ${element.marginBottom}px`);
+  if (element.marginLeft !== undefined) elementStyles.push(`margin-left: ${element.marginLeft}px`);
+  if (element.marginRight !== undefined) elementStyles.push(`margin-right: ${element.marginRight}px`);
+  if (element.padding !== undefined) elementStyles.push(`padding: ${element.padding}px`);
+  if (element.borderWidth !== undefined && element.borderWidth > 0) {
+    elementStyles.push(`border: ${element.borderWidth}px solid ${element.borderColor || '#e5e7eb'}`);
+  }
+  if (element.borderRadius !== undefined) elementStyles.push(`border-radius: ${element.borderRadius}px`);
+  if (element.backgroundColor && element.backgroundColor !== 'transparent') {
+    elementStyles.push(`background-color: ${element.backgroundColor}`);
+  }
+  
+  const elementStyleString = elementStyles.length > 0 ? ` style="${elementStyles.join('; ')}"` : '';
+  
+  let elementHTML = '';
   switch (element.type) {
     case 'text':
-      return generateTextHTML(element.content, { fontSizePx: element.fontSizePx, textAlign: element.textAlign });
+      elementHTML = generateTextHTML(element.content, { 
+        lineHeight: element.lineHeight,
+        fontWeight: element.fontWeight
+      });
+      break;
     case 'table':
-      return generateTableHTML(element.content);
+      elementHTML = generateTableHTML(element.content);
+      break;
     case 'list':
-      return generateListHTML(element.content);
+      elementHTML = generateListHTML(element.content);
+      break;
     case 'image':
-      return generateImageHTML(element.content, 'Content Image');
+      elementHTML = generateImageHTML(element.content, 'Content Image', {
+        widthPercent: element.imageWidthPercent,
+        maxHeightPx: element.imageMaxHeightPx,
+        align: element.imageAlign,
+        float: element.imageFloat
+      });
+      break;
     default:
-      return '';
+      elementHTML = '';
   }
+  
+  // Eğer stil varsa wrapper div ile sar
+  if (elementStyles.length > 0) {
+    return `<div${elementStyleString}>${elementHTML}</div>`;
+  }
+  
+  return elementHTML;
 };
