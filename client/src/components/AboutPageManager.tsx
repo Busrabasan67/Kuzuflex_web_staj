@@ -32,6 +32,7 @@ const AboutPageManager: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [uploadingHero, setUploadingHero] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -213,6 +214,68 @@ const AboutPageManager: React.FC = () => {
     setShowExtraContentAdder(true);
   };
 
+  const handleHeroImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Dosya boyutu kontrolü (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'Dosya boyutu 5MB\'dan küçük olmalıdır' });
+      return;
+    }
+
+    // Dosya tipi kontrolü
+    if (!file.type.startsWith('image/')) {
+      setMessage({ type: 'error', text: 'Sadece resim dosyaları yüklenebilir' });
+      return;
+    }
+
+    try {
+      setUploadingHero(true);
+      setMessage(null);
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+            // Önce hero endpoint'i dene, olmazsa mevcut endpoint'i kullan
+      let response;
+      try {
+        response = await fetch('http://localhost:5000/api/about-page/upload-hero', {
+          method: 'POST',
+          body: formData,
+        });
+      } catch (error) {
+        console.log('Hero endpoint başarısız, mevcut endpoint deneniyor...');
+        response = await fetch('http://localhost:5000/api/solution-extra-content/upload', {
+          method: 'POST',
+          body: formData,
+        });
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const imageUrl = result.url || result.path;
+
+      setFormData(prev => ({ ...prev, heroImageUrl: imageUrl }));
+      setMessage({ type: 'success', text: 'Hero resim başarıyla yüklendi!' });
+
+    } catch (error) {
+      console.error('Hero image upload error:', error);
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Resim yüklenirken hata oluştu' 
+      });
+    } finally {
+      setUploadingHero(false);
+      // Input'u temizle
+      event.target.value = '';
+    }
+  };
+
   const handleDeleteExtraContent = async (contentId: number) => {
     // Önce hangi order'a ait olduğunu bul
     const contentToDelete = aboutPageData?.extraContents.find(content => content.id === contentId);
@@ -322,27 +385,109 @@ const AboutPageManager: React.FC = () => {
         {/* Hero Resim */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Hero Resim URL
+            Hero Resim
           </label>
-          <input
-            type="text"
-            value={formData.heroImageUrl}
-            onChange={(e) => setFormData(prev => ({ ...prev, heroImageUrl: e.target.value }))}
-            placeholder="https://example.com/image.jpg"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          
+          {/* Mevcut Resim */}
           {formData.heroImageUrl && (
-            <div className="mt-2">
-              <img 
-                src={formData.heroImageUrl} 
-                alt="Hero Preview" 
-                className="w-32 h-20 object-cover rounded border"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+            <div className="mb-4">
+              <div className="relative inline-block">
+                <img 
+                  src={formData.heroImageUrl.startsWith('http') ? formData.heroImageUrl : `http://localhost:5000${formData.heroImageUrl}`}
+                  alt="Hero Preview" 
+                  className="w-64 h-40 object-cover rounded-lg border-2 border-gray-200 shadow-md"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <button
+                  onClick={() => setFormData(prev => ({ ...prev, heroImageUrl: '' }))}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                  title="Resmi Kaldır"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <p className="text-xs text-gray-500">Mevcut resim</p>
+                <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                  {formData.heroImageUrl.startsWith('http') ? 'Harici URL' : 'Yüklenen Resim'}
+                </span>
+              </div>
             </div>
           )}
+
+          {/* Upload Alanı */}
+          <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+            uploadingHero 
+              ? 'border-blue-400 bg-blue-50' 
+              : 'border-gray-300 hover:border-blue-400'
+          }`}>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleHeroImageUpload}
+              className="hidden"
+              id="hero-image-upload"
+              disabled={uploadingHero}
+            />
+            <label 
+              htmlFor="hero-image-upload" 
+              className={`cursor-pointer flex flex-col items-center ${
+                uploadingHero ? 'cursor-not-allowed opacity-75' : ''
+              }`}
+            >
+              {uploadingHero ? (
+                <>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-2"></div>
+                  <span className="text-sm font-medium text-blue-700">
+                    Yükleniyor...
+                  </span>
+                  <span className="text-xs text-blue-500 mt-1">
+                    Lütfen bekleyin
+                  </span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span className="text-sm font-medium text-gray-700">
+                    {formData.heroImageUrl ? 'Resmi Değiştir' : 'Resim Yükle'}
+                  </span>
+                  <span className="text-xs text-gray-500 mt-1">
+                    PNG, JPG, WEBP (Max: 5MB)
+                  </span>
+                </>
+              )}
+            </label>
+          </div>
+
+          {/* URL Input (Alternatif) */}
+          <div className="mt-4">
+            <label className="block text-xs text-gray-600 mb-1">
+              Veya URL ile ekle:
+            </label>
+            <input
+              type="text"
+              value={formData.heroImageUrl}
+              onChange={(e) => setFormData(prev => ({ ...prev, heroImageUrl: e.target.value }))}
+              placeholder="https://example.com/image.jpg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+          </div>
+
+                    {/* Hero Image Bilgileri */}
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <h5 className="text-sm font-medium text-blue-800 mb-2">💡 Hero Resim Özellikleri</h5>
+            <div className="text-xs text-blue-700 space-y-1">
+              <p>• <strong>Önerilen boyut:</strong> 1920x600px (16:5 oranı)</p>
+              <p>• <strong>Format:</strong> PNG, JPG, WEBP</p>
+              <p>• <strong>Maksimum boyut:</strong> 5MB</p>
+              <p>• <strong>Kullanım:</strong> Sayfa üstünde tam genişlik banner</p>
+              <p>• <strong>Kayıt yeri:</strong> Pages klasörü (/uploads/Pages/)</p>
+            </div>
+          </div>
         </div>
 
         {/* Dil Sekmeleri */}
@@ -404,19 +549,44 @@ const AboutPageManager: React.FC = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Ana İçerik
                 </label>
-                <textarea
-                  value={formData.translations[language].bodyHtml}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    translations: {
-                      ...prev.translations,
-                      [language]: { ...prev.translations[language], bodyHtml: e.target.value }
-                    }
-                  }))}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Ana sayfa içeriğini yazın..."
-                />
+                <div className="border border-gray-300 rounded-md focus-within:ring-2 focus-within:ring-blue-500">
+                  <div
+                    contentEditable
+                    suppressContentEditableWarning
+                    className="min-h-[100px] px-3 py-2 outline-none prose prose-sm max-w-none"
+                    onInput={(e) => {
+                      const content = e.currentTarget.innerHTML;
+                      setFormData(prev => ({
+                        ...prev,
+                        translations: {
+                          ...prev.translations,
+                          [language]: { ...prev.translations[language], bodyHtml: content }
+                        }
+                      }));
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: formData.translations[language].bodyHtml || ''
+                    }}
+                  />
+                </div>
+                <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                  <span>💡 Rich text: Kalın, italik, link ekleyebilirsiniz</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        translations: {
+                          ...prev.translations,
+                          [language]: { ...prev.translations[language], bodyHtml: '' }
+                        }
+                      }));
+                    }}
+                    className="text-red-500 hover:text-red-700 underline"
+                  >
+                    Temizle
+                  </button>
+                </div>
               </div>
             </div>
           ))}

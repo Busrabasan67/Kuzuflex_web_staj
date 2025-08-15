@@ -486,3 +486,86 @@ img[src*=".webp"] {
 .border-white\/20 {
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* Content Editable Styling */
+[contenteditable="true"] {
+  font-family: inherit;
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+[contenteditable="true"]:focus {
+  outline: none;
+}
+
+[contenteditable="true"] p {
+  margin: 0.5em 0;
+}
+
+[contenteditable="true"] strong,
+[contenteditable="true"] b {
+  font-weight: 600;
+  color: #111827;
+}
+
+[contenteditable="true"] em,
+[contenteditable="true"] i {
+  font-style: italic;
+}
+
+[contenteditable="true"] a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+[contenteditable="true"] a:hover {
+  color: #1d4ed8;
+}
+
+[contenteditable="true"] ul,
+[contenteditable="true"] ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+[contenteditable="true"] li {
+  margin: 0.25em 0;
+}
+
+/* Prose styling for rich text */
+.prose {
+  color: #374151;
+}
+
+.prose p {
+  margin-bottom: 1em;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #1d4ed8;
+}
+
+.prose ul,
+.prose ol {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+
+.prose li {
+  margin: 0.5em 0;
+}
