@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, changePassword, validateToken } from "../controllers/authController";
+import { login, changePassword, validateToken, forgotPassword, resetPassword, validateResetToken, getAdminProfile, updateAdminProfile, getAdminStats, getProfileSecurity } from "../controllers/authController";
 import { authenticateToken } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -7,6 +7,13 @@ const router = Router();
 router.post("/admin-login", login); // ← /api/auth/admin-login olacak
 router.post("/change-password", authenticateToken, changePassword); // ← /api/auth/change-password olacak
 router.get("/validate-token", authenticateToken, validateToken); // ← /api/auth/validate-token olacak
+router.post("/forgot-password", forgotPassword); // ← /api/auth/forgot-password olacak
+router.post("/reset-password", resetPassword); // ← /api/auth/reset-password olacak
+router.get("/validate-reset-token/:token", validateResetToken); // ← /api/auth/validate-reset-token/:token olacak
+router.get("/profile", authenticateToken, getAdminProfile); // ← /api/auth/profile olacak
+router.put("/profile", authenticateToken, updateAdminProfile); // ← /api/auth/profile olacak
+router.get("/profile/stats", authenticateToken, getAdminStats); // ← /api/auth/profile/stats olacak
+router.get("/profile/security", authenticateToken, getProfileSecurity); // ← /api/auth/profile/security olacak
 
 export default router;
 /**

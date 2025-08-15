@@ -1,9 +1,7 @@
  //# API endpoint'lerini yöneten fonksiyonlar (request-response)
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import AppDataSource  from "../data-source";
-import { Admin } from "../entity/Admin";
+import authService from "../services/authService";
+import profileService from "../services/profileService";
 
 interface AuthRequest extends Request {
   user?: {
@@ -14,75 +12,46 @@ interface AuthRequest extends Request {
 
 
 export const login = async (req: Request, res: Response) => {
-  const { identifier, password } = req.body;
+  try {
+    const { identifier, password } = req.body;
 
-  const adminRepo = AppDataSource.getRepository(Admin);
+    const result = await authService.login(identifier, password);
 
-  const admin = await adminRepo.findOneBy([
-    { username: identifier },
-    { email: identifier },
-  ]);
+    if (!result.success) {
+      return res.status(401).json({ message: result.message });
+    }
 
-  if (!admin) {
-    return res.status(401).json({ message: "Admin bulunamadı" });
+    return res.json({
+      message: result.message,
+      token: result.token,
+      admin: result.admin
+    });
+  } catch (error) {
+    console.error("Login controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
   }
-
-  const isPasswordCorrect = await bcrypt.compare(password, admin.passwordHash);
-  if (!isPasswordCorrect) {
-    return res.status(401).json({ message: "Şifre yanlış" });
-  }
-
-  const token = jwt.sign(
-    { id: admin.id, email: admin.email },
-    "GIZLIANAHTAR",
-    { expiresIn: "1h" }
-  );
-
-  return res.json({ message: "Giriş başarılı", token });
 };
 
 export const changePassword = async (req: AuthRequest, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const adminId = req.user?.id; // JWT'den gelen admin ID'si
+    const adminId = req.user?.id;
 
     if (!adminId) {
       return res.status(401).json({ message: "Yetkilendirme hatası" });
     }
 
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: "Mevcut şifre ve yeni şifre gerekli" });
+    const result = await authService.changePassword(adminId, currentPassword, newPassword);
+
+    if (!result.success) {
+      const statusCode = result.message.includes("bulunamadı") ? 404 : 400;
+      return res.status(statusCode).json({ message: result.message });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: "Yeni şifre en az 6 karakter olmalıdır" });
-    }
-
-    const adminRepo = AppDataSource.getRepository(Admin);
-    const admin = await adminRepo.findOneBy({ id: adminId });
-
-    if (!admin) {
-      return res.status(404).json({ message: "Admin bulunamadı" });
-    }
-
-    // Mevcut şifreyi kontrol et
-    const isCurrentPasswordCorrect = await bcrypt.compare(currentPassword, admin.passwordHash);
-    if (!isCurrentPasswordCorrect) {
-      return res.status(400).json({ message: "Mevcut şifre yanlış" });
-    }
-
-    // Yeni şifreyi hash'le
-    const saltRounds = 10;
-    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
-
-    // Şifreyi güncelle
-    admin.passwordHash = newPasswordHash;
-    await adminRepo.save(admin);
-
-    return res.json({ message: "Şifre başarıyla değiştirildi" });
+    return res.json({ message: result.message });
   } catch (error) {
-    console.error("Şifre değiştirme hatası:", error);
-    return res.status(500).json({ message: "Şifre değiştirilirken bir hata oluştu" });
+    console.error("Change password controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
   }
 };
 
@@ -94,23 +63,174 @@ export const validateToken = async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ message: "Geçersiz token" });
     }
 
-    const adminRepo = AppDataSource.getRepository(Admin);
-    const admin = await adminRepo.findOneBy({ id: adminId });
+    const result = await authService.validateToken(adminId);
 
-    if (!admin) {
-      return res.status(401).json({ message: "Admin bulunamadı" });
+    if (!result.success) {
+      return res.status(401).json({ message: result.message });
     }
 
     return res.json({ 
-      message: "Token geçerli", 
-      admin: { 
-        id: admin.id, 
-        username: admin.username, 
-        email: admin.email 
-      } 
+      message: result.message, 
+      admin: result.admin
     });
   } catch (error) {
-    console.error("Token validasyon hatası:", error);
-    return res.status(500).json({ message: "Token kontrol edilirken bir hata oluştu" });
+    console.error("Validate token controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
+  }
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const result = await authService.forgotPassword(email);
+
+    if (!result.success) {
+      const statusCode = result.message.includes("gereklidir") ? 400 : 500;
+      return res.status(statusCode).json({ message: result.message });
+    }
+
+    return res.json({ message: result.message });
+  } catch (error) {
+    console.error("Forgot password controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    const result = await authService.resetPassword(token, newPassword);
+
+    if (!result.success) {
+      return res.status(400).json({ message: result.message });
+    }
+
+    return res.json({ message: result.message });
+  } catch (error) {
+    console.error("Reset password controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
+  }
+};
+
+export const validateResetToken = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+
+    const result = await authService.validateResetToken(token);
+
+    if (!result.success) {
+      return res.status(400).json({ message: result.message });
+    }
+
+    return res.json({ 
+      message: result.message, 
+      email: result.data?.email 
+    });
+  } catch (error) {
+    console.error("Validate reset token controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
+  }
+};
+
+export const getAdminProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const adminId = req.user?.id;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Yetkilendirme hatası" });
+    }
+
+    const result = await profileService.getAdminProfile(adminId);
+
+    if (!result.success) {
+      const statusCode = result.message.includes("bulunamadı") ? 404 : 500;
+      return res.status(statusCode).json({ message: result.message });
+    }
+
+    return res.json({
+      message: result.message,
+      admin: result.data
+    });
+  } catch (error) {
+    console.error("Get admin profile controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
+  }
+};
+
+export const updateAdminProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const adminId = req.user?.id;
+    const { username, email } = req.body;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Yetkilendirme hatası" });
+    }
+
+    const result = await profileService.updateAdminProfile(adminId, username, email);
+
+    if (!result.success) {
+      const statusCode = result.message.includes("bulunamadı") ? 404 : 400;
+      return res.status(statusCode).json({ message: result.message });
+    }
+
+    return res.json({
+      message: result.message,
+      admin: result.data
+    });
+  } catch (error) {
+    console.error("Update admin profile controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
+  }
+};
+
+export const getAdminStats = async (req: AuthRequest, res: Response) => {
+  try {
+    const adminId = req.user?.id;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Yetkilendirme hatası" });
+    }
+
+    const result = await profileService.getAdminStats(adminId);
+
+    if (!result.success) {
+      const statusCode = result.message.includes("bulunamadı") ? 404 : 500;
+      return res.status(statusCode).json({ message: result.message });
+    }
+
+    return res.json({
+      message: result.message,
+      stats: result.data
+    });
+  } catch (error) {
+    console.error("Get admin stats controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
+  }
+};
+
+export const getProfileSecurity = async (req: AuthRequest, res: Response) => {
+  try {
+    const adminId = req.user?.id;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Yetkilendirme hatası" });
+    }
+
+    const result = await profileService.checkProfileSecurity(adminId);
+
+    if (!result.success) {
+      const statusCode = result.message.includes("bulunamadı") ? 404 : 500;
+      return res.status(statusCode).json({ message: result.message });
+    }
+
+    return res.json({
+      message: result.message,
+      security: result.data
+    });
+  } catch (error) {
+    console.error("Get profile security controller hatası:", error);
+    return res.status(500).json({ message: "Sunucu hatası oluştu" });
   }
 };

@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import { ThemeProvider } from "./theme/ThemeContext";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
+import AdminResetPassword from "./pages/AdminResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 import AdminLayout from "./layouts/AdminLayout"; 
@@ -63,6 +64,12 @@ function AppContent() {
                   <AdminLogin />
                 )
               }
+            />
+
+            {/* Admin Reset Password */}
+            <Route
+              path="/admin-reset-password"
+              element={<AdminResetPassword />}
             />
 
             {/* Admin Panel: Sidebar + LogoutButton'lı Layout içinde */}

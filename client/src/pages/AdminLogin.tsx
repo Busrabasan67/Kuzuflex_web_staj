@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiUser, FiLock } from 'react-icons/fi';
+import { FiUser, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from "../context/AuthContext";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
 const AdminLogin: React.FC= () => {
   const { login, isAuthenticated } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
   // Sayfa yüklendiğinde history'yi temizle
@@ -99,12 +102,24 @@ const AdminLogin: React.FC= () => {
         <div className="w-full mb-8 relative">
           <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400 text-xl" />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Şifre"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full pl-10 pr-3 py-3 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            className="w-full pl-10 pr-12 py-3 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-600 transition-colors duration-200 focus:outline-none"
+            tabIndex={-1}
+          >
+            {showPassword ? (
+              <FiEyeOff className="text-xl" />
+            ) : (
+              <FiEye className="text-xl" />
+            )}
+          </button>
         </div>
         <button
           type="submit"
@@ -112,6 +127,17 @@ const AdminLogin: React.FC= () => {
         >
           Giriş Yap
         </button>
+        
+        {/* Şifremi Unuttum Linki */}
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            onClick={() => setShowForgotPassword(true)}
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline transition-colors"
+          >
+            Şifremi Unuttum
+          </button>
+        </div>
       </form>
       <button
         onClick={() => navigate("/")}
@@ -133,6 +159,12 @@ const AdminLogin: React.FC= () => {
           animation: shake 0.4s;
         }
       `}</style>
+      
+      {/* Şifremi Unuttum Modal */}
+      <ForgotPasswordModal 
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </div>
   );
 };

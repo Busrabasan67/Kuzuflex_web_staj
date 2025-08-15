@@ -218,6 +218,95 @@ www.kuzuflex.com`
     }
   }
 
+  async sendPasswordResetEmail(email: string, resetToken: string): Promise<boolean> {
+    try {
+      const settings = await this.getEmailSettings();
+      const transporter = await this.createTransporter();
+      
+      const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin-reset-password?token=${resetToken}`;
+      
+      const mailOptions = {
+        from: `"Kuzuflex Admin Panel" <${settings.smtpUsername}>`,
+        to: email,
+        subject: 'Kuzuflex Admin Panel - Şifre Sıfırlama',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+            <div style="background-color: #f8f9fa; padding: 30px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #e5e7eb;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #1e40af; margin: 0; font-size: 28px;">🔐 Şifre Sıfırlama</h1>
+                <p style="color: #6b7280; margin: 10px 0 0 0; font-size: 16px;">Kuzuflex Admin Panel</p>
+              </div>
+              
+              <div style="background-color: #ffffff; padding: 25px; border-radius: 8px; border-left: 4px solid #1e40af; margin-bottom: 25px;">
+                <p style="margin: 0 0 15px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                  Merhaba,
+                </p>
+                <p style="margin: 0 0 15px 0; color: #374151; font-size: 16px; line-height: 1.6;">
+                  Kuzuflex Admin Panel hesabınız için şifre sıfırlama talebinde bulundunuz. Şifrenizi sıfırlamak için aşağıdaki butona tıklayın:
+                </p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+                  🔑 Şifremi Sıfırla
+                </a>
+              </div>
+              
+              <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.5;">
+                  <strong>⚠️ Güvenlik Uyarısı:</strong> Bu link 15 dakika süreyle geçerlidir. Eğer bu talebi siz yapmadıysanız, lütfen bu e-postayı dikkate almayın.
+                </p>
+              </div>
+              
+              <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                  Eğer buton çalışmıyorsa, aşağıdaki linki tarayıcınıza kopyalayıp yapıştırabilirsiniz:
+                </p>
+                <p style="margin: 10px 0 0 0; color: #1e40af; font-size: 12px; word-break: break-all;">
+                  ${resetUrl}
+                </p>
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+              <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #6b7280; background-color: #f8f9fa; padding: 15px; border-radius: 6px;">
+                <div style="margin-bottom: 10px;">
+                  <strong style="color: #1e40af;">KUZUFLEX METAL SANAYİ VE TİCARET A.Ş.</strong>
+                </div>
+                <div style="font-size: 10pt;">
+                  Ata, Serbest Bölge Gelincik Cadde No:1<br>
+                  16600 Gemlik/Bursa/TÜRKİYE<br>
+                  <a href="https://www.kuzuflex.com" style="color: #1e40af; text-decoration: none;">www.kuzuflex.com</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        text: `Kuzuflex Admin Panel - Şifre Sıfırlama
+
+Merhaba,
+
+Kuzuflex Admin Panel hesabınız için şifre sıfırlama talebinde bulundunuz. 
+
+Şifrenizi sıfırlamak için aşağıdaki linki kullanın:
+${resetUrl}
+
+⚠️ Güvenlik Uyarısı: Bu link 15 dakika süreyle geçerlidir. Eğer bu talebi siz yapmadıysanız, lütfen bu e-postayı dikkate almayın.
+
+KUZUFLEX METAL SANAYİ VE TİCARET A.Ş.
+Ata, Serbest Bölge Gelincik Cadde No:1
+16600 Gemlik/Bursa/TÜRKİYE
+www.kuzuflex.com`
+      };
+
+      await transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      console.error('Şifre sıfırlama mail gönderme hatası:', error);
+      return false;
+    }
+  }
+
   // Test connection
   async verifyConnection(): Promise<boolean> {
     try {

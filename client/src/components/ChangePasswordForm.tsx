@@ -11,9 +11,10 @@ const ChangePasswordForm: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const [showPasswords, setShowPasswords] = useState(false);
+
+  
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
@@ -188,19 +189,23 @@ const ChangePasswordForm: React.FC = () => {
             </label>
             <div className="relative">
               <input
-                type={showCurrentPassword ? 'text' : 'password'}
+                type={showPasswords ? 'text' : 'password'}
+
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+                className="w-full pl-4 pr-20 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white"
                 placeholder="Mevcut şifrenizi girin"
                 required
               />
               <button
                 type="button"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                onClick={() => setShowPasswords(!showPasswords)}
+
+                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 focus:outline-none z-10"
+                tabIndex={-1}
               >
-                {showCurrentPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                {showPasswords ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+
               </button>
             </div>
           </div>
@@ -212,10 +217,11 @@ const ChangePasswordForm: React.FC = () => {
             </label>
             <div className="relative">
               <input
-                type={showNewPassword ? 'text' : 'password'}
+                type={showPasswords ? 'text' : 'password'}
+
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                className={`w-full pl-4 pr-20 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
                   newPassword ? (passwordStrength.score >= 4 ? 'border-green-500 focus:border-green-500' : 'border-red-500 focus:border-red-500') : 'border-gray-200 focus:border-blue-500'
                 }`}
                 placeholder="Yeni şifrenizi girin"
@@ -223,10 +229,13 @@ const ChangePasswordForm: React.FC = () => {
               />
               <button
                 type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                onClick={() => setShowPasswords(!showPasswords)}
+
+                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 focus:outline-none z-10"
+                tabIndex={-1}
               >
-                {showNewPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                {showPasswords ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+
               </button>
             </div>
             
@@ -274,21 +283,25 @@ const ChangePasswordForm: React.FC = () => {
             </label>
             <div className="relative">
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+               type={showPasswords ? 'text' : 'password'}
+
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
-                  confirmPassword ? (newPassword === confirmPassword ? 'border-green-500 focus:border-green-500' : 'border-red-500 focus:border-red-500') : 'border-gray-200 focus:border-blue-500'
+                className={`w-full pl-4 pr-20 py-3 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all duration-200 bg-gray-50 focus:bg-white ${
+                  confirmPassword ? (newPassword === confirmPassword ? 'border-green-500 focus:border-green-500' : 'border-red-500 focus:border-red-500') : 'border-blue-500 focus:border-blue-500'
                 }`}
                 placeholder="Yeni şifrenizi tekrar girin"
                 required
               />
               <button
                 type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                onClick={() => setShowPasswords(!showPasswords)}
+
+                className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 focus:outline-none z-10"
+                tabIndex={-1}
               >
-                {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                {showPasswords ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+
               </button>
             </div>
             
