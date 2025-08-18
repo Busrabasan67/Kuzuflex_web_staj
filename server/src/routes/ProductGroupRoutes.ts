@@ -31,9 +31,17 @@ const router = Router();
 
 /**
  * @swagger
+ * tags:
+ *   name: Product Groups
+ *   description: Product groups and sub-products management endpoints
+ */
+
+/**
+ * @swagger
  * /api/product-groups:
  *   get:
  *     summary: Tüm ürün gruplarını ve alt ürünleri getirir
+ *     tags: [Product Groups]
  *     parameters:
  *       - in: query
  *         name: lang
@@ -47,7 +55,25 @@ const router = Router();
  */
 router.get("/", getAllGroups);
 
-// Ürün grubu sayısını getiren route (dashboard için)
+//ürün gruplarının sayısını getirir(dashboard için)
+/**
+ * @swagger
+ * /api/product-groups/count:
+ *   get:
+ *     summary: Ürün grubu sayısını getirir
+ *     tags: [Product Groups]
+ *     description: Dashboard için ürün grubu sayısını döndürür
+ *     responses:
+ *       200:
+ *         description: Ürün grubu sayısı başarıyla getirildi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: integer
+ *               example: 15
+ *       500:
+ *         description: Sunucu hatası
+ */
 router.get("/count", async (req, res) => {
   try {
     const groupRepository = AppDataSource.getRepository(ProductGroup);
@@ -66,6 +92,7 @@ router.get("/count", async (req, res) => {
  * /api/product-groups/slug/{groupSlug}/products:
  *   get:
  *     summary: Slug ile ürün grubuna ait alt ürünleri getirir (YENİ)
+ *     tags: [Product Groups]
  *     parameters:
  *       - in: path
  *         name: groupSlug
@@ -90,6 +117,7 @@ router.get("/slug/:groupSlug/products", getProductsByGroupSlug);
  * /api/product-groups/{groupId}/products:
  *   get:
  *     summary: ID ile ürün grubuna ait alt ürünleri getirir (ESKİ - backward compatibility)
+ *     tags: [Product Groups]
  *     parameters:
  *       - in: path
  *         name: groupId
