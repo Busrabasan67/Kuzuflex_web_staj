@@ -326,6 +326,7 @@ API documentation access:
 ### **Admin Profile**
 <img width="1905" height="934" alt="image" src="https://github.com/user-attachments/assets/fdb7ea02-cbc4-4cff-a10b-0d1d3f55f6fe" />
 <img width="1904" height="933" alt="image" src="https://github.com/user-attachments/assets/639816ce-b084-4a3a-ade7-c173a7d21c50" />
+<img width="983" height="197" alt="image" src="https://github.com/user-attachments/assets/1ae6c6fd-a3df-4749-9c12-598e7028a806" />
 
 
 ### **Product Group Management**
@@ -356,8 +357,6 @@ API documentation access:
 <img width="1918" height="941" alt="image" src="https://github.com/user-attachments/assets/00b9d5e3-67bb-44fe-8a98-38af244be9b5" />
 
 
-### **Responsive Design**
-![Mobile View](docs/screenshots/mobile-view.png)
 
 ## 👨‍💼 Admin Panel
 
