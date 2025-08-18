@@ -66,11 +66,11 @@ const ProductGroupPage = () => {
             products: products
           });
         } else {
-          console.error("❌ Grup bulunamadı! groupSlug:", groupSlug);
+          console.error(" Grup bulunamadı! groupSlug:", groupSlug);
         }
         setLoading(false);
       } catch (error) {
-        console.error("❌ Grup verileri alınamadı:", error);
+        console.error("Grup verileri alınamadı:", error);
         setLoading(false);
       }
     };

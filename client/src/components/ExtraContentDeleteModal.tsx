@@ -75,7 +75,7 @@ const ExtraContentDeleteModal: React.FC<ExtraContentDeleteModalProps> = ({
               onClick={onClose}
               className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
             >
-              ❌ İptal
+               İptal
             </button>
             <button
               onClick={onConfirm}

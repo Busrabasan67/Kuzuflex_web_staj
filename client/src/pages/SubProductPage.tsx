@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getCatalogUrl } from "../utils/catalogUtils";
-import { FiAward, FiShield, FiEye, FiDownload, FiX, FiFileText } from "react-icons/fi";
+import { FiAward, FiShield,FiX, FiFileText } from "react-icons/fi";
 
 const API_BASE = "http://localhost:5000";
 

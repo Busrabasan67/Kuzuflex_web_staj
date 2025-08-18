@@ -34,7 +34,7 @@ const MarketDetail = () => {
     const fetchMarket = async () => {
       try {
         setLoading(true);
-        console.log('🔍 Market verileri getiriliyor:', { slug, language: i18n.language });
+        console.log(' Market verileri getiriliyor:', { slug, language: i18n.language });
         const response = await fetch(`http://localhost:5000/api/markets/${slug}?language=${i18n.language}`);
         
         if (!response.ok) {
@@ -42,12 +42,12 @@ const MarketDetail = () => {
         }
         
         const data = await response.json();
-        console.log('📦 Market verileri alındı:', data);
-        console.log('📦 Market içerikleri:', data.contents);
+        console.log(' Market verileri alındı:', data);
+        console.log(' Market içerikleri:', data.contents);
         
         setMarket(data);
       } catch (err) {
-        console.error('❌ Market verileri alınamadı:', err);
+        console.error('Market verileri alınamadı:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);

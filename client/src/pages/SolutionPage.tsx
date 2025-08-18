@@ -120,41 +120,41 @@ const SolutionPage: React.FC = () => {
               
               if (jsonContent.title && jsonContent.layout && jsonContent.elements) {
                 console.log('✅ All required fields found, generating HTML...');
-                const result = generateMixedContentHTML(jsonContent.title, jsonContent.layout, jsonContent.elements);
+                const result = generateMixedContentHTML(jsonContent.layout, jsonContent.elements);
                 console.log('✅ Generated HTML:', result.substring(0, 200));
                 return result;
               } else {
-                console.log('❌ Missing required fields in jsonContent:', {
+                console.log(' Missing required fields in jsonContent:', {
                   hasTitle: !!jsonContent.title,
                   hasLayout: !!jsonContent.layout,
                   hasElements: !!jsonContent.elements
                 });
               }
             } else {
-              console.log('❌ No html/json fields found in parsedContent');
+              console.log(' No html/json fields found in parsedContent');
             }
             
             // Eğer doğrudan title, layout, elements varsa
             if (parsedContent.title && parsedContent.layout && parsedContent.elements) {
-              console.log('✅ Direct fields found, generating HTML...');
-              const result = generateMixedContentHTML(parsedContent.title, parsedContent.layout, parsedContent.elements);
-              console.log('✅ Generated HTML:', result.substring(0, 200));
+              console.log(' Direct fields found, generating HTML...');
+              const result = generateMixedContentHTML(parsedContent.layout, parsedContent.elements);
+              console.log(' Generated HTML:', result.substring(0, 200));
               return result;
             } else {
-              console.log('❌ No direct fields found in parsedContent');
+              console.log(' No direct fields found in parsedContent');
             }
           } catch (parseError) {
-            console.error('❌ Mixed content JSON parsing error:', parseError);
+            console.error('Mixed content JSON parsing error:', parseError);
           }
         } else {
-          console.log('❌ Content does not look like JSON');
+          console.log(' Content does not look like JSON');
         }
         
-        console.log('🔄 Falling back to HTML processing');
-        console.log('🔍 Raw HTML content before fixImageUrls:', content.content.substring(0, 200));
+        console.log('Falling back to HTML processing');
+        console.log(' Raw HTML content before fixImageUrls:', content.content.substring(0, 200));
         // JSON değilse veya parse edilemezse, HTML olarak işle
         const processedHTML = fixImageUrls(content.content);
-        console.log('✅ Processed HTML after fixImageUrls:', processedHTML.substring(0, 200));
+        console.log(' Processed HTML after fixImageUrls:', processedHTML.substring(0, 200));
         return processedHTML;
       }
  
@@ -166,7 +166,7 @@ const SolutionPage: React.FC = () => {
           switch (content.type) {
             case 'text':
               // Debug: Metin türü için parsedContent'i logla
-              console.log('🔍 Text type content:', {
+              console.log(' Text type content:', {
                 originalContent: content.content,
                 parsedContent: parsedContent,
                 type: typeof parsedContent,
@@ -184,7 +184,7 @@ const SolutionPage: React.FC = () => {
                 // Çift tırnakları kaldır
                 if (textContent.startsWith('"') && textContent.endsWith('"')) {
                   textContent = textContent.slice(1, -1);
-                  console.log('✅ Quotes removed, final textContent:', textContent);
+                  console.log(' Quotes removed, final textContent:', textContent);
                 }
                 
                 // HTML entity'leri decode et
@@ -195,7 +195,7 @@ const SolutionPage: React.FC = () => {
                   .replace(/&gt;/g, '>')
                   .replace(/&#39;/g, "'");
                  
-                console.log('✅ HTML entities decoded, final textContent:', textContent);
+                console.log(' HTML entities decoded, final textContent:', textContent);
               }
               
               // HTML olarak render et, böylece RichTextEditor'dan gelen stiller korunur

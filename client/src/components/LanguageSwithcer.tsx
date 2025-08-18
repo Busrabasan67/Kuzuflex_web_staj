@@ -56,12 +56,12 @@ const languageOptions = [
 ];
 
 const LanguageSwitcher = () => {
-  const { i18n } = useTranslation(); // 🟢 i18n.language ile mevcut dil bilgisi alınır
-  const [isOpen, setIsOpen] = useState(false); // 🟢 Dil seçimi açık/kapalı durumunu kontrol eder
+  const { i18n } = useTranslation(); //  i18n.language ile mevcut dil bilgisi alınır
+  const [isOpen, setIsOpen] = useState(false); //  Dil seçimi açık/kapalı durumunu kontrol eder
 
-  const currentLanguage = languageOptions.find(lang => lang.code === i18n.language) || languageOptions[0];// 🟢 Mevcut dil bilgisini alır
+  const currentLanguage = languageOptions.find(lang => lang.code === i18n.language) || languageOptions[0];//  Mevcut dil bilgisini alır
 
-  const changeLanguage = (lng: string) => { // 🟢 Dil değiştirme fonksiyonu.
+  const changeLanguage = (lng: string) => { //  Dil değiştirme fonksiyonu.
     i18n.changeLanguage(lng);
     setIsOpen(false);
   };

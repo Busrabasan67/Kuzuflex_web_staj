@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiSearch } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { Phone, Mail } from "lucide-react";
 import KuzuflexLogo from "../assets/kuzuflex-logo.webp";
@@ -16,7 +15,7 @@ interface MenuItem {
 interface SubCategory {
   id: number;
   slug: string; // Ürün slug'ı
-  title: string; // 🟡 Alt ürünler Product → ProductTranslation → title
+  title: string; //  Alt ürünler Product → ProductTranslation → title
 }
 
 interface ProductGroup {
@@ -44,8 +43,6 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openSubDropdown, setOpenSubDropdown] = useState<string | null>(null);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [language, setLanguage] = useState(i18n.language || "en");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
@@ -55,7 +52,6 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const navbarRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
 
   // Dil değişikliğini dinle
   useEffect(() => {
@@ -66,7 +62,6 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
     document.addEventListener("mousedown", (e) => {
       if (navbarRef.current && !navbarRef.current.contains(e.target as Node)) {
         setOpenDropdown(null);
-        setSearchOpen(false);
       }
     });
     return () => document.removeEventListener("mousedown", () => {});
@@ -74,20 +69,9 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
 
   useEffect(() => {
     setMenuOpen(false);
-  }, [location]);
+  }, [location]); //  Menu'nun her değiştiğinde açılıp kapatılacak
 
-  useEffect(() => {
-    if (searchOpen && searchRef.current) searchRef.current.focus();
-  }, [searchOpen]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/arama?q=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery("");
-      setSearchOpen(false);
-    }
-  };
 
   const toggleDropdown = (title: string) => {
     // Sadece alt menüsü olan item'lar için dropdown açılsın
@@ -97,7 +81,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
     }
   };
 
-  // 🟢 Ürün gruplarını ve solution'ları API'den al
+  //  Ürün gruplarını ve solution'ları API'den al
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -156,7 +140,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
           path: "/qm-documents"
         }]);
       } catch (err) {
-        console.error("❌ Veriler alınamadı:", err);
+        console.error(" Veriler alınamadı:", err);
       }
     };
 
@@ -323,11 +307,6 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
 
           {/* Aksiyonlar - Okuma.com tarzı */}
           <div className="flex items-center gap-4">
-                            <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">
-              <FiSearch className="w-5 h-5" />
-            </button>
-
-            
             {/* LanguageSwitcher Component'i */}
             <LanguageSwitcher />
             
@@ -335,18 +314,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
           </div>
         </div>
 
-        {/* Arama Kutusu - Okuma.com tarzı */}
-        {searchOpen && (
-          <form onSubmit={handleSearch} className="mt-3 px-6 pb-4">
-            <input
-              ref={searchRef}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full p-3 rounded-lg border border-okuma-gray-200 focus:border-okuma-500 focus:ring-2 focus:ring-okuma-100 shadow-okuma transition-all duration-200 outline-none"
-              placeholder={t('navbar.searchPlaceholder')}
-            />
-          </form>
-        )}
+
 
         {/* Mobil Menü - Okuma.com tarzı */}
         {menuOpen && (

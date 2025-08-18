@@ -304,6 +304,12 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
     for (const lang of languages) {
       const content = multiLanguageContent[lang as keyof MultiLanguageContent];
       
+      // Başlık zorunlu
+      if (!content.title.trim()) {
+        setMessage({ type: 'error', text: `${getLanguageName(lang)} dili için başlık zorunludur!` });
+        return false;
+      }
+      
       if (selectedType !== 'mixed') {
         if (selectedType === 'text' && !content.content?.trim()) {
           setMessage({ type: 'error', text: `${getLanguageName(lang)} dili için içerik zorunludur!` });
@@ -359,9 +365,9 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
         let finalContent;
         if (selectedType === 'mixed') {
           // Mixed content için hem HTML hem de JSON formatında kaydet
-          const htmlContent = generateMixedContentHTML('', layoutByLang[language], mixedElements[language] || []);
+          const htmlContent = generateMixedContentHTML(layoutByLang[language], mixedElements[language] || []);
           const jsonContent = {
-            title: '',
+            title: content.title,
             layout: layoutByLang[language],
             elements: mixedElements[language] || []
           };
@@ -375,7 +381,7 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
 
         return {
           language,
-          title: '', // Başlık boş olarak gönder
+          title: content.title, // Başlığı gerçek değer olarak gönder
           content: finalContent
         };
       });
@@ -476,8 +482,6 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
     if (selectedType === 'mixed') {
       return (
         <MixedContentEditor
-          title={content.title}
-          onTitleChange={(title) => handleTitleChange(language, title)}
           elements={mixedElements[language] || []}
           onElementsChange={(elements) => {
             setMixedElements(prev => ({
@@ -698,7 +702,20 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
                       </h4>
                       
                       <div className="space-y-4">
-
+                        {/* Başlık - Zorunlu alan */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            İçerik Başlığı: <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={multiLanguageContent[language].title}
+                            onChange={(e) => handleTitleChange(language, e.target.value)}
+                            placeholder={`${getLanguageName(language)} başlık girin...`}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                          />
+                        </div>
 
                         {/* İçerik Editörü */}
                         {renderContentEditor(language)}

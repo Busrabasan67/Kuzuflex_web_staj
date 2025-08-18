@@ -16,6 +16,11 @@ interface ProductGroup {
     name: string; // Grup adı (çeviri)
     description: string; // Grup açıklaması (çeviri)
   }[];
+  turkishTranslation?: {
+    language: string; // Dil kodu
+    name: string; // Grup adı (çeviri)
+    description: string; // Grup açıklaması (çeviri)
+  }; // Türkçe çeviri için özel alan
   productCount: number; // Alt ürün sayısı
 }
 
@@ -121,7 +126,7 @@ const AdminProductGroups = () => {
   const fetchGroups = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_BASE}/api/product-groups/admin`);
+      const response = await fetch(`${API_BASE}/api/product-groups/admin?lang=tr`);
       if (!response.ok) {
         throw new Error('Veriler alınamadı');
       }
@@ -129,7 +134,7 @@ const AdminProductGroups = () => {
       setGroups(data);
       setError(null);
     } catch (err) {
-      console.error('❌ Grup verileri alınamadı:', err);
+      console.error(' Grup verileri alınamadı:', err);
       setError('Veriler yüklenirken hata oluştu');
     } finally {
       setLoading(false);
@@ -223,7 +228,7 @@ const AdminProductGroups = () => {
       }
 
       const result = await response.json();
-      console.log('✅ ProductGroup başarıyla oluşturuldu:', result);
+      console.log('ProductGroup başarıyla oluşturuldu:', result);
 
       await fetchGroups();
       showToast('success', 'Kategori başarıyla eklendi!');
@@ -271,7 +276,7 @@ const AdminProductGroups = () => {
       }
 
       const result = await response.json();
-      console.log('✅ ProductGroup başarıyla güncellendi:', result);
+      console.log(' ProductGroup başarıyla güncellendi:', result);
 
       await fetchGroups();
       showToast('success', 'Kategori başarıyla güncellendi!');
@@ -711,7 +716,7 @@ const AdminProductGroups = () => {
                     {group.imageUrl ? (
                       <img
                         src={`${API_BASE}/${group.imageUrl.startsWith('/') ? group.imageUrl.slice(1) : group.imageUrl}`}
-                        alt={group.translations[0]?.name || 'Görsel'}
+                        alt={group.turkishTranslation?.name || group.translations[0]?.name || 'Görsel'}
                         className="h-8 w-8 md:h-10 md:w-10 rounded-lg object-cover"
                       />
                     ) : (
@@ -721,8 +726,8 @@ const AdminProductGroups = () => {
                     )}
                   </td>
                   <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <div className="max-w-24 md:max-w-32 lg:max-w-48 truncate" title={group.translations[0]?.name}>
-                      {group.translations[0]?.name}
+                    <div className="max-w-24 md:max-w-32 lg:max-w-48 truncate" title={group.turkishTranslation?.name || group.translations[0]?.name}>
+                      {group.turkishTranslation?.name || group.translations[0]?.name}
                     </div>
                   </td>
                   <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -733,8 +738,8 @@ const AdminProductGroups = () => {
                     </div>
                   </td>
                   <td className="px-2 py-4 text-sm text-gray-500">
-                    <div className="max-w-24 md:max-w-32 lg:max-w-48 truncate" title={group.translations[0]?.description || '-'}>
-                      {group.translations[0]?.description || '-'}
+                    <div className="max-w-24 md:max-w-32 lg:max-w-48 truncate" title={group.turkishTranslation?.description || group.translations[0]?.description || '-'}>
+                      {group.turkishTranslation?.description || group.translations[0]?.description || '-'}
                     </div>
                   </td>
                   <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">

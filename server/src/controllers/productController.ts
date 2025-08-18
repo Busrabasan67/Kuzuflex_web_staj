@@ -127,7 +127,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
     const result = await productService.getAllProductsForAdmin(hasCatalog);
     return res.status(200).json(result);
   } catch (error) {
-    console.error("❌ Ürün listesi alınamadı:", error);
+    console.error("Ürün listesi alınamadı:", error);
     return res.status(500).json({ message: "Sunucu hatası" });
   }
 };
@@ -139,7 +139,7 @@ export const getProductById = async (req: Request, res: Response) => {
     const result = await productService.getProductById(productId);
     return res.status(200).json(result);
   } catch (error) {
-    console.error("❌ Ürün getirme hatası:", error);
+    console.error("Ürün getirme hatası:", error);
     return res.status(500).json({ message: "Sunucu hatası." });
   }
 };
@@ -148,8 +148,8 @@ export const getProductById = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const productId = parseInt(req.params.id);
-    console.log("📥 Gelen güncelleme verisi:", req.body, "ID:", productId);
-    console.log("📁 Dosya var mı:", !!req.file);
+    console.log("Gelen güncelleme verisi:", req.body, "ID:", productId);
+    console.log("Dosya var mı:", !!req.file);
 
     if (!req.body) {
       return res.status(400).json({ message: "Form verileri alınamadı." });
@@ -168,7 +168,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     try {
       parsedTranslations = typeof req.body.translations === 'string' ? JSON.parse(req.body.translations) : req.body.translations;
     } catch (error) {
-      console.error("❌ Translations parse hatası:", error);
+      console.error("Translations parse hatası:", error);
       return res.status(400).json({ message: "Çeviri verileri hatalı format." });
     }
 
@@ -185,7 +185,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     return res.status(200).json(result);
 
   } catch (error) {
-    console.error("❌ Alt ürün güncelleme hatası:", error);
+    console.error("Alt ürün güncelleme hatası:", error);
     return res.status(500).json({ message: "Sunucu hatası." });
   }
 };
@@ -197,7 +197,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     const result = await productService.deleteProduct(productId);
     return res.status(200).json(result);
   } catch (error) {
-    console.error("❌ Alt ürün silme hatası:", error);
+    console.error("Alt ürün silme hatası:", error);
     return res.status(500).json({ message: "Sunucu hatası." });
   }
 };
@@ -205,8 +205,8 @@ export const deleteProduct = async (req: Request, res: Response) => {
 // Alt ürün ekleme fonksiyonu (resim dahil)
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    console.log("📥 Gelen body:", req.body);
-    console.log("📁 Dosya var mı:", !!req.file);
+    console.log("Gelen body:", req.body);
+    console.log("Dosya var mı:", !!req.file);
 
     if (!req.body) {
       return res.status(400).json({ message: "Form verileri alınamadı." });
@@ -225,7 +225,7 @@ export const createProduct = async (req: Request, res: Response) => {
     try {
       parsedTranslations = typeof req.body.translations === 'string' ? JSON.parse(req.body.translations) : req.body.translations;
     } catch (error) {
-      console.error("❌ Translations parse hatası:", error);
+      console.error("Translations parse hatası:", error);
       return res.status(400).json({ message: "Çeviri verileri hatalı format." });
     }
 
@@ -242,7 +242,7 @@ export const createProduct = async (req: Request, res: Response) => {
     return res.status(201).json(result);
 
   } catch (error) {
-    console.error("❌ Alt ürün ekleme hatası:", error);
+    console.error("Alt ürün ekleme hatası:", error);
     return res.status(500).json({ message: "Sunucu hatası." });
   }
 };

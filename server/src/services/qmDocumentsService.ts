@@ -11,14 +11,14 @@ export class QMDocumentsService {
       console.log(`🔍 Dosya kontrol ediliyor: ${filePath}`);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
-        console.log(`✅ Dosya silindi: ${filePath}`);
+        console.log(` Dosya silindi: ${filePath}`);
         return true;
       } else {
-        console.log(`⚠️ Dosya bulunamadı: ${filePath}`);
+        console.log(`Dosya bulunamadı: ${filePath}`);
         return false;
       }
     } catch (error) {
-      console.error(`❌ Dosya silinirken hata: ${filePath}`, error);
+      console.error(` Dosya silinirken hata: ${filePath}`, error);
       return false;
     }
   }
@@ -52,7 +52,6 @@ export class QMDocumentsService {
           return {
             id: doc.id,
             title: translation?.title || "Untitled",
-            description: translation?.description || "",
             imageUrl: doc.imageUrlEn ? (doc.imageUrlEn.startsWith('/') ? doc.imageUrlEn : `/${doc.imageUrlEn}`) : null, // Uluslararası sertifikalar için her zaman EN dosyası
             pdfUrl: doc.pdfUrlEn ? (doc.pdfUrlEn.startsWith('/') ? doc.pdfUrlEn : `/${doc.pdfUrlEn}`) : null,     // Uluslararası sertifikalar için her zaman EN dosyası
             type: doc.type,
@@ -68,7 +67,6 @@ export class QMDocumentsService {
               return {
                 id: doc.id,
                 title: translation.title || "Untitled",
-                description: translation.description || "",
                 imageUrl: language === 'tr' ? 
                   (doc.imageUrlTr ? (doc.imageUrlTr.startsWith('/') ? doc.imageUrlTr : `/${doc.imageUrlTr}`) : null) : 
                   (doc.imageUrlEn ? (doc.imageUrlEn.startsWith('/') ? doc.imageUrlEn : `/${doc.imageUrlEn}`) : null),
@@ -88,7 +86,6 @@ export class QMDocumentsService {
               return {
                 id: doc.id,
                 title: translation.title || "Untitled",
-                description: translation.description || "",
                 imageUrl: doc.imageUrlEn ? (doc.imageUrlEn.startsWith('/') ? doc.imageUrlEn : `/${doc.imageUrlEn}`) : null,
                 pdfUrl: doc.pdfUrlEn ? (doc.pdfUrlEn.startsWith('/') ? doc.pdfUrlEn : `/${doc.pdfUrlEn}`) : null,
                 type: doc.type,
@@ -134,7 +131,6 @@ export class QMDocumentsService {
       return {
         id: document.id,
         title: translation?.title || "Untitled",
-        description: translation?.description || "",
         imageUrl: imageUrl,
         pdfUrl: pdfUrl,
         type: document.type,
@@ -173,7 +169,6 @@ export class QMDocumentsService {
           const translation = translationRepo.create({
             language: trans.language,
             title: trans.title,
-            description: trans.description,
             document: savedDocument
           });
           await translationRepo.save(translation);
@@ -270,13 +265,11 @@ export class QMDocumentsService {
           
           if (translation) {
             translation.title = trans.title;
-            translation.description = trans.description;
             await translationRepo.save(translation);
           } else {
             const newTranslation = translationRepo.create({
               language: trans.language,
               title: trans.title,
-              description: trans.description,
               document: document
             });
             await translationRepo.save(newTranslation);

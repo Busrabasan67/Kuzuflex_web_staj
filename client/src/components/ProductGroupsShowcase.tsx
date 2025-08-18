@@ -82,9 +82,9 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                 
     productGroups.forEach((productGroup) => {
       // Debug: Üst ürün resim bilgilerini logla
-      console.log(`🔍 ${t('pages.home.products.subcategories')}: ${productGroup.title}`);
-      console.log(`📸 ${t('common.imageLoadError')} URL: ${productGroup.imageUrl}`);
-      console.log(`🔗 ${t('pages.home.products.exploreButton')} URL: ${buildImageUrl(productGroup.imageUrl)}`);
+      console.log(` ${t('pages.home.products.subcategories')}: ${productGroup.title}`);
+      console.log(` ${t('common.imageLoadError')} URL: ${productGroup.imageUrl}`);
+      console.log(` ${t('pages.home.products.exploreButton')} URL: ${buildImageUrl(productGroup.imageUrl)}`);
       
                   // Ana kategori kartı
                   allCards.push(
@@ -100,10 +100,10 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             src={buildImageUrl(productGroup.imageUrl)}
                       alt={productGroup.title}
                             className="w-full h-full object-cover rounded-t-lg transition-transform duration-500 hover:scale-110"
-                            onLoad={() => console.log(`✅ ${t('pages.home.products.subcategories')} ${t('common.imageLoadError')} yüklendi: ${productGroup.title}`)}
+                            onLoad={() => console.log(` ${t('pages.home.products.subcategories')} ${t('common.imageLoadError')} yüklendi: ${productGroup.title}`)}
                             onError={(e) => {
-                              console.log(`❌ ${t('pages.home.products.subcategories')} ${t('common.imageLoadError')} yüklenemedi: ${productGroup.title}`);
-                              console.log(`🔗 ${t('common.imageLoadError')} URL: ${productGroup.imageUrl}`);
+                              console.log(` ${t('pages.home.products.subcategories')} ${t('common.imageLoadError')} yüklenemedi: ${productGroup.title}`);
+                              console.log(` ${t('common.imageLoadError')} URL: ${productGroup.imageUrl}`);
                               // Resim yüklenemezse fallback göster
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
@@ -163,8 +163,8 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                   if (productGroup.subcategories && productGroup.subcategories.length > 0) {
                     productGroup.subcategories.forEach((subCategory) => {
                       // Debug: Alt ürün resim bilgilerini logla
-                      console.log(`🔍 ${t('pages.home.products.subProductCount')}: ${subCategory.title}`);
-                      console.log(`📸 ${t('common.imageLoadError')} URL: ${subCategory.imageUrl}`);
+                      console.log(` ${t('pages.home.products.subProductCount')}: ${subCategory.title}`);
+                      console.log(` ${t('common.imageLoadError')} URL: ${subCategory.imageUrl}`);
                       
                       allCards.push(
                         <div
@@ -179,9 +179,9 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                                 src={buildImageUrl(subCategory.imageUrl)}
                                 alt={subCategory.title}
                                 className="w-full h-full object-cover rounded-t-lg transition-transform duration-500 hover:scale-110"
-                                onLoad={() => console.log(`✅ ${t('pages.home.products.subProductCount')} ${t('common.imageLoadError')} yüklendi: ${subCategory.title}`)}
+                                onLoad={() => console.log(` ${t('pages.home.products.subProductCount')} ${t('common.imageLoadError')} yüklendi: ${subCategory.title}`)}
                                 onError={(e) => {
-                                  console.log(`❌ ${t('pages.home.products.subProductCount')} ${t('common.imageLoadError')} yüklenemedi: ${subCategory.title}`);
+                                  console.log(` ${t('pages.home.products.subProductCount')} ${t('common.imageLoadError')} yüklenemedi: ${subCategory.title}`);
                                   // Resim yüklenemezse fallback göster
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
@@ -250,11 +250,11 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
 
   // Filtreleme işlemi
   const applyFilter = (cards: React.ReactElement[], filter: string) => {
-    console.log(`🔍 ${t('pages.home.products.filtering')} başladı: ${filter}`);
-    console.log(`📊 Toplam ${t('pages.home.products.card')} sayısı: ${cards.length}`);
+    console.log(` ${t('pages.home.products.filtering')} başladı: ${filter}`);
+    console.log(` Toplam ${t('pages.home.products.card')} sayısı: ${cards.length}`);
     
     if (filter === 'all') {
-      console.log(`✅ Tüm ürünler gösteriliyor: ${cards.length} ${t('pages.home.products.card')}`);
+      console.log(` Tüm ürünler gösteriliyor: ${cards.length} ${t('pages.home.products.card')}`);
       return cards;
     }
     
@@ -268,7 +268,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
         const productGroup = productGroups.find(group => group.id.toString() === productGroupId);
         
         if (!productGroup) {
-          console.log(`❌ ${t('pages.home.products.subcategories')} bulunamadı: ${productGroupId}`);
+          console.log(` ${t('pages.home.products.subcategories')} bulunamadı: ${productGroupId}`);
           return false;
         }
         
@@ -276,7 +276,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
         
         // Ana kategori kartı
         if (key === `main-${productGroupId}`) {
-          console.log(`✅ ${t('pages.home.products.subcategories')} kartı eklendi: ${key}`);
+          console.log(` ${t('pages.home.products.subcategories')} kartı eklendi: ${key}`);
           return true;
         }
         
@@ -286,28 +286,28 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
           const isSubOfThisGroup = productGroup.subcategories?.some(sub => sub.id.toString() === subId) || false;
           
           if (isSubOfThisGroup) {
-            console.log(`✅ ${t('pages.home.products.subProductCount')} kartı eklendi: ${key} (${productGroup.title} altında)`);
+            console.log(` ${t('pages.home.products.subProductCount')} kartı eklendi: ${key} (${productGroup.title} altında)`);
           } else {
-            console.log(`❌ ${t('pages.home.products.subProductCount')} kartı filtrelendi: ${key} (${productGroup.title} altında değil)`);
+            console.log(` ${t('pages.home.products.subProductCount')} kartı filtrelendi: ${key} (${productGroup.title} altında değil)`);
           }
           
           return isSubOfThisGroup;
         }
         
-                      return false;
+                    return false;
                   }
       
       return false;
     });
     
-    console.log(`📊 ${t('pages.home.products.filtering')} sonucu: ${filteredCards.length} ${t('pages.home.products.card')}`);
+    console.log(` ${t('pages.home.products.filtering')} sonucu: ${filteredCards.length} ${t('pages.home.products.card')}`);
     return filteredCards;
   };
 
   // Filtre seçeneklerini oluştur
   const generateFilterOptions = () => {
-    console.log('🔧', t('pages.home.products.filterOptions'), 'oluşturuluyor...');
-    console.log(`📊 ${t('pages.home.products.totalProductGroups')} sayısı: ${productGroups.length}`);
+    console.log( t('pages.home.products.filterOptions'), 'oluşturuluyor...');
+    console.log(`${t('pages.home.products.totalProductGroups')} sayısı: ${productGroups.length}`);
     
     const options = [
       { key: 'all', label: t('pages.home.products.allProducts'), count: productGroups.length + productGroups.reduce((acc, group) => acc + (group.subcategories?.length || 0), 0) }
@@ -330,7 +330,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
   };
 
   useEffect(() => {
-    console.log('🔄 ProductGroupsShowcase -', t('pages.home.products.filterOptions'), 'updated:', productGroups);
+    console.log(' ProductGroupsShowcase -', t('pages.home.products.filterOptions'), 'updated:', productGroups);
     
     // Tüm kartları oluştur ve filtrele
     const allCards = generateAllCards();
@@ -406,7 +406,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                       alt={selectedProductGroup.title}
                     className="w-full h-full object-cover rounded-lg"
                     onError={(e) => {
-                      console.log(`❌ Seçili ürün resmi yüklenemedi: ${selectedProductGroup.title}`);
+                      console.log(` Seçili ürün resmi yüklenemedi: ${selectedProductGroup.title}`);
                       // Resim yüklenemezse fallback göster
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';

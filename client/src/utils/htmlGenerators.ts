@@ -137,10 +137,23 @@ export const generateTextHTML = (text: string, opts?: {
     // Uzun sözcükler taşmasın; break-all yerine break-words kullanarak doğal kelime böl
     const fontStyle = opts?.fontSizePx ? `font-size: ${opts.fontSizePx}px;` : '';
     
-    // RichTextEditor'dan gelen HTML'de zaten tüm stiller var, sadece font boyutunu ekle
-    // Eğer font boyutu belirtilmemişse, sadece wrapper div'i ekle
-    if (fontStyle) {
-      return `<div class="break-words whitespace-normal" style="${fontStyle}">${decodedText}</div>`;
+    // RichTextEditor'dan gelen HTML'de text-align stilini kontrol et
+    let textAlignStyle = '';
+    if (decodedText.includes('text-align: center') || decodedText.includes('text-align:center')) {
+      textAlignStyle = 'text-align: center;';
+    } else if (decodedText.includes('text-align: right') || decodedText.includes('text-align:right')) {
+      textAlignStyle = 'text-align: right;';
+    } else if (decodedText.includes('text-align: justify') || decodedText.includes('text-align:justify')) {
+      textAlignStyle = 'text-align: justify;';
+    } else {
+      textAlignStyle = 'text-align: left;';
+    }
+    
+    // RichTextEditor'dan gelen HTML'de zaten tüm stiller var, sadece font boyutunu ve text-align'i ekle
+    const combinedStyle = [fontStyle, textAlignStyle].filter(Boolean).join(' ');
+    
+    if (combinedStyle) {
+      return `<div class="break-words whitespace-normal" style="${combinedStyle}">${decodedText}</div>`;
     } else {
       return `<div class="break-words whitespace-normal">${decodedText}</div>`;
     }
@@ -206,17 +219,12 @@ export const generateImageHTML = (
 
 // Karışık içerik bloğu için HTML oluştur
 export const generateMixedContentHTML = (
-  title: string,
   layout: 'vertical' | 'horizontal' | 'grid',
   elements: ContentElement[],
   options?: { preview?: boolean }
 ): string => {
   const showPreview = options?.preview === true;
   let html = `<div class="mixed-content-block my-8 p-6 bg-gray-50 rounded-lg">`;
-  
-  if (title) {
-    html += `<h3 class="text-xl font-semibold text-gray-800 mb-4">${title}</h3>`;
-  }
   
   if (layout === 'vertical') {
     html += '<div class="space-y-4">';

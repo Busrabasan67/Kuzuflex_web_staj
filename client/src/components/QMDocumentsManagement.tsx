@@ -51,7 +51,6 @@ const Flags = {
 interface QMDocument {
   id: number;
   title: string;
-  description: string;
   imageUrl?: string;
   pdfUrl?: string;
   type: 'certificate' | 'document';
@@ -79,12 +78,11 @@ const QMDocumentsManagement: React.FC = () => {
   }>({ show: false, type: 'info', message: '' });
   const [formData, setFormData] = useState({
     title: '',
-    description: '',
     type: 'document' as 'certificate' | 'document',
     isInternational: false,
     translations: [
-      { language: 'tr', title: '', description: '' },
-      { language: 'en', title: '', description: '' }
+      { language: 'tr', title: '' },
+      { language: 'en', title: '' }
     ]
   });
 
@@ -256,12 +254,11 @@ const QMDocumentsManagement: React.FC = () => {
   const resetForm = () => {
     setFormData({
       title: '',
-      description: '',
       type: 'document',
       isInternational: false,
       translations: [
-        { language: 'tr', title: '', description: '' },
-        { language: 'en', title: '', description: '' }
+        { language: 'tr', title: '' },
+        { language: 'en', title: '' }
       ]
     });
     setFiles({
@@ -274,16 +271,15 @@ const QMDocumentsManagement: React.FC = () => {
 
   const handleEdit = (document: QMDocument) => {
     setEditingDocument(document);
-    setFormData({
-      title: document.title,
-      description: document.description,
-      type: document.type,
-      isInternational: document.isInternational,
-      translations: [
-        { language: 'tr', title: document.title, description: document.description },
-        { language: 'en', title: document.title, description: document.description }
-      ]
-    });
+            setFormData({
+          title: document.title,
+          type: document.type,
+          isInternational: document.isInternational,
+          translations: [
+            { language: 'tr', title: document.title },
+            { language: 'en', title: document.title }
+          ]
+        });
     setFiles({
       imageTr: null,
       imageEn: null,
@@ -538,7 +534,7 @@ const QMDocumentsManagement: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">QM Documents & Certificates Yönetimi</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Sertifikalar ve Belgeler</h1>
           <p className="text-gray-600 mt-2">Sertifika ve dokümanlarınızı yönetin</p>
         </div>
         <button 
@@ -648,7 +644,7 @@ const QMDocumentsManagement: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">{doc.title}</div>
-                      <div className="text-sm text-gray-500 truncate max-w-xs">{doc.description}</div>
+      
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -757,8 +753,8 @@ const QMDocumentsManagement: React.FC = () => {
                      onChange={(e) => handleInputChange('type', e.target.value)}
                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                    >
-                     <option value="document">📄 Doküman</option>
-                     <option value="certificate">🏆 Sertifika</option>
+                     <option value="document"> Doküman</option>
+                     <option value="certificate"> Sertifika</option>
                    </select>
                  </div>
 
@@ -802,19 +798,7 @@ const QMDocumentsManagement: React.FC = () => {
                        required
                      />
                    </div>
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                       Açıklama (TR)
-                     </label>
-                     <textarea
-                       value={formData.translations.find(t => t.language === 'tr')?.description || ''}
-                       onChange={(e) => handleTranslationChange('tr', 'description', e.target.value)}
-                       rows={3}
-                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="Türkçe açıklama girin"
-                       required
-                     />
-                   </div>
+
                  </div>
                </div>
 
@@ -840,19 +824,7 @@ const QMDocumentsManagement: React.FC = () => {
                        required
                      />
                    </div>
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                       Description (EN)
-                     </label>
-                     <textarea
-                       value={formData.translations.find(t => t.language === 'en')?.description || ''}
-                       onChange={(e) => handleTranslationChange('en', 'description', e.target.value)}
-                       rows={3}
-                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                       placeholder="Enter English description"
-                       required
-                     />
-                   </div>
+
                  </div>
                </div>
 
@@ -1121,18 +1093,7 @@ const QMDocumentsManagement: React.FC = () => {
                            required
                          />
                        </div>
-                       <div>
-                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                           Açıklama
-                         </label>
-                         <textarea
-                           value={formData.translations[0].description}
-                           onChange={(e) => handleTranslationChange('tr', 'description', e.target.value)}
-                           rows={3}
-                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           required
-                         />
-                       </div>
+
                      </div>
                    </div>
                    <div>
@@ -1155,18 +1116,7 @@ const QMDocumentsManagement: React.FC = () => {
                            required
                          />
                        </div>
-                       <div>
-                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                           Description
-                         </label>
-                         <textarea
-                           value={formData.translations[1].description}
-                           onChange={(e) => handleTranslationChange('en', 'description', e.target.value)}
-                           rows={3}
-                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           required
-                         />
-                       </div>
+
                      </div>
                    </div>
                  </div>
@@ -1425,9 +1375,7 @@ const QMDocumentsManagement: React.FC = () => {
                    <h5 className="text-lg font-semibold text-gray-900 mb-2">
                      {deletingDocument.title}
                    </h5>
-                   <p className="text-gray-600 mb-3">
-                     {deletingDocument.description}
-                   </p>
+
                    <div className="text-sm text-gray-500">
                      <p><strong>Oluşturulma:</strong> {new Date(deletingDocument.createdAt).toLocaleDateString('tr-TR')}</p>
                      <p><strong>Son Güncelleme:</strong> {new Date(deletingDocument.updatedAt).toLocaleDateString('tr-TR')}</p>

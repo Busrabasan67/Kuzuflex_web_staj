@@ -46,19 +46,25 @@ export class ProductService {
 
       const products = await query.getMany();
 
-      return products.map(product => ({
-        id: product.id,
-        title: product.translations?.[0]?.title || "İsimsiz Ürün",
-        description: product.translations?.[0]?.description || "",
-        imageUrl: product.imageUrl,
-        standard: product.standard,
-        groupId: product.group?.id || null,
-        groupName: product.group?.translations?.[0]?.name || product.group?.translations?.[0]?.name || "İsimsiz Grup",
-        hasCatalog: (product.catalogs && product.catalogs.length > 0),
-        catalogCount: product.catalogs?.length || 0,
-        createdAt: product.createdAt,
-        updatedAt: product.updatedAt
-      }));
+      return products.map(product => {
+        // Türkçe çeviriyi bul, yoksa ilk çeviriyi kullan
+        const turkishTranslation = product.translations?.find(t => t.language === 'tr') || product.translations?.[0];
+        const turkishGroupTranslation = product.group?.translations?.find(t => t.language === 'tr') || product.group?.translations?.[0];
+        
+        return {
+          id: product.id,
+          title: turkishTranslation?.title || "İsimsiz Ürün",
+          description: turkishTranslation?.description || "",
+          imageUrl: product.imageUrl,
+          standard: product.standard,
+          groupId: product.group?.id || null,
+          groupName: turkishGroupTranslation?.name || "İsimsiz Grup",
+          hasCatalog: (product.catalogs && product.catalogs.length > 0),
+          catalogCount: product.catalogs?.length || 0,
+          createdAt: product.createdAt,
+          updatedAt: product.updatedAt
+        };
+      });
     } catch (error) {
       throw error;
     }
@@ -76,13 +82,16 @@ export class ProductService {
         throw new Error('Product not found');
       }
 
+      // Türkçe çeviriyi bul, yoksa ilk çeviriyi kullan
+      const turkishGroupTranslation = product.group?.translations?.find(t => t.language === 'tr') || product.group?.translations?.[0];
+
       return {
         id: product.id,
         slug: product.slug,
         imageUrl: product.imageUrl,
         standard: product.standard,
         groupId: product.group?.id || null,
-        groupName: product.group?.translations?.[0]?.name || "İsimsiz Grup",
+        groupName: turkishGroupTranslation?.name || "İsimsiz Grup",
         translations: product.translations || []
       };
     } catch (error) {
@@ -105,9 +114,10 @@ export class ProductService {
         throw new Error('Product not found');
       }
 
-      const translation = product.translations?.find(t => t.language === language) || product.translations?.[0];
+      // Türkçe çeviriyi bul, yoksa ilk çeviriyi kullan
+      const translation = product.translations?.find(t => t.language === 'tr') || product.translations?.[0];
       const catalogs = product.catalogs?.map(catalog => {
-        const catalogTranslation = catalog.translations?.find(t => t.language === language);
+        const catalogTranslation = catalog.translations?.find(t => t.language === 'tr') || catalog.translations?.[0];
         return {
           id: catalog.id,
           name: catalogTranslation?.name || "Katalog",

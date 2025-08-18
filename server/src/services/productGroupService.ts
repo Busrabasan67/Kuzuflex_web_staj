@@ -35,16 +35,22 @@ export class ProductGroupService {
         order: { id: "ASC" }
       });
 
-      const result = groups.map((group) => ({
-        id: group.id,
-        slug: group.slug,
-        imageUrl: group.imageUrl,
-        standard: group.standard,
-        createdAt: group.createdAt,
-        updatedAt: group.updatedAt,
-        translations: group.translations || [],
-        productCount: group.products?.length || 0
-      }));
+      const result = groups.map((group) => {
+        // Türkçe çeviriyi bul, yoksa ilk çeviriyi kullan
+        const turkishTranslation = group.translations?.find(t => t.language === 'tr') || group.translations?.[0];
+        
+        return {
+          id: group.id,
+          slug: group.slug,
+          imageUrl: group.imageUrl,
+          standard: group.standard,
+          createdAt: group.createdAt,
+          updatedAt: group.updatedAt,
+          translations: group.translations || [],
+          turkishTranslation: turkishTranslation, // Türkçe çeviri için özel alan
+          productCount: group.products?.length || 0
+        };
+      });
 
       return result;
     } catch (error) {

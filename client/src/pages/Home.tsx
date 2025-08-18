@@ -34,11 +34,11 @@ const Home: React.FC = () => {
         }
         
         const data = await response.json();
-        console.log('🏠', t('pages.home.loading'), ':', data);
-        console.log('🏠', t('pages.home.markets.title'), ':', data.markets);
+        console.log(t('pages.home.loading'), ':', data);
+        console.log(t('pages.home.markets.title'), ':', data.markets);
         if (data.markets && data.markets.length > 0) {
-          console.log('🏠', t('pages.home.markets.title'), ':', data.markets[0]);
-          console.log('🏠', t('pages.home.markets.title'), ' imageUrl:', data.markets[0].imageUrl);
+          console.log(t('pages.home.markets.title'), ':', data.markets[0]);
+          console.log( t('pages.home.markets.title'), ' imageUrl:', data.markets[0].imageUrl);
         }
         setHomeData(data);
       } catch (e) {

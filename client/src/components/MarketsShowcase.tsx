@@ -129,11 +129,6 @@ const MarketsShowcase: React.FC<MarketsShowcaseProps> = ({ markets }) => {
              </div>
            ))}
          </div>
-
-                 
-
-
-
       </div>
 
       {/* Bottom Section Divider */}

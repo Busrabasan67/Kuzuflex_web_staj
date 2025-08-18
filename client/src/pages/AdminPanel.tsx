@@ -32,14 +32,14 @@ const AdminPanel: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar açık/kapalı durumu 
   const [showUserMenu, setShowUserMenu] = useState(false); // Kullanıcı menüsü açık/kapalı
   const [userInfo, setUserInfo] = useState<{ username: string; email: string } | null>(null);
-  const [dashboardStats, setDashboardStats] = useState({
+  const [dashboardStats, setDashboardStats] = useState({ // Dashboard istatistikleri
     totalProducts: 0,
     totalSolutions: 0,
     totalMarkets: 0,
     totalDocuments: 0,
     totalProductGroups: 0
   });
-  const { isAuthenticated, token, logout } = useAuth();
+  const { isAuthenticated, token, logout } = useAuth(); // AuthContext'ten gelen bilgiler
   const navigate = useNavigate();
 
   // Güvenlik kontrolü ve kullanıcı bilgilerini alma

@@ -52,7 +52,7 @@ export const getMarketById = async (req: Request, res: Response) => {
 
 export const createMarket = async (req: Request, res: Response) => {
   try {
-    console.log('📥 Market oluşturma isteği:', req.body);
+    console.log('Market oluşturma isteği:', req.body);
     
     // FormData'dan gelen string değerleri parse et
     const slug = req.body.slug;
@@ -70,7 +70,7 @@ export const createMarket = async (req: Request, res: Response) => {
     let finalImageUrl = imageUrl || '';
     if (req.file) {
       finalImageUrl = `/uploads/images/Markets/${req.file.filename}`;
-      console.log('📸 Yeni resim yüklendi:', finalImageUrl);
+      console.log('Yeni resim yüklendi:', finalImageUrl);
     }
 
     const marketData = {
@@ -92,8 +92,8 @@ export const createMarket = async (req: Request, res: Response) => {
 
     res.status(201).json(savedMarket);
   } catch (error) {
-    console.error('❌ Market oluşturma hatası:', error);
-    console.error('❌ Hata detayları:', {
+    console.error('Market oluşturma hatası:', error);
+    console.error('Hata detayları:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined
     });
@@ -175,7 +175,7 @@ export const deleteMarket = async (req: Request, res: Response) => {
     const result = await marketService.deleteMarket(parseInt(id));
     res.json(result);
   } catch (error) {
-    console.error('❌ Market silme hatası:', error);
+    console.error(' Market silme hatası:', error);
     if (error instanceof Error && error.message === 'Market not found') {
       res.status(404).json({ error: 'Market not found' });
     } else {
@@ -269,7 +269,7 @@ export const clearMarketContents = async (req: Request, res: Response) => {
     const result = await marketService.clearMarketContents(parseInt(marketId));
     res.json(result);
   } catch (error) {
-    console.error('❌ Market içerikleri temizlenirken hata:', error);
+    console.error(' Market içerikleri temizlenirken hata:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 }; 

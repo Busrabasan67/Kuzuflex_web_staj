@@ -122,6 +122,12 @@ const About = () => {
 
         textContent = decodeEntities(textContent);
         
+        // Başlık varsa kaldır, sadece içeriği göster
+        if (content.title && content.title.trim()) {
+          // Başlık bilgisi var ama gösterilmiyor
+          console.log('Text content başlığı:', content.title);
+        }
+        
         // Font size ve diğer stil bilgilerini koru
         return `<div class="extra-content-text">${textContent}</div>`;
       }

@@ -49,8 +49,8 @@ export const getSolutionForEdit = async (req: Request, res: Response) => {
 // Yeni solution oluştur (resim yükleme ile birlikte)
 export const createSolution = async (req: Request, res: Response) => {
   try {
-    console.log('🔍 CREATE SOLUTION - Request body:', req.body);
-    console.log('🔍 CREATE SOLUTION - File:', req.file);
+    console.log('CREATE SOLUTION - Request body:', req.body);
+    console.log(' CREATE SOLUTION - File:', req.file);
     
     let imageUrl = req.body.imageUrl;
     let solutionData = req.body;
@@ -67,7 +67,7 @@ export const createSolution = async (req: Request, res: Response) => {
       }
     }
 
-    console.log('🚀 CREATE SOLUTION - Service çağrısı öncesi:', {
+    console.log('CREATE SOLUTION - Service çağrısı öncesi:', {
       slug: solutionData.slug,
       imageUrl,
       hasExtraContent: solutionData.hasExtraContent,
@@ -81,10 +81,10 @@ export const createSolution = async (req: Request, res: Response) => {
       translations: solutionData.translations
     });
     
-    console.log('✅ CREATE SOLUTION - Başarılı:', result);
+    console.log('CREATE SOLUTION - Başarılı:', result);
     res.status(201).json(result);
   } catch (err) {
-    console.error('❌ CREATE SOLUTION - Hata:', err);
+    console.error('CREATE SOLUTION - Hata:', err);
     res.status(500).json({ message: "Error creating solution", error: err instanceof Error ? err.message : String(err) });
   }
 };

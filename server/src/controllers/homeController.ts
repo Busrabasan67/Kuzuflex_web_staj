@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import homeService from '../services/homeService';
 
+// Ana sayfa verilerini getir
 export const getHomeData = async (req: Request, res: Response) => {
   try {
     // Dil parametresini al

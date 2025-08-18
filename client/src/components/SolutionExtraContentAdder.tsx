@@ -177,14 +177,14 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                 if (parsedContent) {
                   // Yeni format: JSON içinde hem HTML hem de JSON data var
                   if (parsedContent.json) {
-                    console.log(`✅ ${lang} JSON format detected:`, parsedContent.json);
+                    console.log(` ${lang} JSON format detected:`, parsedContent.json);
                     // JSON formatından yükle
                     const jsonData = parsedContent.json;
                     newLayoutByLang[lang as keyof typeof newLayoutByLang] = jsonData.layout || 'vertical';
                     newMixedElements[lang as keyof typeof newMixedElements] = jsonData.elements || [];
-                    console.log(`📦 ${lang} loaded elements:`, jsonData.elements);
+                    console.log(` ${lang} loaded elements:`, jsonData.elements);
                   } else if (typeof parsedContent === 'string') {
-                    console.log(`📄 ${lang} HTML string format detected:`, parsedContent);
+                    console.log(` ${lang} HTML string format detected:`, parsedContent);
                     // Eski format: Sadece HTML string
                     // HTML içeriğini parse et ve elementleri çıkar
                     const tempDiv = document.createElement('div');
@@ -217,7 +217,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                     });
                     
                     newMixedElements[lang as keyof typeof newMixedElements] = elements;
-                    console.log(`📦 ${lang} parsed elements:`, elements);
+                    console.log(` ${lang} parsed elements:`, elements);
                   }
                 }
               }
@@ -429,10 +429,6 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
     
     for (const lang of languages) {
       const content = multiLanguageContent[lang as keyof MultiLanguageContent];
-      if (!content.title.trim()) {
-        setMessage({ type: 'error', text: `${getLanguageName(lang)} dili için başlık zorunludur!` });
-        return false;
-      }
       
       if (selectedType !== 'mixed') {
         if (selectedType === 'text' && !content.content?.trim()) {
@@ -489,7 +485,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
         let finalContent;
         if (selectedType === 'mixed') {
           // Mixed content için hem HTML hem de JSON formatında kaydet
-          const htmlContent = generateMixedContentHTML(content.title, layoutByLang[language], mixedElements[language] || []);
+          const htmlContent = generateMixedContentHTML(layoutByLang[language], mixedElements[language] || []);
           const jsonContent = {
             title: content.title,
             layout: layoutByLang[language],
@@ -499,7 +495,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
             html: htmlContent,
             json: jsonContent
           });
-          console.log(`💾 ${language} mixed content saved:`, {
+          console.log(`${language} mixed content saved:`, {
             html: htmlContent,
             json: jsonContent
           });
@@ -584,7 +580,7 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
     const content = multiLanguageContent[language as keyof MultiLanguageContent];
 
     if (selectedType === 'mixed') {
-      console.log(`🎨 ${language} MixedContentEditor props:`, {
+      console.log(`${language} MixedContentEditor props:`, {
         title: content.title,
         elements: mixedElements[language] || [],
         layout: layoutByLang[language],
@@ -594,11 +590,9 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
       
       return (
         <MixedContentEditor
-          title={content.title}
-          onTitleChange={(title) => handleTitleChange(language, title)}
           elements={mixedElements[language] || []}
           onElementsChange={(elements) => {
-            console.log(`🔄 ${language} elements changed:`, elements);
+            console.log(`${language} elements changed:`, elements);
             setMixedElements(prev => ({
               ...prev,
               [language]: elements
@@ -831,22 +825,19 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                 </h4>
                 
                 <div className="space-y-4">
-                  {/* Başlık - Karışık içerik için ayrı */}
-                  {selectedType !== 'mixed' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        İçerik Başlığı:
-                      </label>
-                      <input
-                        type="text"
-                        value={multiLanguageContent[language].title}
-                        onChange={(e) => handleTitleChange(language, e.target.value)}
-                        placeholder={`${getLanguageName(language)} başlık girin...`}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                      />
-                    </div>
-                  )}
+                  {/* Başlık - Her zaman görünür */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      İçerik Başlığı:
+                    </label>
+                    <input
+                      type="text"
+                      value={multiLanguageContent[language].title}
+                      onChange={(e) => handleTitleChange(language, e.target.value)}
+                      placeholder={`${getLanguageName(language)} başlık girin...`}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
 
                   {/* İçerik Editörü */}
                   {renderContentEditor(language)}

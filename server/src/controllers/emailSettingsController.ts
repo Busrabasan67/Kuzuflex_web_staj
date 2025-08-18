@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import emailSettingsService from '../services/emailSettingsService';
 
+// Email ayarlarını getir
 export const getEmailSettings = async (req: Request, res: Response) => {
   try {
     const settings = await emailSettingsService.getEmailSettings();
@@ -14,6 +15,7 @@ export const getEmailSettings = async (req: Request, res: Response) => {
   }
 };
 
+// Email ayarlarını güncelle
 export const updateEmailSettings = async (req: Request, res: Response) => {
   try {
     const savedSettings = await emailSettingsService.updateEmailSettings(req.body);
@@ -32,6 +34,7 @@ export const updateEmailSettings = async (req: Request, res: Response) => {
   }
 };
 
+// Email bağlantısını test et
 export const testEmailConnection = async (req: Request, res: Response) => {
   try {
     const result = await emailSettingsService.testEmailConnection();

@@ -6,8 +6,6 @@ import { generateMixedContentHTML } from '../utils/htmlGenerators';
 import type { ContentElement } from '../utils/htmlGenerators';
 
 interface MixedContentEditorProps {
-  title: string;
-  onTitleChange: (title: string) => void;
   elements: ContentElement[];
   onElementsChange: (elements: ContentElement[]) => void;
   layout: 'vertical' | 'horizontal' | 'grid';
@@ -15,8 +13,6 @@ interface MixedContentEditorProps {
 }
 
 const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
-  title,
-  onTitleChange,
   elements,
   onElementsChange,
   layout,
@@ -411,18 +407,8 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
 
   const topControls = (
     <div className="space-y-4">
-      {/* Başlık ve Önizleme Modu */}
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-2">İçerik Bloğu Başlığı:</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="İçerik bloğu başlığını girin..."
-            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-          />
-        </div>
+      {/* Önizleme Modu */}
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-end gap-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowPreview(!showPreview)}
@@ -624,7 +610,7 @@ const MixedContentEditor: React.FC<MixedContentEditorProps> = ({
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
           <div className="mb-2 text-xs text-gray-500 font-medium">🎯 Canlı Önizleme</div>
-          <div dangerouslySetInnerHTML={{ __html: generateMixedContentHTML(title, layout, elements.map(el => ({
+          <div dangerouslySetInnerHTML={{ __html: generateMixedContentHTML(layout, elements.map(el => ({
             ...el,
             // Görünüm seçeneklerini HTML generator'a geçir
             content: el.type === 'image' && (el.imageWidthPercent || el.imageMaxHeightPx)

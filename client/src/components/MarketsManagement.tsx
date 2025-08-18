@@ -73,11 +73,11 @@ const MarketsManagement: React.FC = () => {
       }
       
       const data = await response.json();
-      console.log('📦 API\'den gelen market verileri:', data);
-      console.log('📦 Market sayısı:', data.length);
+      console.log(' API\'den gelen market verileri:', data);
+      console.log(' Market sayısı:', data.length);
       
       if (data.length > 0) {
-        console.log('📦 İlk market örneği:', {
+        console.log(' İlk market örneği:', {
           id: data[0].id,
           name: data[0].name,
           isActive: data[0].isActive,
@@ -88,7 +88,7 @@ const MarketsManagement: React.FC = () => {
       
       setMarkets(data);
     } catch (err) {
-      console.error('❌ Market verileri alınırken hata:', err);
+      console.error(' Market verileri alınırken hata:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
@@ -112,21 +112,21 @@ const MarketsManagement: React.FC = () => {
 
     try {
       setIsDeleting(true);
-      console.log('🗑️ Market silme isteği gönderiliyor, ID:', deletingMarket.id);
+      console.log(' Market silme isteği gönderiliyor, ID:', deletingMarket.id);
       
       const response = await fetch(`http://localhost:5000/api/markets/${deletingMarket.id}`, {
         method: 'DELETE',
       });
 
-      console.log('📤 Response status:', response.status);
-      console.log('📤 Response ok:', response.ok);
+      console.log(' Response status:', response.status);
+      console.log(' Response ok:', response.ok);
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to delete market');
       }
 
-      console.log('✅ Market başarıyla silindi');
+      console.log(' Market başarıyla silindi');
       
       // Toast bildirimi
       showToast("success", `${deletingMarket.name} market'i başarıyla silindi.`);
@@ -138,7 +138,7 @@ const MarketsManagement: React.FC = () => {
       setIsDeleteModalOpen(false);
       setDeletingMarket(null);
     } catch (err) {
-      console.error('❌ Market silme hatası:', err);
+      console.error(' Market silme hatası:', err);
       const errorMessage = err instanceof Error ? err.message : 'Delete failed';
       setError(errorMessage);
       showToast("error", `Market silinirken hata oluştu: ${errorMessage}`);
@@ -154,7 +154,7 @@ const MarketsManagement: React.FC = () => {
 
   const handleToggleActive = async (id: number, currentStatus: boolean) => {
     try {
-      console.log('🔄 Market durumu değiştiriliyor:', { id, currentStatus, newStatus: !currentStatus });
+      console.log(' Market durumu değiştiriliyor:', { id, currentStatus, newStatus: !currentStatus });
       
       // FormData ile sadece isActive değerini gönder
       const formData = new FormData();
@@ -165,17 +165,17 @@ const MarketsManagement: React.FC = () => {
         body: formData, // Content-Type header'ı otomatik olarak multipart/form-data olacak
       });
 
-      console.log('📤 Response status:', response.status);
-      console.log('📤 Response ok:', response.ok);
+      console.log(' Response status:', response.status);
+      console.log(' Response ok:', response.ok);
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('❌ API Error:', errorData);
+        console.error(' API Error:', errorData);
         throw new Error(errorData.message || 'Failed to update market');
       }
 
       const result = await response.json();
-      console.log('✅ Market güncellendi:', result);
+      console.log(' Market güncellendi:', result);
 
       // Market verilerini yeniden yükle (Footer'da da güncellensin)
       await fetchMarkets();
@@ -183,7 +183,7 @@ const MarketsManagement: React.FC = () => {
       // Toast bildirimi
       showToast("success", `Market başarıyla ${!currentStatus ? 'aktif' : 'pasif'} hale getirildi.`);
     } catch (err) {
-      console.error('❌ Toggle hatası:', err);
+      console.error(' Toggle hatası:', err);
       const errorMessage = err instanceof Error ? err.message : 'Update failed';
       setError(errorMessage);
       showToast("error", `Market durumu güncellenirken hata oluştu: ${errorMessage}`);

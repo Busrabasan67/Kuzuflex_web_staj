@@ -157,36 +157,36 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
   const submitSolutionWithImage = async (file: File, solutionData: any): Promise<any> => {
     setImageUploading(true);
     try {
-      console.log('🚀 SUBMIT SOLUTION - Başlangıç:', { file, solutionData });
+      console.log(' SUBMIT SOLUTION - Başlangıç:', { file, solutionData });
       
       const formData = new FormData();
       formData.append('image', file);
       formData.append('data', JSON.stringify(solutionData));
 
-      console.log('📦 SUBMIT SOLUTION - FormData hazırlandı');
+      console.log(' SUBMIT SOLUTION - FormData hazırlandı');
 
       // Yeni solution oluşturma
       if (!solutionData.id) {
-        console.log('🆕 SUBMIT SOLUTION - Yeni solution oluşturma');
+        console.log(' SUBMIT SOLUTION - Yeni solution oluşturma');
         const response = await fetch('http://localhost:5000/api/solutions', {
           method: 'POST',
           body: formData,
         });
 
-        console.log('📡 SUBMIT SOLUTION - Response status:', response.status);
+        console.log(' SUBMIT SOLUTION - Response status:', response.status);
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('❌ SUBMIT SOLUTION - Response error:', errorText);
+          console.error(' SUBMIT SOLUTION - Response error:', errorText);
           throw new Error('Solution oluşturma hatası');
         }
 
         const result = await response.json();
-        console.log('✅ SUBMIT SOLUTION - Başarılı:', result);
+        console.log('SUBMIT SOLUTION - Başarılı:', result);
         return result;
       } else {
         // Mevcut solution güncelleme
-        console.log('🔄 SUBMIT SOLUTION - Solution güncelleme');
+        console.log('SUBMIT SOLUTION - Solution güncelleme');
         const response = await fetch(`http://localhost:5000/api/solutions/${solutionData.id}`, {
           method: 'PUT',
           body: formData,
@@ -196,16 +196,16 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('❌ SUBMIT SOLUTION - Response error:', errorText);
+          console.error(' SUBMIT SOLUTION - Response error:', errorText);
           throw new Error('Solution güncelleme hatası');
         }
 
         const result = await response.json();
-        console.log('✅ SUBMIT SOLUTION - Başarılı:', result);
+        console.log(' SUBMIT SOLUTION - Başarılı:', result);
         return result;
       }
     } catch (error) {
-      console.error('❌ SUBMIT SOLUTION - Hata:', error);
+      console.error(' SUBMIT SOLUTION - Hata:', error);
       throw error;
     } finally {
       setImageUploading(false);
@@ -282,7 +282,7 @@ const SolutionModal: React.FC<SolutionModalProps> = ({
         });
       }
     } catch (error) {
-      console.error('❌ FORM SUBMIT - Hata:', error);
+      console.error(' FORM SUBMIT - Hata:', error);
       // Hata durumunda kullanıcıya bilgi ver
       if (onError) {
         onError('Solution oluşturulurken hata oluştu');

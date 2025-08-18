@@ -41,7 +41,7 @@ const AdminLogin: React.FC= () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
-    // ✅ Bunu ekle
+    // hangi bilgiler gönderiliyor?
     console.log("Gönderilen:", {
       identifier: username,
       password: password

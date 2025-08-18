@@ -1,4 +1,4 @@
-// ProtectedRoute.tsx
+// ProtectedRoute.tsx , bir sayfaya erişim yetkisi kontrolü yapılır, token geçerliyse sayfaya erişilir, geçersizse login sayfasına yönlendirilir
 import React, { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";

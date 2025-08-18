@@ -185,6 +185,7 @@ export const updateAdminProfile = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Admin istatistikleri
 export const getAdminStats = async (req: AuthRequest, res: Response) => {
   try {
     const adminId = req.user?.id;
@@ -210,6 +211,7 @@ export const getAdminStats = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Admin profil güvenliği kontrolü
 export const getProfileSecurity = async (req: AuthRequest, res: Response) => {
   try {
     const adminId = req.user?.id;
