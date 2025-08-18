@@ -1,4 +1,4 @@
-# 🚀 Kuzuflex Web Internship Project - Modern Web Application
+<img width="1912" height="934" alt="image" src="https://github.com/user-attachments/assets/75f63c65-72c4-4c78-a3b5-ab9d4a958c3b" /># 🚀 Kuzuflex Web Internship Project - Modern Web Application
 
 ## 📋 About the Project
 
@@ -268,25 +268,92 @@ API documentation access:
 ## 🖥️ Application Interface
 
 ### **Home Page**
-![Home Page](docs/screenshots/home-page.png)
+<img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/ef86a9d2-0b15-4302-9f7b-2d45b894091b" />
+<img width="1918" height="1032" alt="image" src="https://github.com/user-attachments/assets/78ee14c3-0c8b-4e22-bc07-80d020f0ea75" />
+<img width="1916" height="1029" alt="image" src="https://github.com/user-attachments/assets/a84fc6d0-35b1-4244-8f89-42fec7bcfbe0" />
+<img width="1920" height="1029" alt="image" src="https://github.com/user-attachments/assets/0344864b-6ddf-4bf0-9bd1-59dd7405fcee" />
+<img width="1920" height="1028" alt="image" src="https://github.com/user-attachments/assets/8968c934-281d-4acc-8ba7-d032a224041b" />
+<img width="1918" height="1029" alt="image" src="https://github.com/user-attachments/assets/837a58a6-bfd0-4901-99e3-40ca8db804aa" />
+<img width="1909" height="881" alt="image" src="https://github.com/user-attachments/assets/aa1eddcd-1751-491f-ac5f-e5c289d18b68" />
+<img width="1920" height="1026" alt="image" src="https://github.com/user-attachments/assets/03d013b1-e4aa-4c19-bc37-4daf627d8f18" />
+<img width="1917" height="1029" alt="image" src="https://github.com/user-attachments/assets/b867ccdc-4d41-4627-b879-c6555823dce2" />
+<img width="1915" height="1022" alt="image" src="https://github.com/user-attachments/assets/6d00abba-974f-4863-acc1-cfdd370c1171" />
+<img width="1920" height="1027" alt="image" src="https://github.com/user-attachments/assets/87e799f9-0099-4235-914d-cb88e4d19d46" />
 
-### **Product Catalog**
-![Product Catalog](docs/screenshots/product-catalog.png)
+### **Product Group**
+<img width="1920" height="1027" alt="image" src="https://github.com/user-attachments/assets/9f64866a-df9d-4b8b-ab26-c17173304748" />
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/ca0ffebb-a86e-4d05-9a5d-72c42c98d6e6" />
+
+### **Product**
+<img width="1917" height="1025" alt="image" src="https://github.com/user-attachments/assets/a7464f3b-79dd-4286-b527-f0152441024b" />
+<img width="1916" height="1028" alt="image" src="https://github.com/user-attachments/assets/ec27362c-8eb2-4cc2-8198-c0555cdc2963" />
+
+### **Documents and Certificates**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/16646493-25a0-4952-8194-7730f738b5c9" />
+<img width="1920" height="1026" alt="image" src="https://github.com/user-attachments/assets/64325702-55f4-4183-a77b-493638439644" />
 
 ### **Solutions Page**
-![Solutions Page](docs/screenshots/solutions-page.png)
+<img width="1920" height="1030" alt="image" src="https://github.com/user-attachments/assets/8769bab8-4aa9-4d48-bc8e-eace9b245166" />
+<img width="1918" height="1022" alt="image" src="https://github.com/user-attachments/assets/59e015c2-1276-47fd-a6d4-5738c5a3408f" />
+<img width="1914" height="1024" alt="image" src="https://github.com/user-attachments/assets/cb889afe-a012-4ccc-8770-fe9e3a55786f" />
+<img width="1920" height="1032" alt="image" src="https://github.com/user-attachments/assets/cf63c6ba-c0b1-4613-b62e-2623195dd106" />
+<img width="1915" height="1025" alt="image" src="https://github.com/user-attachments/assets/4c4eb5ac-3c3f-47ce-89da-30a4062bef6d" />
+
+
+### **About-us Page**
+<img width="1919" height="1032" alt="image" src="https://github.com/user-attachments/assets/67e95058-a4c7-4d24-bdc5-0b97838ee0b9" />
+<img width="1920" height="1029" alt="image" src="https://github.com/user-attachments/assets/d7756c50-9114-4c92-852a-6e675b20e903" />
+<img width="1912" height="1023" alt="image" src="https://github.com/user-attachments/assets/1c9808c1-c60e-4d7c-a1d8-6133fd64ef55" />
+
+### **Contact Page**
+<img width="1919" height="1029" alt="image" src="https://github.com/user-attachments/assets/7cb98d25-6fd9-4b01-8179-c18e7ba1d80e" />
+<img width="1918" height="1027" alt="image" src="https://github.com/user-attachments/assets/c5e8d72e-0b4b-4294-b7e6-8b7832537cae" />
+
+
+### **Markets**
+<img width="1919" height="1030" alt="image" src="https://github.com/user-attachments/assets/87372224-6ec8-4802-b9a4-97faef5612ea" />
+
+
+### **Admin Login**
+<img width="1913" height="925" alt="image" src="https://github.com/user-attachments/assets/1462ab3a-a20f-4143-8c7c-c9b2f24e4e37" />
+<img width="1912" height="934" alt="image" src="https://github.com/user-attachments/assets/e1a49adc-ab41-4902-be99-644335433833" />
+
 
 ### **Admin Panel**
-![Admin Panel](docs/screenshots/admin-panel.png)
+<img width="1904" height="932" alt="image" src="https://github.com/user-attachments/assets/95885b64-ec62-4003-be9d-9e2a2475fea1" />
+
+### **Admin Profile**
+<img width="1905" height="934" alt="image" src="https://github.com/user-attachments/assets/fdb7ea02-cbc4-4cff-a10b-0d1d3f55f6fe" />
+<img width="1904" height="933" alt="image" src="https://github.com/user-attachments/assets/639816ce-b084-4a3a-ade7-c173a7d21c50" />
+
+
+### **Product Group Management**
+<img width="1887" height="926" alt="image" src="https://github.com/user-attachments/assets/a2adc8ef-7753-43f3-86d3-3f6d6656193f" />
+<img width="1916" height="1025" alt="image" src="https://github.com/user-attachments/assets/67f14ea6-efb5-412d-9529-3d9de6001145" />
 
 ### **Product Management**
-![Product Management](docs/screenshots/product-management.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/3ed22fd4-2e37-4df9-a662-b1ef033045db" />
+<img width="1903" height="931" alt="image" src="https://github.com/user-attachments/assets/2eadaea5-e299-4625-a4fc-943ff5907a13" />
+<img width="1916" height="931" alt="image" src="https://github.com/user-attachments/assets/866c8154-3ecc-4cb8-97fe-3bcabb73a8f5" />
+
 
 ### **Solution Management**
-![Solution Management](docs/screenshots/solution-management.png)
+<img width="1907" height="931" alt="image" src="https://github.com/user-attachments/assets/10c4e774-e9db-47cc-828c-7c0e9ec8f94a" />
+
+### **SolutionExtra Content Management**
+<img width="1906" height="950" alt="image" src="https://github.com/user-attachments/assets/3b5ae2b4-6d3c-41c4-866e-da46a14189c0" />
+<img width="1912" height="940" alt="image" src="https://github.com/user-attachments/assets/ea8417bb-f949-45e8-9b7c-2c63ea764ae8" />
+<img width="1916" height="936" alt="image" src="https://github.com/user-attachments/assets/6fb6b436-6ea1-4e5a-8a95-46be414dfcbb" />
+<img width="1904" height="920" alt="image" src="https://github.com/user-attachments/assets/f9112960-bdb6-4ff7-8f1c-a97275183344" />
+
+### **Documents and Certificates Management**
+<img width="1915" height="943" alt="image" src="https://github.com/user-attachments/assets/3c34e448-f94d-4d8b-8bf2-0187ef064611" />
+<img width="1908" height="932" alt="image" src="https://github.com/user-attachments/assets/fa0155f2-e0a4-476d-84c5-8125bbb47738" />
+
 
 ### **Market Management**
-![Market Management](docs/screenshots/market-management.png)
+<img width="1918" height="941" alt="image" src="https://github.com/user-attachments/assets/00b9d5e3-67bb-44fe-8a98-38af244be9b5" />
+
 
 ### **Responsive Design**
 ![Mobile View](docs/screenshots/mobile-view.png)
@@ -294,7 +361,6 @@ API documentation access:
 ## 👨‍💼 Admin Panel
 
 ### **Access**
-- **URL**: `/admin`
 - **Role-based Access** - Role-based access control
 
 ## 📝 Feature Details
