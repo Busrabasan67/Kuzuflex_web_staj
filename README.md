@@ -147,7 +147,9 @@ Kuzuflex_web_staj/
 
 ## 🗄️ Database Relationship Schema
 
-![Database Relationship Schema](docs/database-schema.png)
+![Database Relationship Schema]
+<img width="1237" height="777" alt="image" src="https://github.com/user-attachments/assets/61775018-849f-4a06-922e-f1c4bb09d728" />
+
 
 *ERD (Entity Relationship Diagram) showing database tables and their relationships*
 
