@@ -1,4 +1,4 @@
-<img width="1912" height="934" alt="image" src="https://github.com/user-attachments/assets/75f63c65-72c4-4c78-a3b5-ab9d4a958c3b" /># 🚀 Kuzuflex Web Internship Project - Modern Web Application
+# 🚀 Kuzuflex Web Internship Project - Modern Web Application
 
 ## 📋 About the Project
 
@@ -147,7 +147,7 @@ Kuzuflex_web_staj/
 
 ## 🗄️ Database Relationship Schema
 
-![Database Relationship Schema]
+
 <img width="1237" height="777" alt="image" src="https://github.com/user-attachments/assets/61775018-849f-4a06-922e-f1c4bb09d728" />
 
 
@@ -317,6 +317,7 @@ API documentation access:
 ### **Admin Login**
 <img width="1913" height="925" alt="image" src="https://github.com/user-attachments/assets/1462ab3a-a20f-4143-8c7c-c9b2f24e4e37" />
 <img width="1912" height="934" alt="image" src="https://github.com/user-attachments/assets/e1a49adc-ab41-4902-be99-644335433833" />
+
 
 
 ### **Admin Panel**
