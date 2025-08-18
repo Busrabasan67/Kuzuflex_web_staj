@@ -84,13 +84,13 @@ const MarketsShowcase: React.FC<MarketsShowcaseProps> = ({ markets }) => {
                      alt={market.title}
                      className="w-full h-[300px] object-cover transition-transform duration-300 group-hover:scale-110"
                      onError={(e) => {
-                       console.log('❌', t('common.imageLoadError'), ':', market.imageUrl);
+                       console.log('', t('common.imageLoadError'), ':', market.imageUrl);
                        const target = e.target as HTMLImageElement;
                        target.style.display = 'none';
                        target.nextElementSibling?.classList.remove('hidden');
                      }}
                      onLoad={() => {
-                       console.log('✅ Resim başarıyla yüklendi:', market.imageUrl);
+                       console.log(' Resim başarıyla yüklendi:', market.imageUrl);
                      }}
                    />
                  ) : null}
@@ -131,11 +131,7 @@ const MarketsShowcase: React.FC<MarketsShowcaseProps> = ({ markets }) => {
          </div>
 
                  
-         <div className="text-center mt-12">
-                     <button className="bg-blue-700 text-white px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:bg-blue-800">
-            {t('pages.home.markets.viewAll')}
-          </button>
-        </div>
+
 
 
       </div>

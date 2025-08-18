@@ -112,6 +112,7 @@ export const generateListHTML = (listData: ListData): string => {
 export const generateTextHTML = (text: string, opts?: { 
   lineHeight?: number;
   fontWeight?: 'normal' | 'bold' | 'bolder' | 'lighter';
+  fontSizePx?: number;
 }): string => {
   if (!text) return '';
   
@@ -336,7 +337,8 @@ export const generateElementHTML = (element: ContentElement): string => {
     case 'text':
       elementHTML = generateTextHTML(element.content, { 
         lineHeight: element.lineHeight,
-        fontWeight: element.fontWeight
+        fontWeight: element.fontWeight,
+        fontSizePx: element.fontSizePx
       });
       break;
     case 'table':

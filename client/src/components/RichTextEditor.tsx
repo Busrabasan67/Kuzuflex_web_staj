@@ -215,6 +215,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           onChange={(e) => setFont(e.target.value)}
           className="px-3 py-1 border border-gray-300 rounded text-xs bg-white hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
           title="Font Türü Seçin"
+          style={{ minWidth: '120px' }}
         >
           {fonts.map(font => (
             <option key={font.value} value={font.value}>{font.name}</option>
@@ -226,10 +227,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           onChange={(e) => setSize(e.target.value)}
           className="px-3 py-1 border border-gray-300 rounded text-xs bg-white hover:border-blue-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
           title="Font Boyutu Seçin"
-          style={{ fontSize: '12px' }}
+          style={{ fontSize: '12px', minWidth: '140px' }}
         >
           {fontSizes.map(size => (
-            <option key={size.value} value={size.value} style={{ fontSize: size.value }}>
+            <option key={size.value} value={size.value} style={{ fontSize: '12px' }}>
               {size.name}
             </option>
           ))}

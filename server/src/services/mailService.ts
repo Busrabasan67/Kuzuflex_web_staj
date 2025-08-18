@@ -5,7 +5,7 @@ import { EmailSettings } from '../entity/EmailSettings';
 interface ContactFormData {
   name: string;
   email: string;
-  subject: string;
+  phone: string;
   message: string;
   language?: string;
   languageName?: string;
@@ -71,7 +71,7 @@ class MailService {
         from: `"Kuzuflex Contact System" <${settings.smtpUsername}>`,
         to: settings.contactFormRecipient,
         replyTo: formData.email, // Formu dolduran kişinin email'i reply-to olarak eklensin
-        subject: `Yeni İletişim Formu: ${formData.subject}`,
+        subject: `Yeni İletişim Formu: ${formData.name}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -94,7 +94,7 @@ class MailService {
                 
                 <div style="margin-bottom: 20px;">
                   <strong style="color: #1e40af; font-size: 18px;">TELEFON:</strong>
-                  <p style="margin: 8px 0 0 0; color: #374151; font-size: 17px; padding: 12px; background-color: #f9fafb; border-radius: 8px;">${formData.subject}</p>
+                  <p style="margin: 8px 0 0 0; color: #374151; font-size: 17px; padding: 12px; background-color: #f9fafb; border-radius: 8px;">${formData.phone}</p>
                 </div>
                 
                 <div style="margin-bottom: 20px;">
@@ -140,7 +140,7 @@ Bu mail kuzuflex.com web sitesi üzerindeki ${formData.languageName ? formData.l
 
 AD SOYAD: ${formData.name}
 E POSTA: ${formData.email}
-TELEFON: ${formData.subject}
+TELEFON: ${formData.phone}
 MESAJ: ${formData.message}
 
 Bu e posta, Kuzuflex web sitesi üzerinden otomatik olarak iletilmiştir.

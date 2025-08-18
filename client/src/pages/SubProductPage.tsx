@@ -223,7 +223,7 @@ const SubProductPage = () => {
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                       <FiFileText className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-800">Teknik Kataloglar</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">{t('pages.catalogs')}</h3>
                   </div>
                   
                   <div className="flex flex-wrap gap-2">
@@ -246,7 +246,7 @@ const SubProductPage = () => {
                   </div>
                   
                   <p className="text-xs text-gray-500 italic">
-                    Katalogları görüntüleyerek detaylı teknik bilgilere ulaşabilirsiniz
+                    {t('pages.catalogsDescription')}
                   </p>
                 </div>
               )}
@@ -257,10 +257,10 @@ const SubProductPage = () => {
                   onClick={() => navigate('/contact')}
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                  <div className="flex items-center justify-center">
-                    <FiShield className="w-4 h-4 mr-2" />
-                    İletişime Geç
-                  </div>
+                                      <div className="flex items-center justify-center">
+                      <FiShield className="w-4 h-4 mr-2" />
+                      {t('pages.contactUsButton')}
+                    </div>
                 </button>
               </div>
             </div>

@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import kuzuflexLogo from "../assets/kuzuflex-logo.webp";
-import { Youtube, Linkedin, Instagram, ArrowRight } from "lucide-react";
-import { ThemeContext } from "../theme/ThemeContext";
+import { Youtube, Linkedin, Instagram, ArrowRight, Phone, Mail } from "lucide-react";
+
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -30,16 +30,24 @@ interface SolutionFooter {
 }
 
 const Footer = () => {
-  const { t, i18n } = useTranslation();
-  const { darkMode } = useContext(ThemeContext);
+  const { t, i18n } = useTranslation()
   const [productGroups, setProductGroups] = useState<ProductGroupFooter[]>([]);
   const [markets, setMarkets] = useState<MarketFooter[]>([]);
   const [solutions, setSolutions] = useState<SolutionFooter[]>([]);
 
+  // Debug: Çeviri anahtarlarını kontrol et
+  console.log('Footer Debug - Current Language:', i18n.language);
+  console.log('Footer Debug - footer.solutions:', t('footer.solutions'));
+  console.log('Footer Debug - footer.contactInfo:', t('footer.contactInfo'));
+  console.log('Footer Debug - common.phone:', t('common.phone'));
+  console.log('Footer Debug - common.email:', t('common.email'));
+  console.log('Footer Debug - All common keys:', Object.keys(t('common', { returnObjects: true })));
+  console.log('Footer Debug - All footer keys:', Object.keys(t('footer', { returnObjects: true })));
+
   const quickLinks = [
     { key: "home", label: t('navbar.home'), to: "/" },
     { key: "products", label: t('navbar.products'), to: "/Products" },
-    { key: "aboutus", label: t('navbar.about'), to: "/hakkimizda" },
+            { key: "aboutus", label: t('navbar.about'), to: "/about-us" },
             { key: "contact", label: t('navbar.contact'), to: "/contact" },
   ];
 
@@ -103,7 +111,7 @@ const Footer = () => {
   }, [i18n.language, t]); // t dependency'si eklendi çünkü t değiştiğinde de yeniden yükle
 
   return (
-    <footer className={`${darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-800"} pt-12 pb-6 transition-colors duration-300`}>
+    <footer className="bg-gray-100 text-gray-800 pt-12 pb-6 transition-colors duration-300">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-6 mb-8">
           {/* Company Info */}
@@ -111,13 +119,13 @@ const Footer = () => {
             <div className="flex items-center mb-4">
               <img src={kuzuflexLogo} alt="Kuzuflex Logo" className="w-32 h-auto" />
             </div>
-            <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm mb-4`}>
+            <p className="text-gray-600 text-sm mb-4">
               {t('footer.companyDescription')}
             </p>
             <div className="flex space-x-4">
               <a 
                 href="https://www.youtube.com/@kuzuflexmetal3924" 
-                className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200`}
+                className="text-gray-500 hover:text-gray-800 transition-colors duration-200"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -125,7 +133,7 @@ const Footer = () => {
               </a>
               <a 
                 href="https://tr.linkedin.com/company/kuzuflex-metal-sanayi-ve-tic.-a.s." 
-                className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200`}
+                className="text-gray-500 hover:text-gray-800 transition-colors duration-200"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -133,7 +141,7 @@ const Footer = () => {
               </a>
               <a 
                 href="https://www.instagram.com/kuzuflexmetal/" 
-                className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200`}
+                className="text-gray-500 hover:text-gray-800 transition-colors duration-200"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -143,13 +151,13 @@ const Footer = () => {
           </div>
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.quickLinks')}</h3>
+            <h3 className="text-sm font-bold tracking-wider mb-3">{t('footer.quickLinks')}</h3>
             <ul className="space-y-2">
               {quickLinks.map((item) => (
                 <li key={item.key}>
                   <Link 
                     to={item.to} 
-                    className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
+                    className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-sm"
                   >
                     <ArrowRight className="h-3 w-3 mr-1" />
                     {item.label}
@@ -160,13 +168,13 @@ const Footer = () => {
           </div>
           {/* Markets */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.markets')}</h3>
+            <h3 className="text-sm font-bold tracking-wider mb-3">{t('footer.markets')}</h3>
             <ul className="space-y-2">
               {markets.map((market) => (
                 <li key={market.id}>
                   <Link 
                     to={`/markets/${market.slug}`}
-                    className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
+                    className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-sm"
                   >
                     <ArrowRight className="h-3 w-3 mr-1" />
                     {market.name}
@@ -177,14 +185,14 @@ const Footer = () => {
           </div>
           {/* Products - Dinamik */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.ourProducts')}</h3>
+            <h3 className="text-sm font-bold tracking-wider mb-3">{t('footer.ourProducts')}</h3>
             {productGroups.length > 0 ? (
               <ul className="space-y-2">
                 {productGroups.map((group) => (
                   <li key={group.id}>
                     <Link 
                       to={`/products/${group.slug}`}
-                      className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
+                      className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-sm"
                     >
                       <ArrowRight className="h-3 w-3 mr-1" />
                       {group.name}
@@ -200,14 +208,14 @@ const Footer = () => {
           </div>
           {/* Solutions */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('navbar.solutions')}</h3>
+            <h3 className="text-sm font-bold tracking-wider mb-3">{t('footer.solutions')}</h3>
             {solutions.length > 0 ? (
               <ul className="space-y-2">
                 {solutions.map((solution) => (
                   <li key={solution.id}>
                     <Link 
                       to={`/solutions/${solution.slug}`}
-                      className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
+                      className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-sm"
                     >
                       <ArrowRight className="h-3 w-3 mr-1" />
                       {solution.name}
@@ -223,7 +231,7 @@ const Footer = () => {
                   <li>
                     <Link 
                       to="/solutions/welding"
-                      className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-xs`}
+                      className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-xs"
                     >
                       <ArrowRight className="h-2 w-2 mr-1" />
                       Welding
@@ -232,7 +240,7 @@ const Footer = () => {
                   <li>
                     <Link 
                       to="/solutions/pipe-bending"
-                      className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-xs`}
+                      className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-xs"
                     >
                       <ArrowRight className="h-2 w-2 mr-1" />
                       Pipe Bending
@@ -241,7 +249,7 @@ const Footer = () => {
                   <li>
                     <Link 
                       to="/solutions/machining"
-                      className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-xs`}
+                      className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-xs"
                     >
                       <ArrowRight className="h-2 w-2 mr-1" />
                       Machining
@@ -253,28 +261,37 @@ const Footer = () => {
           </div>
           {/* Certificates */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('navbar.qmDocuments')}</h3>
+            <h3 className="text-sm font-bold tracking-wider mb-3">{t('footer.qmDocuments')}</h3>
             <ul className="space-y-2">
               <li>
                 <Link 
                   to="/qm-documents"
-                  className={`${darkMode ? "text-gray-400 hover:text-white" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200 inline-flex items-center text-sm`}
+                  className="text-gray-500 hover:text-gray-800 transition-colors duration-200 inline-flex items-center text-sm"
                 >
                   <ArrowRight className="h-3 w-3 mr-1" />
-                  QM Documents & Certificates
+                  {t('footer.qmDocuments')}
                 </Link>
               </li>
             </ul>
           </div>
           {/* Contact Info */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider mb-3">{t('footer.contactInfo')}</h3>
+            <h3 className="text-sm font-bold tracking-wider mb-3">{t('footer.contactInfo')}</h3>
             <div className="space-y-2">
-              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>
-                {t('common.phone')}
+              <p className="text-gray-600 text-sm flex items-center gap-2">
+                <Phone className="h-4 w-4 text-gray-500" />
+                {t('common.phone', '+90 850 800 22 22')}
               </p>
-              <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>
-                {t('common.email')}
+              <p className="text-gray-600 text-sm flex items-center gap-2">
+                <Mail className="h-4 w-4 text-gray-500" />
+                <a 
+                  href={`mailto:${t('common.email', 'kuzu@kuzuflex.com')}`}
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('common.email', 'kuzu@kuzuflex.com')}
+                </a>
               </p>
             </div>
           </div>
@@ -284,8 +301,8 @@ const Footer = () => {
         
         {/* Copyright */}
         <div className="border-t border-gray-300 pt-6 text-center">
-          <p className={`${darkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>
-            © 2024 Kuzuflex. {t('footer.allRightsReserved')}
+          <p className="text-gray-600 text-sm">
+            © 2025 Kuzuflex. {t('footer.allRightsReserved')}
           </p>
         </div>
       </div>

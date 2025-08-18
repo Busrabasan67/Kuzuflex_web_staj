@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { generateMixedContentHTML } from "../utils/htmlGenerators";
 
@@ -26,6 +26,7 @@ interface ExtraContent {
 const SolutionPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const [solution, setSolution] = useState<Solution | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -367,26 +368,25 @@ const SolutionPage: React.FC = () => {
         {/* Extra Contents */}
         {solution.hasExtraContent && solution.extraContents && solution.extraContents.length > 0 && (
           <div className="mt-16">
-            <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-              Ek İçerikler ({solution.extraContents.length} adet)
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {solution.extraContents.map((content) => (
-                <div
-                  key={content.id}
-                  className="bg-white p-6 rounded-lg shadow-md border border-gray-200"
-                >
-                  <h4 className="text-lg font-semibold text-gray-900 mb-3">
-                    {content.title}
-                  </h4>
-                  <div className="prose prose-sm max-w-none break-words">
-                    <div 
-                      className="text-gray-700 break-words whitespace-normal"
-                      dangerouslySetInnerHTML={{ __html: renderExtraContent(content) }}
-                    />
+            <div className="space-y-10">
+              {solution.extraContents
+                .sort((a, b) => a.order - b.order)
+                .map((content) => (
+                  <div
+                    key={content.id}
+                    className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                  >
+                    {/* İçerik alanı - Tam genişlik */}
+                    <div className="p-10 md:p-16">
+                      <div className="prose prose-xl max-w-none">
+                        <div 
+                          className="text-gray-700 rich-text-content"
+                          dangerouslySetInnerHTML={{ __html: renderExtraContent(content) }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}
@@ -395,17 +395,17 @@ const SolutionPage: React.FC = () => {
         <div className="mt-16 bg-white p-8 rounded-lg shadow-md border border-gray-200">
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Bu çözüm hakkında daha fazla bilgi almak ister misiniz?
+              {t('pages.contactInfo')}
             </h3>
             <p className="text-gray-600 mb-6">
-              Uzman ekibimiz size yardımcı olmaktan mutluluk duyacaktır.
+              {t('pages.contactDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                İletişime Geçin
-              </button>
-              <button className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
-                Teklif Alın
+              <button 
+                onClick={() => navigate('/contact')}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+              >
+                {t('pages.contactButton')}
               </button>
             </div>
           </div>

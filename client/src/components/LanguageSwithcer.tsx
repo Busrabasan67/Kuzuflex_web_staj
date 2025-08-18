@@ -72,7 +72,7 @@ const LanguageSwitcher = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100"
         aria-label="Change language"
       >
         <div className="w-6 flex justify-center">
@@ -85,7 +85,7 @@ const LanguageSwitcher = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 border border-gray-200 overflow-hidden">
           {languageOptions.map((language) => {
             const Flag = Flags[language.code as keyof typeof Flags];
             return (
@@ -94,8 +94,8 @@ const LanguageSwitcher = () => {
                 onClick={() => changeLanguage(language.code)}
                 className={`flex items-center gap-3 w-full px-4 py-2 text-left text-sm transition-colors ${
                   i18n.language === language.code
-                    ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                    ? "bg-blue-50 text-blue-600"
+                    : "hover:bg-gray-100"
                 }`}
               >
                 <div className="w-6 flex justify-center">

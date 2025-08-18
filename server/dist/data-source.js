@@ -20,6 +20,8 @@ const MarketTranslation_1 = require("./entity/MarketTranslation");
 const AboutPage_1 = require("./entity/AboutPage");
 const AboutPageTranslation_1 = require("./entity/AboutPageTranslation");
 const AboutPageExtraContent_1 = require("./entity/AboutPageExtraContent");
+const EmailSettings_1 = require("./entity/EmailSettings");
+const PasswordResetToken_1 = require("./entity/PasswordResetToken");
 const AppDataSource = new typeorm_1.DataSource({
     type: "mssql",
     host: "localhost",
@@ -29,7 +31,7 @@ const AppDataSource = new typeorm_1.DataSource({
     database: "KuzuflexDB",
     synchronize: false,
     logging: false,
-    entities: [Product_1.Product, Catalog_1.Catalog, Admin_1.Admin, ProductGroup_1.ProductGroup, ProductTranslation_1.ProductTranslation, ProductGroupTranslation_1.ProductGroupTranslation, CatalogTranslation_1.CatalogTranslation, Solution_1.Solution, SolutionTranslation_1.SolutionTranslation, SolutionExtraContent_1.SolutionExtraContent, QMDocumentsAndCertificates_1.QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslation_1.QMDocumentsAndCertificatesTranslations, Market_1.Market, MarketContent_1.MarketContent, MarketTranslation_1.MarketTranslation, AboutPage_1.AboutPage, AboutPageTranslation_1.AboutPageTranslation, AboutPageExtraContent_1.AboutPageExtraContent],
+    entities: [Product_1.Product, Catalog_1.Catalog, Admin_1.Admin, ProductGroup_1.ProductGroup, ProductTranslation_1.ProductTranslation, ProductGroupTranslation_1.ProductGroupTranslation, CatalogTranslation_1.CatalogTranslation, Solution_1.Solution, SolutionTranslation_1.SolutionTranslation, SolutionExtraContent_1.SolutionExtraContent, QMDocumentsAndCertificates_1.QMDocumentsAndCertificates, QMDocumentsAndCertificatesTranslation_1.QMDocumentsAndCertificatesTranslations, Market_1.Market, MarketContent_1.MarketContent, MarketTranslation_1.MarketTranslation, AboutPage_1.AboutPage, AboutPageTranslation_1.AboutPageTranslation, AboutPageExtraContent_1.AboutPageExtraContent, EmailSettings_1.EmailSettings, PasswordResetToken_1.PasswordResetToken],
     migrations: [__dirname + "/migrations/*.ts"],
     options: {
         encrypt: true,

@@ -90,7 +90,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                   allCards.push(
                     <div
                       key={`main-${productGroup.id}`}
-                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-gray-200 hover:border-gray-400"
+                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-gray-200 hover:border-gray-400 flex flex-col"
                       onClick={() => handleMainCategoryClick(productGroup)}
                     >
                       {/* Resim */}
@@ -129,9 +129,10 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                         </div>
                 </div>
 
-                      {/* İçerik */}
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {/* İçerik - flex-grow ile genişlet ve mt-auto ile butonu alta it */}
+                      <div className="p-4 flex flex-col flex-grow">
+                        <div className="flex-grow">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {productGroup.title}
                         </h3>
                         {productGroup.description && (
@@ -139,30 +140,21 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             {productGroup.description}
                           </p>
                         )}
+                        </div>
                         
-                        {/* Alt Kategori Sayısı */}
-                  {productGroup.subcategories && productGroup.subcategories.length > 0 && (
-                          <div className="mb-3">
-                            <p className="text-xs font-medium text-gray-600 mb-2 uppercase tracking-wide">
-                              {t('pages.home.products.subcategories')}
-                            </p>
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                              {productGroup.subcategories.length} {t('pages.home.products.subProductCount')}
-                          </span>
-                    </div>
-                  )}
-
-                        {/* CTA Button */}
-                  <div className="flex items-center justify-between">
-                          <span className="text-gray-600 font-medium text-sm">
-                            {t('pages.home.products.exploreButton')}
-                          </span>
-                          <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
+                        {/* Keşfet Butonu - mt-auto ile alta yapıştır */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleExploreClick(productGroup);
+                          }}
+                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mt-auto"
+                        >
+                          {t('pages.home.products.exploreButton')}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7-7 7" />
+                          </svg>
+                        </button>
                 </div>
                     </div>
                   );
@@ -177,7 +169,7 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                       allCards.push(
                         <div
                           key={`sub-${subCategory.id}`}
-                          className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-gray-200 hover:border-gray-400"
+                          className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer border-2 border-gray-200 hover:border-gray-400 flex flex-col"
                           onClick={() => handleSubCategoryClick(productGroup, subCategory)}
                         >
                           {/* Resim */}
@@ -220,38 +212,32 @@ const ProductGroupsShowcase: React.FC<ProductGroupsShowcaseProps> = ({ productGr
                             </div>
                           </div>
 
-                          {/* İçerik */}
-                          <div className="p-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              {subCategory.title}
-                            </h3>
-                            {subCategory.description && (
-                              <p className="text-sm text-gray-600 mb-3">
-                                {subCategory.description}
-                              </p>
-                            )}
-                            
-                            {/* Ana Kategori Bilgisi */}
-                            <div className="mb-3">
-                              <p className="text-xs font-medium text-gray-600 mb-2 uppercase tracking-wide">
-                                {t('pages.home.products.subcategories')}
-                              </p>
-                              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                {productGroup.title}
-                              </span>
+                          {/* İçerik - flex-grow ile genişlet ve mt-auto ile butonu alta it */}
+                          <div className="p-4 flex flex-col flex-grow">
+                            <div className="flex-grow">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {subCategory.title}
+                              </h3>
+                              {subCategory.description && (
+                                <p className="text-sm text-gray-600 mb-3">
+                                  {subCategory.description}
+                                </p>
+                              )}
                             </div>
                             
-                            {/* CTA Button */}
-                            <div className="flex items-center justify-between">
-                              <span className="text-gray-600 font-medium text-sm">
-                                {t('pages.home.products.subcategories')}
-                              </span>
-                              <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
-                                <svg className="w-3 h-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                              </div>
-                            </div>
+                            {/* Keşfet Butonu - mt-auto ile alta yapıştır */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSubCategoryClick(productGroup, subCategory);
+                              }}
+                              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 mt-auto"
+                            >
+                              {t('pages.home.products.exploreButton')}
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7-7 7" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
                       );

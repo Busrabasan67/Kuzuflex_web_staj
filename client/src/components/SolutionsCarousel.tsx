@@ -233,21 +233,7 @@ const SolutionsCarousel: React.FC<SolutionsCarouselProps> = ({ solutions }) => {
           </div>
         </div>
 
-                {/* View All Solutions Button */}
-        <div className="text-center mt-16">
-          <button 
-            onClick={() => navigate('/solutions')}
-            className="relative inline-flex items-center justify-center px-8 py-4 overflow-hidden text-lg font-semibold text-blue-700 rounded-full group border-2 border-blue-600 hover:text-white transition-all duration-300"
-          >
-            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-700 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-            <span className="relative z-10 flex items-center">
-              {t('pages.home.solutions.viewAll')}
-              <svg className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-              </svg>
-            </span>
-          </button>
-        </div>
+
 
 
       </div>

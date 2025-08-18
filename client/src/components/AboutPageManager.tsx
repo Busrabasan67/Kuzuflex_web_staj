@@ -2,6 +2,52 @@ import React, { useState, useEffect } from 'react';
 import AboutPageExtraContentAdder from './AboutPageExtraContentAdder';
 import { useTranslation } from 'react-i18next';
 
+// Bayrak SVG'leri
+const Flags = {
+  tr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="20" height="14">
+      <rect width="300" height="200" fill="#E30A17" />
+      <circle cx="120" cy="100" r="40" fill="#fff" />
+      <circle cx="135" cy="100" r="32" fill="#E30A17" />
+      <polygon
+        fill="#fff"
+        points="170,100 159.5,106.5 162.5,94 152,86 164.5,86 170,74 175.5,86 188,86 177.5,94 180.5,106.5"
+      />
+    </svg>
+  ),
+  en: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <clipPath id="s">
+        <path d="M0,0 v30 h60 v-30 z"/>
+      </clipPath>
+      <clipPath id="g">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
+      </clipPath>
+      <g clipPath="url(#s)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#g)" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+      </g>
+    </svg>
+  ),
+  de: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect y="0" width="60" height="10" fill="#000"/>
+      <rect y="10" width="60" height="10" fill="#D00"/>
+      <rect y="20" width="60" height="10" fill="#FFCE00"/>
+    </svg>
+  ),
+  fr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect x="0" width="20" height="30" fill="#002395"/>
+      <rect x="20" width="20" height="30" fill="#fff"/>
+      <rect x="40" width="20" height="30" fill="#ED2939"/>
+    </svg>
+  )
+};
+
 interface AboutPageData {
   id: number;
   slug: string;
@@ -33,15 +79,17 @@ const AboutPageManager: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [uploadingHero, setUploadingHero] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [contentToDelete, setContentToDelete] = useState<any>(null);
 
   // Form state
   const [formData, setFormData] = useState({
     heroImageUrl: '',
     translations: {
-      tr: { title: '', subtitle: '', bodyHtml: '' },
-      en: { title: '', subtitle: '', bodyHtml: '' },
-      de: { title: '', subtitle: '', bodyHtml: '' },
-      fr: { title: '', subtitle: '', bodyHtml: '' }
+      tr: { title: '' },
+      en: { title: '' },
+      de: { title: '' },
+      fr: { title: '' }
     }
   });
 
@@ -81,10 +129,10 @@ const AboutPageManager: React.FC = () => {
           setFormData({
             heroImageUrl: data.heroImageUrl || '',
             translations: {
-              tr: { title: '', subtitle: '', bodyHtml: '' },
-              en: { title: '', subtitle: '', bodyHtml: '' },
-              de: { title: '', subtitle: '', bodyHtml: '' },
-              fr: { title: '', subtitle: '', bodyHtml: '' }
+              tr: { title: '' },
+              en: { title: '' },
+              de: { title: '' },
+              fr: { title: '' }
             }
           });
 
@@ -95,9 +143,7 @@ const AboutPageManager: React.FC = () => {
               translations: {
                 ...prev.translations,
                 [translation.language]: {
-                  title: translation.title || '',
-                  subtitle: translation.subtitle || '',
-                  bodyHtml: translation.bodyHtml || ''
+                  title: translation.title || ''
                 }
               }
             }));
@@ -123,13 +169,13 @@ const AboutPageManager: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          slug: 'contact',
+          slug: 'about-us',
           heroImageUrl: '',
           translations: [
-            { language: 'tr', title: 'İletişim', subtitle: 'Kuzuflex ile İletişim', bodyHtml: '<p>Kuzuflex ile iletişime geçin...</p>' },
-            { language: 'en', title: 'Contact', subtitle: 'Get in Touch with Kuzuflex', bodyHtml: '<p>Contact Kuzuflex...</p>' },
-            { language: 'de', title: 'Kontakt', subtitle: 'Kontaktieren Sie Kuzuflex', bodyHtml: '<p>Kontaktieren Sie Kuzuflex...</p>' },
-            { language: 'fr', title: 'Contact', subtitle: 'Contactez Kuzuflex', bodyHtml: '<p>Contactez Kuzuflex...</p>' }
+            { language: 'tr', title: 'Hakkımızda' },
+            { language: 'en', title: 'About Us' },
+            { language: 'de', title: 'Über uns' },
+            { language: 'fr', title: 'À propos de nous' }
           ]
         }),
       });
@@ -161,9 +207,7 @@ const AboutPageManager: React.FC = () => {
           heroImageUrl: formData.heroImageUrl,
           translations: Object.entries(formData.translations).map(([language, data]) => ({
             language,
-            title: data.title,
-            subtitle: data.subtitle,
-            bodyHtml: data.bodyHtml
+            title: data.title
           }))
         }),
       });
@@ -286,15 +330,21 @@ const AboutPageManager: React.FC = () => {
     // Aynı order'a sahip tüm dil versiyonlarını bul
     const contentsToDelete = aboutPageData?.extraContents.filter(content => content.order === orderToDelete) || [];
     
+    // Modal'ı göster
+    setContentToDelete({ contentId, orderToDelete, contentsToDelete });
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteExtraContent = async () => {
+    if (!contentToDelete) return;
+
+    const { orderToDelete, contentsToDelete } = contentToDelete;
+    
     // Hangi dillerin silineceğini göster
-    const languagesToDelete = contentsToDelete.map(content => {
+    const languagesToDelete = contentsToDelete.map((content: any) => {
       const langNames = { tr: 'Türkçe', en: 'İngilizce', de: 'Almanca', fr: 'Fransızca' };
       return langNames[content.language as keyof typeof langNames] || content.language;
     }).join(', ');
-
-    const confirmMessage = `Bu içeriği ve tüm dil versiyonlarını silmek istediğinizden emin misiniz?\n\nSilinecek diller: ${languagesToDelete}\n\nBu işlem geri alınamaz!`;
-    
-    if (!confirm(confirmMessage)) return;
 
     setDeleting(true);
     setMessage(null);
@@ -311,7 +361,7 @@ const AboutPageManager: React.FC = () => {
       }
 
       // Tüm dil versiyonlarını paralel olarak sil
-      const deletePromises = contentsToDelete.map(async (content) => {
+      const deletePromises = contentsToDelete.map(async (content: any) => {
         try {
           const response = await fetch(`http://localhost:5000/api/about-page-extra-content/${content.id}`, {
             method: 'DELETE',
@@ -359,7 +409,14 @@ const AboutPageManager: React.FC = () => {
       setMessage({ type: 'error', text: errorMessage });
     } finally {
       setDeleting(false);
+      setShowDeleteModal(false);
+      setContentToDelete(null);
     }
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setContentToDelete(null);
   };
 
   if (loading) {
@@ -463,19 +520,7 @@ const AboutPageManager: React.FC = () => {
             </label>
           </div>
 
-          {/* URL Input (Alternatif) */}
-          <div className="mt-4">
-            <label className="block text-xs text-gray-600 mb-1">
-              Veya URL ile ekle:
-            </label>
-            <input
-              type="text"
-              value={formData.heroImageUrl}
-              onChange={(e) => setFormData(prev => ({ ...prev, heroImageUrl: e.target.value }))}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            />
-          </div>
+
 
                     {/* Hero Image Bilgileri */}
           <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -495,98 +540,31 @@ const AboutPageManager: React.FC = () => {
           {(['tr', 'en', 'de', 'fr'] as const).map((language) => (
             <div key={language} className="border border-gray-200 rounded-lg p-4">
               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <span className="mr-2">
-                  {language === 'tr' && '🇹🇷'}
-                  {language === 'en' && '🇬🇧'}
-                  {language === 'de' && '🇩🇪'}
-                  {language === 'fr' && '🇫🇷'}
-                </span>
+                <div className="w-5 flex justify-center mr-2">
+                  {Flags[language]()}
+                </div>
                 {language === 'tr' && 'Türkçe'}
                 {language === 'en' && 'İngilizce'}
                 {language === 'de' && 'Almanca'}
                 {language === 'fr' && 'Fransızca'}
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Başlık
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.translations[language].title}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      translations: {
-                        ...prev.translations,
-                        [language]: { ...prev.translations[language], title: e.target.value }
-                      }
-                    }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Alt Başlık
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.translations[language].subtitle}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      translations: {
-                        ...prev.translations,
-                        [language]: { ...prev.translations[language], subtitle: e.target.value }
-                      }
-                    }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              
-              <div className="mt-4">
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ana İçerik
+                  Başlık
                 </label>
-                <div className="border border-gray-300 rounded-md focus-within:ring-2 focus-within:ring-blue-500">
-                  <div
-                    contentEditable
-                    suppressContentEditableWarning
-                    className="min-h-[100px] px-3 py-2 outline-none prose prose-sm max-w-none"
-                    onInput={(e) => {
-                      const content = e.currentTarget.innerHTML;
-                      setFormData(prev => ({
-                        ...prev,
-                        translations: {
-                          ...prev.translations,
-                          [language]: { ...prev.translations[language], bodyHtml: content }
-                        }
-                      }));
-                    }}
-                    dangerouslySetInnerHTML={{
-                      __html: formData.translations[language].bodyHtml || ''
-                    }}
-                  />
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
-                  <span>💡 Rich text: Kalın, italik, link ekleyebilirsiniz</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        translations: {
-                          ...prev.translations,
-                          [language]: { ...prev.translations[language], bodyHtml: '' }
-                        }
-                      }));
-                    }}
-                    className="text-red-500 hover:text-red-700 underline"
-                  >
-                    Temizle
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  value={formData.translations[language].title}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    translations: {
+                      ...prev.translations,
+                      [language]: { ...prev.translations[language], title: e.target.value }
+                    }
+                  }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
             </div>
           ))}
@@ -889,9 +867,78 @@ const AboutPageManager: React.FC = () => {
             setEditingExtraContent(null);
           }}
           editingContent={editingExtraContent}
-          currentMaxOrder={aboutPageData?.extraContents ? Math.max(...aboutPageData.extraContents.map(c => c.order)) : 0}
+          currentMaxOrder={(() => {
+            if (!aboutPageData?.extraContents || aboutPageData.extraContents.length === 0) {
+              console.log('AboutPageManager - extraContents boş, currentMaxOrder: 0');
+              return 0;
+            }
+            const maxOrder = Math.max(...aboutPageData.extraContents.map(c => c.order));
+            console.log('AboutPageManager - extraContents:', aboutPageData.extraContents.map(c => ({ id: c.id, order: c.order, language: c.language })));
+            console.log('AboutPageManager - hesaplanan maxOrder:', maxOrder);
+            return maxOrder;
+          })()}
           aboutPageData={aboutPageData}
         />
+      )}
+
+      {/* Silme Onay Modal */}
+      {showDeleteModal && contentToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center mb-4">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-lg font-medium text-gray-900">İçerik Silme Onayı</h3>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-500">
+                Bu içeriği ve tüm dil versiyonlarını silmek istediğinizden emin misiniz?
+              </p>
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-800 font-medium">Silinecek diller:</p>
+                <p className="text-sm text-red-700">
+                  {contentToDelete.contentsToDelete.map((content: any) => {
+                    const langNames = { tr: 'Türkçe', en: 'İngilizce', de: 'Almanca', fr: 'Fransızca' };
+                    return langNames[content.language as keyof typeof langNames] || content.language;
+                  }).join(', ')}
+                </p>
+                <p className="text-xs text-red-600 mt-2">
+                  ⚠️ Bu işlem geri alınamaz!
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeDeleteModal}
+                disabled={deleting}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                İptal
+              </button>
+              <button
+                onClick={confirmDeleteExtraContent}
+                disabled={deleting}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Siliniyor...
+                  </>
+                ) : (
+                  'Evet, Sil'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

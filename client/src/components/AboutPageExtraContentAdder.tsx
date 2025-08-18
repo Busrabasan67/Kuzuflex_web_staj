@@ -7,6 +7,52 @@ import RichTextEditor from './RichTextEditor';
 import { generateMixedContentHTML } from '../utils/htmlGenerators';
 import type { ContentElement } from '../utils/htmlGenerators';
 
+// Bayrak SVG'leri
+const Flags = {
+  tr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="20" height="14">
+      <rect width="300" height="200" fill="#E30A17" />
+      <circle cx="120" cy="100" r="40" fill="#fff" />
+      <circle cx="135" cy="100" r="32" fill="#E30A17" />
+      <polygon
+        fill="#fff"
+        points="170,100 159.5,106.5 162.5,94 152,86 164.5,86 170,74 175.5,86 188,86 177.5,94 180.5,106.5"
+      />
+    </svg>
+  ),
+  en: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <clipPath id="s">
+        <path d="M0,0 v30 h60 v-30 z"/>
+      </clipPath>
+      <clipPath id="g">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
+      </clipPath>
+      <g clipPath="url(#s)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#g)" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+      </g>
+    </svg>
+  ),
+  de: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect y="0" width="60" height="10" fill="#000"/>
+      <rect y="10" width="60" height="10" fill="#D00"/>
+      <rect y="20" width="60" height="10" fill="#FFCE00"/>
+    </svg>
+  ),
+  fr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect x="0" width="20" height="30" fill="#002395"/>
+      <rect x="20" width="20" height="30" fill="#fff"/>
+      <rect x="40" width="20" height="30" fill="#ED2939"/>
+    </svg>
+  )
+};
+
 type ContentType = 'text' | 'table' | 'list' | 'mixed';
 
 interface ExtraContent {
@@ -257,10 +303,6 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
     
     for (const lang of languages) {
       const content = multiLanguageContent[lang as keyof MultiLanguageContent];
-      if (!content.title.trim()) {
-        setMessage({ type: 'error', text: `${getLanguageName(lang)} dili için başlık zorunludur!` });
-        return false;
-      }
       
       if (selectedType !== 'mixed') {
         if (selectedType === 'text' && !content.content?.trim()) {
@@ -317,9 +359,9 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
         let finalContent;
         if (selectedType === 'mixed') {
           // Mixed content için hem HTML hem de JSON formatında kaydet
-          const htmlContent = generateMixedContentHTML(content.title, layoutByLang[language], mixedElements[language] || []);
+          const htmlContent = generateMixedContentHTML('', layoutByLang[language], mixedElements[language] || []);
           const jsonContent = {
-            title: content.title,
+            title: '',
             layout: layoutByLang[language],
             elements: mixedElements[language] || []
           };
@@ -333,7 +375,7 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
 
         return {
           language,
-          title: content.title,
+          title: '', // Başlık boş olarak gönder
           content: finalContent
         };
       });
@@ -343,6 +385,10 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
         contents,
         order: currentMaxOrder + 1
       };
+
+      console.log('Frontend - currentMaxOrder:', currentMaxOrder);
+      console.log('Frontend - hesaplanan order:', currentMaxOrder + 1);
+      console.log('Frontend - requestData:', requestData);
 
       // Düzenleme modu için özel kontrol
       const isGroupEdit = editingContent && (editingContent as any).multiLanguageData;
@@ -626,10 +672,15 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
                         onClick={() => setActiveLangTab(lang)}
                         className={`${activeLangTab === lang ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'} px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-all duration-200 hover:bg-blue-50`}
                       >
-                        {lang === 'tr' && '🇹🇷 Türkçe'}
-                        {lang === 'en' && '🇬🇧 İngilizce'}
-                        {lang === 'de' && '🇩🇪 Almanca'}
-                        {lang === 'fr' && '🇫🇷 Fransızca'}
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 flex justify-center">
+                            {Flags[lang]()}
+                          </div>
+                          {lang === 'tr' && 'Türkçe'}
+                          {lang === 'en' && 'İngilizce'}
+                          {lang === 'de' && 'Almanca'}
+                          {lang === 'fr' && 'Fransızca'}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -640,32 +691,14 @@ const AboutPageExtraContentAdder: React.FC<AboutPageExtraContentAdderProps> = ({
                   <div key={language} className={`${activeLangTab === language ? 'block' : 'hidden'}`}>
                     <div className="bg-gray-50 p-6 rounded-lg">
                       <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                        <span className="mr-2">
-                          {language === 'tr' && '🇹🇷'}
-                          {language === 'en' && '🇬🇧'}
-                          {language === 'de' && '🇩🇪'}
-                          {language === 'fr' && '🇫🇷'}
-                        </span>
+                        <div className="w-5 flex justify-center mr-2">
+                          {Flags[language]()}
+                        </div>
                         {getLanguageName(language)} İçeriği
                       </h4>
                       
                       <div className="space-y-4">
-                        {/* Başlık - Karışık içerik için ayrı */}
-                        {selectedType !== 'mixed' && (
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              İçerik Başlığı:
-                            </label>
-                            <input
-                              type="text"
-                              value={multiLanguageContent[language].title}
-                              onChange={(e) => handleTitleChange(language, e.target.value)}
-                              placeholder={`${getLanguageName(language)} başlık girin...`}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              required
-                            />
-                          </div>
-                        )}
+
 
                         {/* İçerik Editörü */}
                         {renderContentEditor(language)}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiUser, FiMail, FiEdit3, FiSave, FiX, FiCheck, FiAlertCircle, FiEye, FiLock, FiShield, FiActivity } from 'react-icons/fi';
+import { FiUser, FiMail, FiEdit3, FiSave, FiX, FiCheck, FiAlertCircle, FiEye, FiLock, FiShield } from 'react-icons/fi';
 import ChangePasswordForm from './ChangePasswordForm';
 
 interface AdminData {
@@ -205,8 +205,7 @@ const AdminProfile: React.FC<AdminProfileProps> = ({ onProfileUpdate }) => {
 
   const tabs = [
     { id: 'general', name: 'Genel Bilgiler', icon: FiUser },
-    { id: 'security', name: 'Güvenlik', icon: FiShield },
-    { id: 'activity', name: 'Aktivite', icon: FiActivity }
+    { id: 'security', name: 'Güvenlik', icon: FiShield }
   ];
 
   const renderTabContent = () => {
@@ -215,8 +214,6 @@ const AdminProfile: React.FC<AdminProfileProps> = ({ onProfileUpdate }) => {
         return renderGeneralTab();
       case 'security':
         return renderSecurityTab();
-      case 'activity':
-        return renderActivityTab();
       default:
         return renderGeneralTab();
     }
@@ -407,51 +404,7 @@ const AdminProfile: React.FC<AdminProfileProps> = ({ onProfileUpdate }) => {
     </div>
   );
 
-  const renderActivityTab = () => (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-8">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-3 rounded-lg">
-          <FiActivity className="text-white text-xl" />
-        </div>
-        <div>
-          <h3 className="text-xl font-semibold text-gray-900">Hesap Aktivitesi</h3>
-          <p className="text-gray-500">Son aktivitelerinizi görüntüleyin</p>
-        </div>
-      </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between py-3 border-b border-gray-100">
-          <div className="flex items-center space-x-3">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-gray-700">Son giriş</span>
-          </div>
-          <span className="text-gray-500 text-sm">Bugün, 14:30</span>
-        </div>
-        
-        <div className="flex items-center justify-between py-3 border-b border-gray-100">
-          <div className="flex items-center space-x-3">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span className="text-gray-700">Profil güncelleme</span>
-          </div>
-          <span className="text-gray-500 text-sm">2 gün önce</span>
-        </div>
-        
-        <div className="flex items-center justify-between py-3 border-b border-gray-100">
-          <div className="flex items-center space-x-3">
-            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-            <span className="text-gray-700">Şifre değişikliği</span>
-          </div>
-          <span className="text-gray-500 text-sm">1 hafta önce</span>
-        </div>
-
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600 text-center">
-            Daha detaylı aktivite geçmişi yakında eklenecektir.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="max-w-6xl mx-auto">

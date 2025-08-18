@@ -5,7 +5,8 @@ import HeroSection from '../components/HeroSection';
 import MarketsShowcase from '../components/MarketsShowcase';
 import SolutionsCarousel from '../components/SolutionsCarousel';
 import ProductGroupsShowcase from '../components/ProductGroupsShowcase';
-import InteractiveFeatures from '../components/InteractiveFeatures';
+import ContactSection from '../components/ContactSection';
+
 
 interface HomeData {
   markets: any[];
@@ -26,7 +27,7 @@ const Home: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch(`http://localhost:5000/api/home?lang=${i18n.language}`);
+        const response = await fetch(`/api/home?lang=${i18n.language}`);
         
         if (!response.ok) {
           throw new Error('Ana sayfa verileri yüklenemedi');
@@ -107,7 +108,7 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Markets Showcase - Markets */}
+            {/* Markets Showcase - Markets */}
       {homeData?.markets && homeData.markets.length > 0 && (
         <div className="relative">
           {/* Background Pattern */}
@@ -121,7 +122,7 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Interactive Features */}
+      {/* Contact Section - İletişim */}
       <div className="relative">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-gradient-to-r from-orange-600/5 to-red-600/5"></div>
@@ -129,39 +130,11 @@ const Home: React.FC = () => {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f97316' fill-opacity='0.03'%3E%3Cpath d='M50 50c0 27.614-22.386 50-50 50s-50-22.386-50-50 22.386-50 50-50 50 22.386 50 50zm0-50c0-27.614-22.386-50-50-50s-50 22.386-50 50 22.386 50 50 50 50-22.386 50-50z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}></div>
         <div className="relative z-10">
-          <InteractiveFeatures />
+          <ContactSection />
         </div>
       </div>
 
-      {/* Quality Slogan Section */}
-      <section className="py-20 relative overflow-hidden">
-        {/* Top Section Divider */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-700/30 to-transparent z-20"></div>
-        
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/10 via-purple-600/10 to-pink-600/10"></div>
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238b5cf6' fill-opacity='0.03'%3E%3Cpath d='M60 60c0 33.137-26.863 60-60 60s-60-26.863-60-60 26.863-60 60-60 60 26.863 60 60zm0-60c0-33.137-26.863-60-60-60s-60 26.863-60 60 26.863 60 60 60 60-26.863 60-60z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}></div>
-        
-        <div className="max-w-6xl mx-auto px-4 text-center relative z-10">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-12 shadow-2xl border border-white/20">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              <span className="bg-gradient-to-r from-blue-700 to-blue-600 bg-clip-text text-transparent">
-                {t('pages.home.quality.title')}
-              </span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              {t('pages.home.quality.description')}
-            </p>
-            <div className="mt-8">
-              <button className="bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-800 hover:to-blue-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                {t('pages.home.quality.ctaButton')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+
     </div>
   );
 };

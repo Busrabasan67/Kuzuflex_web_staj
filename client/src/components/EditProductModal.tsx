@@ -2,6 +2,52 @@ import React, { useState, useEffect } from 'react';
 
 const API_BASE = "http://localhost:5000";
 
+// Bayrak SVG'leri
+const Flags = {
+  tr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="20" height="14">
+      <rect width="300" height="200" fill="#E30A17" />
+      <circle cx="120" cy="100" r="40" fill="#fff" />
+      <circle cx="135" cy="100" r="32" fill="#E30A17" />
+      <polygon
+        fill="#fff"
+        points="170,100 159.5,106.5 162.5,94 152,86 164.5,86 170,74 175.5,86 188,86 177.5,94 180.5,106.5"
+      />
+    </svg>
+  ),
+  en: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <clipPath id="s">
+        <path d="M0,0 v30 h60 v-30 z"/>
+      </clipPath>
+      <clipPath id="g">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
+      </clipPath>
+      <g clipPath="url(#s)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#g)" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+      </g>
+    </svg>
+  ),
+  de: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect y="0" width="60" height="10" fill="#000"/>
+      <rect y="10" width="60" height="10" fill="#D00"/>
+      <rect y="20" width="60" height="10" fill="#FFCE00"/>
+    </svg>
+  ),
+  fr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect x="0" width="20" height="30" fill="#002395"/>
+      <rect x="20" width="20" height="30" fill="#fff"/>
+      <rect x="40" width="20" height="30" fill="#ED2939"/>
+    </svg>
+  )
+};
+
 // 4 desteklenen dil kodu
 const LANGUAGES = [
   { code: 'tr', label: 'Türkçe' },
@@ -389,7 +435,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, productId, 
               <div className="space-y-4">
                 {translations.map((translation, idx) => (
                   <div key={translation.language} className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                      <div className="w-5 flex justify-center">
+                        {Flags[translation.language as keyof typeof Flags]()}
+                      </div>
                       {LANGUAGES.find(l => l.code === translation.language)?.label}
                     </h4>
                     <div className="grid grid-cols-1 gap-4">

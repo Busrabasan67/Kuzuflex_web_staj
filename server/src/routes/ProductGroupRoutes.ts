@@ -1,4 +1,6 @@
 import { Router } from "express";
+import AppDataSource from "../data-source";
+import { ProductGroup } from "../entity/ProductGroup";
 import { getAllGroups, getProductsByGroupId, getProductsByGroupSlug, getAdminProductGroups, createProductGroupWithFormData, updateProductGroup, deleteProductGroup } from "../controllers/productGroupController";
 import multer from "multer";
 import path from "path";
@@ -44,6 +46,18 @@ const router = Router();
  *         description: Gruplar başarıyla getirildi
  */
 router.get("/", getAllGroups);
+
+// Ürün grubu sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+  try {
+    const groupRepository = AppDataSource.getRepository(ProductGroup);
+    const count = await groupRepository.count();
+    res.json(count);
+  } catch (error) {
+    console.error('Ürün grubu sayısı alınamadı:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
 

@@ -20,7 +20,7 @@ const SolutionManagement: React.FC = () => {
   const [editingSolution, setEditingSolution] = useState<Solution | null>(null);
   const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'with-content' | 'without-content'>('all');
+
   
   // Modal state'leri
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -211,11 +211,7 @@ const SolutionManagement: React.FC = () => {
                          solution.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (solution.description && solution.description.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesFilter = filterType === 'all' ||
-                         (filterType === 'with-content' && solution.hasExtraContent) ||
-                         (filterType === 'without-content' && !solution.hasExtraContent);
-    
-    return matchesSearch && matchesFilter;
+    return matchesSearch;
   });
 
   const stats = {
@@ -351,38 +347,7 @@ const SolutionManagement: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setFilterType('all')}
-                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm ${
-                  filterType === 'all'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Tümü ({stats.total})
-              </button>
-              <button
-                onClick={() => setFilterType('with-content')}
-                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm ${
-                  filterType === 'with-content'
-                    ? 'bg-green-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Ekstra İçerikli ({stats.withContent})
-              </button>
-              <button
-                onClick={() => setFilterType('without-content')}
-                className={`px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm ${
-                  filterType === 'without-content'
-                    ? 'bg-orange-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Ekstra İçeriksiz ({stats.withoutContent})
-              </button>
-            </div>
+
           </div>
         </div>
 
@@ -404,10 +369,10 @@ const SolutionManagement: React.FC = () => {
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {searchTerm || filterType !== 'all' ? 'Sonuç bulunamadı' : 'Henüz solution eklenmemiş'}
+                  {searchTerm ? 'Sonuç bulunamadı' : 'Henüz solution eklenmemiş'}
                 </h3>
                 <p className="text-gray-500">
-                  {searchTerm || filterType !== 'all' 
+                  {searchTerm 
                     ? 'Arama kriterlerinizi değiştirmeyi deneyin'
                     : 'İlk solution\'ınızı eklemek için yukarıdaki butona tıklayın'
                   }
@@ -435,11 +400,8 @@ const SolutionManagement: React.FC = () => {
                     <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24 sm:w-28">
                       Ekstra İçerik
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28 sm:w-36">
-                      Oluşturulma
-                    </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28 sm:w-36">
-                      Güncelleme
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32 sm:w-40">
+                      TARIH
                     </th>
                     <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28 sm:w-36">
                       İşlemler
@@ -505,29 +467,17 @@ const SolutionManagement: React.FC = () => {
                           </span>
                         )}
                       </td>
-                      <td className="px-2 sm:px-4 py-4 whitespace-nowrap w-28 sm:w-36">
-                        <div className="text-xs text-gray-600">
-                          <div className="font-medium">
-                            {new Date(solution.createdAt).toLocaleDateString('tr-TR')}
+                      <td className="px-2 sm:px-4 py-4 whitespace-nowrap w-32 sm:w-40">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-400">Oluşturulma:</span>
+                            <span className="text-xs">{solution.createdAt ? new Date(solution.createdAt).toLocaleDateString('tr-TR') : '-'}</span>
                           </div>
-                          <div className="text-gray-500 hidden sm:block">
-                            {new Date(solution.createdAt).toLocaleTimeString('tr-TR', { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-2 sm:px-4 py-4 whitespace-nowrap w-28 sm:w-36">
-                        <div className="text-xs text-gray-600">
-                          <div className="font-medium">
-                            {new Date(solution.updatedAt).toLocaleDateString('tr-TR')}
-                          </div>
-                          <div className="text-gray-500 hidden sm:block">
-                            {new Date(solution.updatedAt).toLocaleTimeString('tr-TR', { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-gray-400">Güncelleme:</span>
+                            <span className={`text-xs ${solution.updatedAt !== solution.createdAt ? 'text-blue-600 font-medium' : ''}`}>
+                              {solution.updatedAt ? new Date(solution.updatedAt).toLocaleDateString('tr-TR') : '-'}
+                            </span>
                           </div>
                         </div>
                       </td>

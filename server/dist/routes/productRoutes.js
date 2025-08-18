@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
+const data_source_1 = __importDefault(require("../data-source"));
+const Product_1 = require("../entity/Product");
 const productController_1 = require("../controllers/productController");
 // Product için storage
 const productStorage = multer_1.default.diskStorage({
@@ -110,6 +112,18 @@ router.get("/", productController_1.getSubProduct);
  */
 // Tüm ürünleri listeleyen route (admin paneli için)
 router.get("/all", productController_1.getAllProducts);
+// Ürün sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+    try {
+        const productRepository = data_source_1.default.getRepository(Product_1.Product);
+        const count = await productRepository.count();
+        res.json(count);
+    }
+    catch (error) {
+        console.error('Ürün sayısı alınamadı:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 /**
  * @swagger
  * /api/products:

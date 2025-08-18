@@ -4,6 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const data_source_1 = __importDefault(require("../data-source"));
+const Solution_1 = require("../entity/Solution");
 const solutionController_1 = require("../controllers/solutionController");
 const uploadController_1 = require("../controllers/uploadController");
 const router = express_1.default.Router();
@@ -25,6 +27,18 @@ const router = express_1.default.Router();
  *         description: "Çözüm listesi döner"
  */
 router.get("/", solutionController_1.getAllSolutions);
+// Çözüm sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+    try {
+        const solutionRepository = data_source_1.default.getRepository(Solution_1.Solution);
+        const count = await solutionRepository.count();
+        res.json(count);
+    }
+    catch (error) {
+        console.error('Çözüm sayısı alınamadı:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 /**
  * @openapi
  * /api/solutions:

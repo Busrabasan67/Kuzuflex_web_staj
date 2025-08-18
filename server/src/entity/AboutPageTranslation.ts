@@ -14,12 +14,6 @@ export class AboutPageTranslation {
   @Column()
   title!: string;
 
-  @Column({ nullable: true })
-  subtitle?: string;
-
-  @Column("nvarchar", { length: "MAX" })
-  bodyHtml!: string;
-
   @ManyToOne(() => AboutPage, (p) => p.translations, { onDelete: "CASCADE" })
   @JoinColumn({ name: "pageId" })
   page!: AboutPage;

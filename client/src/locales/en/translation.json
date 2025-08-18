@@ -4,15 +4,14 @@
     "products": "Products",
     "about": "About Us",
     "contact": "Contact",
+    "documents": "Documents & Certificates",
     "login": "Login",
     "logout": "Logout",
     "solutions": "Solutions",
     "corporate": "Corporate",
     "services": "Services",
-    "documents": "Documents",
     "manufacturing": "Manufacturing",
     "quality": "Quality",
-    "qmDocuments": "QM Documents & Certificates",
     "adminPanel": "Admin Panel",
     "searchPlaceholder": "Search products, categories or content...",
     "professionalSolutions": "Professional Industrial Solutions"
@@ -23,7 +22,8 @@
     "about": "About Us",
     "contact": "Contact",
     "solutions": "Solutions",
-    "qmDocuments": "QM Documents & Certificates",
+    "documents": "Documents & Certificates",
+    "qmDocuments": "Documents & Certificates",
     "markets": "Markets",
     "adminPanel": "Admin Panel",
     "login": "Login"
@@ -37,10 +37,13 @@
     "required": "This field is required"
   },
   "common": {
-    "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com",
+    "phone": "+90 850 800 22 22",
+    "email": "kuzu@kuzuflex.com",
     "search": "Search...",
-    "languageName": "English"
+    "languageName": "English",
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry"
   },
   "footer": {
     "companyDescription": "Leading brand in flexible metal hose. The address of quality, trust and innovation.",
@@ -48,6 +51,8 @@
     "ourProducts": "Our Products",
     "contactInfo": "Contact Info",
     "markets": "Markets",
+    "solutions": "Solutions",
+    "qmDocuments": "Documents & Certificates",
     "allRightsReserved": "All rights reserved."
   },
   "loading": {
@@ -77,7 +82,7 @@
         "title": "All Our Products",
         "subtitle": "Discover our quality and reliable products.",
         "subcategories": "Subcategories",
-        "exploreButton": "Explore Product Group",
+        "exploreButton": "Explore",
         "subProductCount": "sub products",
         "allProducts": "All Products",
         "product": "product",
@@ -102,6 +107,25 @@
         "viewAll": "View All Markets",
         "titleCard": "MARKETS"
       },
+      "contact": {
+        "title": "Contact",
+        "subtitle": "Get in touch with us, we'd be happy to help you.",
+        "phone": "Phone",
+        "phoneNumber": "+90 850 800 22 22",
+        "email": "Email",
+        "emailAddress": "info@kuzuflex.com",
+        "address": "Address",
+        "addressText": "Bursa, Turkey",
+        "socialTitle": "Follow Us",
+        "quickContactTitle": "Quick Contact",
+        "quickContactSubtitle": "Send us your message, we'll get back to you as soon as possible.",
+        "namePlaceholder": "Your Name",
+        "emailPlaceholder": "Your Email",
+        "phonePlaceholder": "Your Phone Number",
+        "messagePlaceholder": "Your Message",
+        "sendMessageButton": "Send Message",
+        "directions": "Directions"
+      },
       "quality": {
         "title": "QUALITY NEVER COMES BY CHANCE",
         "description": "HIGH ENDURANCE AND CERTIFIED FLEXIBLES",
@@ -113,7 +137,7 @@
         "error": "Video Failed to Load",
         "fallback": "Using gradient background",
         "tagline": "Flexible Metal Solutions for Tomorrow",
-        "description": "We are THE experts in manufacturing metal pipes and we constantly develop new innovative solutions for all kinds of flexible applications.",
+        "description": "We are the experts in manufacturing metal pipes and we constantly develop new innovative solutions for all kinds of flexible applications.",
         "discoverButton": "Discover",
         "contactButton": "Contact"
       }
@@ -132,18 +156,10 @@
       "startChatButton": "Start Chat",
       "quickContactTitle": "Quick Contact",
       "namePlaceholder": "Your name",
+      "phonePlaceholder": "Your phone number",
       "messagePlaceholder": "Your message",
       "sendMessageButton": "Send Message",
       "socialTitle": "Follow Us"
-    },
-    "hero": {
-      "loading": "Video Loading...",
-      "error": "Video Failed to Load",
-      "fallback": "Using gradient background",
-      "tagline": "Flexible Metal Solutions for Tomorrow",
-      "description": "We are THE experts in manufacturing metal pipes and we constantly develop new innovative solutions for all kinds of flexible applications.",
-      "discoverButton": "Discover",
-      "contactButton": "Contact"
     },
     "about": {
       "title": "About Us",
@@ -152,7 +168,9 @@
       "mission": "Our Mission",
       "missionText": "To provide innovative and reliable industrial solutions.",
       "vision": "Our Vision",
-      "visionText": "To be the leading provider of industrial solutions worldwide."
+      "visionText": "To be the leading provider of industrial solutions worldwide.",
+      "qmDocumentsDescription": "As Kuzuflex, we continuously improve our quality standards and provide the best service to our customers with international quality certificates.",
+      "viewDocuments": "View Documents"
     },
     "contact": {
       "title": "Contact Us",
@@ -176,7 +194,14 @@
       "errorMessage": "An error occurred while sending the message. Please try again later.",
       "connectionError": "Connection error occurred. Please try again later.",
       "locationsTitle": "Our Locations",
-      "locationsSubtitle": "Visit our offices in Turkey and Germany"
+      "locationsSubtitle": "Visit our offices in Turkey and Germany",
+      "directions": "Directions",
+      "turkeyLocation": "TURKEY LOCATION",
+      "germanyLocation": "GERMANY LOCATION",
+      "qmDocumentsSubtitle": "Our documents and certificates",
+      "qmDocumentsTitle": "Documents & Certificates",
+      "qmDocumentsDescription": "As Kuzuflex, we continuously improve our quality standards and provide the best service to our customers with international quality certificates.",
+      "viewDocuments": "View Documents"
     },
     "qmDocuments": {
       "title": "Certificates & Documents",
@@ -190,12 +215,15 @@
       "noImage": "No Image",
       "noDocuments": "No documents available yet",
       "noDocumentsDesc": "There are currently no documents to display."
-    }
-  },
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "retry": "Retry"
+    },
+    "contactUsButton": "Contact Us",
+    "ourProducts": "Our Products",
+    "catalogs": "Catalogs",
+    "catalogsDescription": "View catalogs to access detailed technical information",
+    "exploreButton": "Explore",
+    "contactInfo": "Would you like to learn more about this solution?",
+    "contactDescription": "Our expert team will be happy to help you.",
+    "contactButton": "Contact Us"
   },
   "markets": {
     "title": "MARKETS",

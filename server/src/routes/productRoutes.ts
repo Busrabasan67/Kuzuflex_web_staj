@@ -1,6 +1,8 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
+import AppDataSource from "../data-source";
+import { Product } from "../entity/Product";
 
 import { getSubProduct, getProductBySlug, getAllProducts, createProduct, updateProduct, getProductById, deleteProduct } from "../controllers/productController";
 
@@ -113,6 +115,18 @@ router.get("/", getSubProduct);
 
 // Tüm ürünleri listeleyen route (admin paneli için)
 router.get("/all", getAllProducts);
+
+// Ürün sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+  try {
+    const productRepository = AppDataSource.getRepository(Product);
+    const count = await productRepository.count();
+    res.json(count);
+  } catch (error) {
+    console.error('Ürün sayısı alınamadı:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 /**
  * @swagger

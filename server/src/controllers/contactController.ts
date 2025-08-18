@@ -3,13 +3,13 @@ import mailService from '../services/mailService';
 
 export const submitContactForm = async (req: Request, res: Response) => {
   try {
-    const { name, email, subject, message, language, languageName } = req.body;
+    const { name, email, phone, message, language, languageName } = req.body;
 
     console.log('Gelen Form Verisi:', req.body);
     console.log('Dil Bilgisi:', { language, languageName });
 
     // Validation
-    if (!name || !email || !subject || !message) {
+    if (!name || !email || !phone || !message) {
       return res.status(400).json({
         success: false,
         message: 'All fields are required'
@@ -29,7 +29,7 @@ export const submitContactForm = async (req: Request, res: Response) => {
     const emailSent = await mailService.sendContactFormEmail({
       name,
       email,
-      subject,
+      phone,
       message,
       language,
       languageName

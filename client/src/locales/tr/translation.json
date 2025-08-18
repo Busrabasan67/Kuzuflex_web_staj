@@ -4,29 +4,29 @@
     "products": "Ürünler",
     "about": "Hakkımızda",
     "contact": "İletişim",
+    "documents": "Belgeler & Sertifikalar",
     "login": "Giriş Yap",
     "logout": "Çıkış Yap",
     "solutions": "Çözümler",
     "corporate": "Kurumsal",
     "services": "Hizmetler",
-    "documents": "Belgeler",
     "manufacturing": "İmalat",
     "quality": "Kalite",
-    "qmDocuments": "Belgeler ve Sertifikalar",
     "adminPanel": "Admin Panel",
     "searchPlaceholder": "Ürün, kategori veya içerik ara...",
     "professionalSolutions": "Profesyonel Endüstriyel Çözümler"
   },
   "breadcrumb": {
-    "home": "Anasayfa",
+    "home": "Ana Sayfa",
     "products": "Ürünler",
     "about": "Hakkımızda",
     "contact": "İletişim",
     "solutions": "Çözümler",
+    "documents": "Belgeler ve Sertifikalar",
     "qmDocuments": "Belgeler ve Sertifikalar",
     "markets": "Pazarlar",
-    "adminPanel": "Admin Panel",
-    "login": "Giriş Yap"
+    "adminPanel": "Admin Paneli",
+    "login": "Giriş"
   },
   "form": {
     "name": "İsim",
@@ -37,8 +37,8 @@
     "required": "Bu alan zorunludur"
   },
   "common": {
-    "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com",
+    "phone": "+90 850 800 22 22",
+    "email": "kuzu@kuzuflex.com",
     "search": "Ara...",
     "imageLoadError": "Resim Yüklenemedi",
     "noImage": "Resim Yok",
@@ -46,11 +46,13 @@
     "languageName": "Türkçe"
   },
   "footer": {
-    "companyDescription": "Esnek metal hortumda lider marka. Kalite, güven ve inovasyonun adresi.",
-    "quickLinks": "Hızlı Bağlantılar",
-    "ourProducts": "Ürünlerimiz",
-    "contactInfo": "İletişim Bilgileri",
-    "markets": "Pazarlar",
+    "companyDescription": "Esnek metal hortumda öncü marka. Kalite, güven ve yeniliğin adresi.",
+    "quickLinks": "HIZLI BAĞLANTILAR",
+    "ourProducts": "ÜRÜNLERİMİZ",
+    "contactInfo": "İLETİŞİM BİLGİLERİ",
+    "markets": "PAZARLAR",
+    "solutions": "ÇÖZÜMLER",
+    "qmDocuments": "BELGELER VE SERTİFİKALAR",
     "allRightsReserved": "Tüm hakları saklıdır."
   },
   "loading": {
@@ -80,7 +82,7 @@
         "title": "Tüm Ürünlerimiz",
         "subtitle": "Kaliteli ve güvenilir ürünlerimizi keşfedin.",
         "subcategories": "Alt Kategoriler",
-        "exploreButton": "Ürün Grubunu Keşfet",
+        "exploreButton": "Keşfet",
         "subProductCount": "alt ürün",
         "allProducts": "Tüm Ürünler",
         "product": "ürün",
@@ -105,6 +107,25 @@
         "viewAll": "Tüm Pazarları Gör",
         "titleCard": "PAZARLAR"
       },
+      "contact": {
+        "title": "İletişim",
+        "subtitle": "Bizimle iletişime geçin, size yardımcı olmaktan mutluluk duyarız.",
+        "phone": "Telefon",
+        "phoneNumber": "+90 850 800 22 22",
+        "email": "E-posta",
+        "emailAddress": "info@kuzuflex.com",
+        "address": "Adres",
+        "addressText": "Bursa, Türkiye",
+        "socialTitle": "Bizi Takip Edin",
+        "quickContactTitle": "Hızlı İletişim",
+        "quickContactSubtitle": "Mesajınızı gönderin, en kısa sürede size dönüş yapalım.",
+        "namePlaceholder": "Adınız",
+        "emailPlaceholder": "E-posta adresiniz",
+        "phonePlaceholder": "Telefon numaranız",
+        "messagePlaceholder": "Mesajınız",
+        "sendMessageButton": "Mesaj Gönder",
+        "directions": "Yol Tarifi"
+      },
       "quality": {
         "title": "KALİTE ASLA TESADÜFEN GELMEZ",
         "description": "YÜKSEK DAYANIMLI VE SERTİFİKALI FLEKSİBLER",
@@ -116,7 +137,7 @@
         "error": "Video Yüklenemedi",
         "fallback": "Gradient background kullanılıyor",
         "tagline": "Yarın İçin Esnek Metal Çözümleri",
-        "description": "Metal boru üretiminde UZMANIZ ve her türlü esnek uygulama için sürekli yeni yenilikçi çözümler geliştiriyoruz.",
+        "description": "Metal boru üretiminde uzmanız ve her türlü esnek uygulama için sürekli yeni yenilikçi çözümler geliştiriyoruz.",
         "discoverButton": "Keşfet",
         "contactButton": "İletişim"
       }
@@ -135,19 +156,12 @@
       "startChatButton": "Sohbet Başlat",
       "quickContactTitle": "Hızlı İletişim",
       "namePlaceholder": "Adınız",
+      "phonePlaceholder": "Telefon numaranız",
       "messagePlaceholder": "Mesajınız",
       "sendMessageButton": "Mesaj Gönder",
       "socialTitle": "Bizi Takip Edin"
     },
-    "hero": {
-      "loading": "Video Yükleniyor...",
-      "error": "Video Yüklenemedi",
-      "fallback": "Gradient background kullanılıyor",
-      "tagline": "Yarın İçin Esnek Metal Çözümleri",
-      "description": "Metal boru üretiminde UZMANIZ ve her türlü esnek uygulama için sürekli yeni yenilikçi çözümler geliştiriyoruz.",
-      "discoverButton": "Keşfet",
-      "contactButton": "İletişim"
-    },
+
     "about": {
       "title": "Hakkımızda",
       "subtitle": "Hikayemiz",
@@ -155,7 +169,9 @@
       "mission": "Misyonumuz",
       "missionText": "Yenilikçi ve güvenilir endüstriyel çözümler sunmak.",
       "vision": "Vizyonumuz",
-      "visionText": "Dünya çapında endüstriyel çözümler alanında lider sağlayıcı olmak."
+      "visionText": "Dünya çapında endüstriyel çözümler alanında lider sağlayıcı olmak.",
+      "qmDocumentsDescription": "Kuzuflex olarak kalite standartlarımızı sürekli yükseltiyor ve uluslararası kalite belgeleri ile müşterilerimize en iyi hizmeti sunuyoruz.",
+      "viewDocuments": "Belgeleri Görüntüle"
     },
     "contact": {
       "title": "İletişim",
@@ -179,7 +195,14 @@
       "errorMessage": "Mesaj gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.",
       "connectionError": "Bağlantı hatası oluştu. Lütfen daha sonra tekrar deneyiniz.",
       "locationsTitle": "Konumlarımız",
-      "locationsSubtitle": "Türkiye ve Almanya'daki ofislerimizi ziyaret edin"
+      "locationsSubtitle": "Türkiye ve Almanya'daki ofislerimizi ziyaret edin",
+      "directions": "Yol Tarifi",
+      "turkeyLocation": "TÜRKİYE KONUMU",
+      "germanyLocation": "ALMANYA KONUMU",
+      "qmDocumentsSubtitle": "Kalite yönetimi belgelerimiz ve sertifikalarımız",
+      "qmDocumentsTitle": "Kalite Yönetimi Belgeleri",
+      "qmDocumentsDescription": "Kuzuflex olarak kalite standartlarımızı sürekli yükseltiyor ve uluslararası kalite belgeleri ile müşterilerimize en iyi hizmeti sunuyoruz.",
+      "viewDocuments": "Belgeleri Görüntüle"
     },
     "qmDocuments": {
       "title": "Sertifikalar ve Belgeler",
@@ -193,7 +216,15 @@
       "noImage": "Resim Yok",
       "noDocuments": "Henüz belge bulunmuyor",
       "noDocumentsDesc": "Şu anda görüntülenecek belge bulunmuyor."
-    }
+    },
+    "contactUsButton": "İletişime Geç",
+    "ourProducts": "Ürünlerimiz",
+    "catalogs": "Kataloglar",
+    "catalogsDescription": "Katalogları görüntüleyerek detaylı teknik bilgilere ulaşabilirsiniz",
+    "exploreButton": "İncele",
+          "contactInfo": "Bu çözüm hakkında daha fazla bilgi almak ister misiniz?",
+      "contactDescription": "Uzman ekibimiz size yardımcı olmaktan mutluluk duyacaktır.",
+      "contactButton": "İletişime Geçin"
   },
 
   "markets": {

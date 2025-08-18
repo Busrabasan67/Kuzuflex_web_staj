@@ -4,6 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const data_source_1 = __importDefault(require("../data-source"));
+const QMDocumentsAndCertificates_1 = require("../entity/QMDocumentsAndCertificates");
 const qmDocumentsAndCertificatesController_1 = require("../controllers/qmDocumentsAndCertificatesController");
 const router = express_1.default.Router();
 /**
@@ -24,6 +26,18 @@ const router = express_1.default.Router();
  *         description: QM Documents & Certificates başarıyla getirildi
  */
 router.get("/", qmDocumentsAndCertificatesController_1.getAllQMDocumentsAndCertificates);
+// Belge sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+    try {
+        const documentRepository = data_source_1.default.getRepository(QMDocumentsAndCertificates_1.QMDocumentsAndCertificates);
+        const count = await documentRepository.count();
+        res.json(count);
+    }
+    catch (error) {
+        console.error('Belge sayısı alınamadı:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 /**
  * @swagger
  * /api/qm-documents-and-certificates/{id}:

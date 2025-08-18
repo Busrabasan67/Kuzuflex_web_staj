@@ -1,0 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AddTimestampsToProductAndProductGroup1754476764127 = void 0;
+class AddTimestampsToProductAndProductGroup1754476764127 {
+    constructor() {
+        this.name = 'AddTimestampsToProductAndProductGroup1754476764127';
+    }
+    async up(queryRunner) {
+        await queryRunner.query(`ALTER TABLE "product_group" ADD "createdAt" datetime NOT NULL CONSTRAINT "DF_46096be45605478dd80cc12e96a" DEFAULT GETDATE()`);
+        await queryRunner.query(`ALTER TABLE "product_group" ADD "updatedAt" datetime NOT NULL CONSTRAINT "DF_a2664739f13816f86c82898ae87" DEFAULT GETDATE()`);
+        await queryRunner.query(`ALTER TABLE "product" ADD "createdAt" datetime NOT NULL CONSTRAINT "DF_6b71c587b0fd3855fa23b759ca8" DEFAULT GETDATE()`);
+        await queryRunner.query(`ALTER TABLE "product" ADD "updatedAt" datetime NOT NULL CONSTRAINT "DF_41bde09db7136dcee687c2b1f05" DEFAULT GETDATE()`);
+    }
+    async down(queryRunner) {
+        await queryRunner.query(`ALTER TABLE "product" DROP CONSTRAINT "DF_41bde09db7136dcee687c2b1f05"`);
+        await queryRunner.query(`ALTER TABLE "product" DROP COLUMN "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE "product" DROP CONSTRAINT "DF_6b71c587b0fd3855fa23b759ca8"`);
+        await queryRunner.query(`ALTER TABLE "product" DROP COLUMN "createdAt"`);
+        await queryRunner.query(`ALTER TABLE "product_group" DROP CONSTRAINT "DF_a2664739f13816f86c82898ae87"`);
+        await queryRunner.query(`ALTER TABLE "product_group" DROP COLUMN "updatedAt"`);
+        await queryRunner.query(`ALTER TABLE "product_group" DROP CONSTRAINT "DF_46096be45605478dd80cc12e96a"`);
+        await queryRunner.query(`ALTER TABLE "product_group" DROP COLUMN "createdAt"`);
+    }
+}
+exports.AddTimestampsToProductAndProductGroup1754476764127 = AddTimestampsToProductAndProductGroup1754476764127;

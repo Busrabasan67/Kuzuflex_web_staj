@@ -4,15 +4,14 @@
     "products": "Produits",
     "about": "À Propos",
     "contact": "Contact",
+    "documents": "Documents & Certificats",
     "login": "Se Connecter",
     "logout": "Se Déconnecter",
     "solutions": "Solutions",
     "corporate": "Entreprise",
     "services": "Services",
-    "documents": "Documents",
     "manufacturing": "Fabrication",
     "quality": "Qualité",
-    "qmDocuments": "Documents QM & Certificats",
     "adminPanel": "Panneau Admin",
     "searchPlaceholder": "Rechercher des produits, catégories ou contenu...",
     "professionalSolutions": "Solutions Industrielles Professionnelles"
@@ -23,10 +22,11 @@
     "about": "À Propos",
     "contact": "Contact",
     "solutions": "Solutions",
-    "qmDocuments": "Documents QM & Certificats",
+    "documents": "Documents et Certificats",
+    "qmDocuments": "Documents et Certificats",
     "markets": "Marchés",
-    "adminPanel": "Panneau Admin",
-    "login": "Se Connecter"
+    "adminPanel": "Panneau d'Administration",
+    "login": "Connexion"
   },
   "form": {
     "name": "Nom",
@@ -37,15 +37,18 @@
     "required": "Ce champ est obligatoire"
   },
   "common": {
-    "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com",
+    "phone": "+90 850 800 22 22",
+    "email": "kuzu@kuzuflex.com",
     "languageName": "Français"
   },
   "footer": {
     "companyDescription": "Marque leader dans le tuyau métallique flexible. L'adresse de la qualité, de la confiance et de l'innovation.",
     "quickLinks": "Liens Rapides",
-    "ourProducts": "Nos Produits",
+
     "contactInfo": "Informations de Contact",
+    "markets": "Marchés",
+    "solutions": "Solutions",
+    "qmDocuments": "Documents et Certificats",
     "allRightsReserved": "Tous droits réservés."
   },
   "markets": {
@@ -81,7 +84,7 @@
         "title": "Tous Nos Produits",
         "subtitle": "Découvrez nos produits de qualité et fiables.",
         "subcategories": "Sous-catégories",
-        "exploreButton": "Explorer le Groupe de Produits",
+        "exploreButton": "Explorer",
         "subProductCount": "sous-produits",
         "allProducts": "Tous les Produits",
         "product": "produit",
@@ -106,6 +109,25 @@
         "viewAll": "Voir Tous les Marchés",
         "titleCard": "MARCHÉS"
       },
+      "contact": {
+        "title": "Contact",
+        "subtitle": "Contactez-nous, nous serons ravis de vous aider.",
+        "phone": "Téléphone",
+        "phoneNumber": "+90 850 800 22 22",
+        "email": "E-mail",
+        "emailAddress": "info@kuzuflex.com",
+        "address": "Adresse",
+        "addressText": "Bursa, Turquie",
+        "socialTitle": "Suivez-nous",
+        "quickContactTitle": "Contact Rapide",
+        "quickContactSubtitle": "Envoyez-nous votre message, nous vous répondrons dès que possible.",
+        "namePlaceholder": "Votre Nom",
+        "emailPlaceholder": "Votre E-mail",
+        "phonePlaceholder": "Votre Numéro de Téléphone",
+        "messagePlaceholder": "Votre Message",
+        "sendMessageButton": "Envoyer le Message",
+        "directions": "Itinéraire"
+      },
       "quality": {
         "title": "LA QUALITÉ NE VIENT JAMAIS PAR HASARD",
         "description": "FLEXIBLES À HAUTE ENDURANCE ET CERTIFIÉS",
@@ -117,7 +139,7 @@
         "error": "Échec du chargement de la vidéo",
         "fallback": "Utilisation de l'arrière-plan dégradé",
         "tagline": "Solutions Métalliques Flexibles pour Demain",
-        "description": "Nous sommes LES experts dans la fabrication de tuyaux métalliques et nous développons constamment de nouvelles solutions innovantes pour tous types d'applications flexibles.",
+        "description": "Nous sommes les experts dans la fabrication de tuyaux métalliques et nous développons constamment de nouvelles solutions innovantes pour tous types d'applications flexibles.",
         "discoverButton": "Découvrir",
         "contactButton": "Contact"
       }
@@ -149,19 +171,12 @@
       "startChatButton": "Démarrer le chat",
       "quickContactTitle": "Contact rapide",
       "namePlaceholder": "Votre nom",
+      "phonePlaceholder": "Votre numéro de téléphone",
       "messagePlaceholder": "Votre message",
       "sendMessageButton": "Envoyer le message",
       "socialTitle": "Suivez-nous"
     },
-    "hero": {
-      "loading": "Chargement de la vidéo...",
-      "error": "Échec du chargement de la vidéo",
-      "fallback": "Utilisation de l'arrière-plan dégradé",
-      "tagline": "Solutions métalliques flexibles pour demain",
-      "description": "Nous sommes LES experts dans la fabrication de tuyaux métalliques et nous développons constamment de nouvelles solutions innovantes pour toutes sortes d'applications flexibles.",
-      "discoverButton": "Découvrir",
-      "contactButton": "Contact"
-    },
+
     "about": {
       "title": "À Propos de Nous",
       "subtitle": "Notre Histoire",
@@ -169,7 +184,9 @@
       "mission": "Notre Mission",
       "missionText": "Fournir des solutions industrielles innovantes et fiables.",
       "vision": "Notre Vision",
-      "visionText": "Être le fournisseur leader de solutions industrielles dans le monde."
+      "visionText": "Être le fournisseur leader de solutions industrielles dans le monde.",
+      "qmDocumentsDescription": "En tant que Kuzuflex, nous améliorons continuellement nos normes de qualité et offrons le meilleur service à nos clients avec des certificats de qualité internationaux.",
+      "viewDocuments": "Voir les Documents"
     },
     "contact": {
       "title": "Contactez-Nous",
@@ -193,8 +210,23 @@
       "errorMessage": "Une erreur s'est produite lors de l'envoi du message. Veuillez réessayer plus tard.",
       "connectionError": "Erreur de connexion. Veuillez réessayer plus tard.",
       "locationsTitle": "Nos Emplacements",
-      "locationsSubtitle": "Visitez nos bureaux en Turquie et en Allemagne"
-    }
+      "locationsSubtitle": "Visitez nos bureaux en Turquie et en Allemagne",
+      "directions": "Itinéraire",
+      "turkeyLocation": "EMPLACEMENT TURQUIE",
+      "germanyLocation": "EMPLACEMENT ALLEMAGNE",
+      "qmDocumentsSubtitle": "Nos documents de gestion de la qualité et certificats",
+      "qmDocumentsTitle": "Documents de Gestion de la Qualité",
+      "qmDocumentsDescription": "En tant que Kuzuflex, nous améliorons continuellement nos normes de qualité et offrons le meilleur service à nos clients avec des certificats de qualité internationaux.",
+      "viewDocuments": "Voir les Documents",
+      "contactUsButton": "Nous Contacter"
+    },
+    "ourProducts": "Nos Produits",
+    "catalogs": "Catalogues",
+    "catalogsDescription": "Consultez les catalogues pour accéder aux informations techniques détaillées",
+    "exploreButton": "Explorer",
+          "contactInfo": "Souhaitez-vous en savoir plus sur cette solution ?",
+      "contactDescription": "Notre équipe d'experts sera ravie de vous aider.",
+      "contactButton": "Nous Contacter"
   },
   "market": {
     "mainContents": "Contenu Principal",

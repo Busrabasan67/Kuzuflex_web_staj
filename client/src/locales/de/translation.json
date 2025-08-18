@@ -4,15 +4,14 @@
     "products": "Produkte",
     "about": "Über Uns",
     "contact": "Kontakt",
+    "documents": "Dokumente & Zertifikate",
     "login": "Anmelden",
     "logout": "Abmelden",
     "solutions": "Lösungen",
     "corporate": "Unternehmen",
     "services": "Dienstleistungen",
-    "documents": "Dokumente",
     "manufacturing": "Fertigung",
     "quality": "Qualität",
-    "qmDocuments": "QM-Dokumente & Zertifikate",
     "adminPanel": "Admin-Panel",
     "searchPlaceholder": "Produkte, Kategorien oder Inhalte suchen...",
     "professionalSolutions": "Professionelle Industrielle Lösungen"
@@ -20,10 +19,11 @@
   "breadcrumb": {
     "home": "Startseite",
     "products": "Produkte",
-    "about": "Über Uns",
+    "about": "Über uns",
     "contact": "Kontakt",
     "solutions": "Lösungen",
-    "qmDocuments": "QM-Dokumente & Zertifikate",
+    "documents": "Dokumente und Zertifikate",
+    "qmDocuments": "Dokumente und Zertifikate",
     "markets": "Märkte",
     "adminPanel": "Admin-Panel",
     "login": "Anmelden"
@@ -37,8 +37,8 @@
     "required": "Dieses Feld ist erforderlich"
   },
   "common": {
-    "phone": "+90 555 123 45 67",
-    "email": "info@kuzuflex.com",
+    "phone": "+90 850 800 22 22",
+    "email": "kuzu@kuzuflex.com",
     "languageName": "Deutsch"
   },
   "footer": {
@@ -46,6 +46,9 @@
     "quickLinks": "Schnelllinks",
     "ourProducts": "Unsere Produkte",
     "contactInfo": "Kontaktinformationen",
+    "markets": "Märkte",
+    "solutions": "Lösungen",
+    "qmDocuments": "Dokumente und Zertifikate",
     "allRightsReserved": "Alle Rechte vorbehalten."
   },
   "markets": {
@@ -81,7 +84,7 @@
         "title": "Alle Unsere Produkte",
         "subtitle": "Entdecken Sie unsere qualitativ hochwertigen und zuverlässigen Produkte.",
         "subcategories": "Unterkategorien",
-        "exploreButton": "Produktgruppe Erkunden",
+        "exploreButton": "Erkunden",
         "subProductCount": "Unterprodukte",
         "allProducts": "Alle Produkte",
         "product": "Produkt",
@@ -106,6 +109,24 @@
         "viewAll": "Alle Märkte Anzeigen",
         "titleCard": "MÄRKTE"
       },
+      "contact": {
+        "title": "Kontakt",
+        "subtitle": "Kontaktieren Sie uns, wir helfen Ihnen gerne weiter.",
+        "phone": "Telefon",
+        "phoneNumber": "+90 850 800 22 22",
+        "email": "E-Mail",
+        "emailAddress": "info@kuzuflex.com",
+        "address": "Adresse",
+        "addressText": "Bursa, Türkei",
+        "socialTitle": "Folgen Sie uns",
+        "quickContactTitle": "Schneller Kontakt",
+        "quickContactSubtitle": "Senden Sie uns Ihre Nachricht, wir melden uns so schnell wie möglich bei Ihnen.",
+        "namePlaceholder": "Ihr Name",
+        "emailPlaceholder": "Ihre E-Mail",
+        "phonePlaceholder": "Ihre Telefonnummer",
+        "messagePlaceholder": "Ihre Nachricht",
+        "sendMessageButton": "Nachricht Senden"
+      },
       "quality": {
         "title": "QUALITÄT KOMMT NIEMALS DURCH ZUFALL",
         "description": "HOCHBELASTBARE UND ZERTIFIZIERTE FLEXIBLES",
@@ -117,7 +138,7 @@
         "error": "Video konnte nicht geladen werden",
         "fallback": "Gradient-Hintergrund wird verwendet",
         "tagline": "Flexible Metalllösungen für morgen",
-        "description": "Wir sind DIE Experten in der Herstellung von Metallrohren und entwickeln ständig neue innovative Lösungen für alle Arten von flexiblen Anwendungen.",
+        "description": "Wir sind die Experten in der Herstellung von Metallrohren und entwickeln ständig neue innovative Lösungen für alle Arten von flexiblen Anwendungen.",
         "discoverButton": "Entdecken",
         "contactButton": "Kontakt"
       }
@@ -135,45 +156,9 @@
       "noDocuments": "Noch keine Dokumente verfügbar",
       "noDocumentsDesc": "Derzeit sind keine Dokumente zum Anzeigen verfügbar."
     },
-    "interactive": {
-      "contactTitle": "Kontakt",
-      "phone": "Telefon",
-      "email": "E-Mail",
-      "address": "Adresse",
-      "newsletterTitle": "Bleiben Sie auf dem Laufenden",
-      "newsletterDescription": "Erhalten Sie Informationen über die neuesten Produkte und Lösungen",
-      "emailPlaceholder": "Ihre E-Mail-Adresse",
-      "subscribedMessage": "Erfolgreich abonniert!",
-      "liveChatTitle": "Live-Support",
-      "liveChatStatus": "Derzeit aktiv",
-      "startChatButton": "Chat starten",
-      "quickContactTitle": "Schneller Kontakt",
-      "namePlaceholder": "Ihr Name",
-      "messagePlaceholder": "Ihre Nachricht",
-      "sendMessageButton": "Nachricht senden",
-      "socialTitle": "Folgen Sie uns"
-    },
-    "hero": {
-      "loading": "Video wird geladen...",
-      "error": "Video konnte nicht geladen werden",
-      "fallback": "Gradient-Hintergrund wird verwendet",
-      "tagline": "Flexible Metalllösungen für morgen",
-      "description": "Wir sind DIE Experten in der Herstellung von Metallrohren und entwickeln ständig neue innovative Lösungen für alle Arten von flexiblen Anwendungen.",
-      "discoverButton": "Entdecken",
-      "contactButton": "Kontakt"
-    },
-    "about": {
-      "title": "Über Uns",
-      "subtitle": "Unsere Geschichte",
-      "description": "Kuzuflex ist ein führendes Unternehmen für industrielle Lösungen mit langjähriger Erfahrung.",
-      "mission": "Unsere Mission",
-      "missionText": "Innovative und zuverlässige industrielle Lösungen bereitzustellen.",
-      "vision": "Unsere Vision",
-      "visionText": "Der führende Anbieter von industriellen Lösungen weltweit zu sein."
-    },
     "contact": {
       "title": "Kontakt",
-      "subtitle": "Nehmen Sie Kontakt auf",
+      "subtitle": "Nehmen Sie Kontakt mit uns auf, wir helfen Ihnen gerne weiter.",
       "description": "Wir würden gerne von Ihnen hören. Senden Sie uns eine Nachricht und wir antworten so schnell wie möglich.",
       "address": "Adresse",
       "addressText": "123 Industriestraße, Ankara, Türkei",
@@ -193,9 +178,67 @@
       "errorMessage": "Beim Senden der Nachricht ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.",
       "connectionError": "Verbindungsfehler aufgetreten. Bitte versuchen Sie es später erneut.",
       "locationsTitle": "Unsere Standorte",
-      "locationsSubtitle": "Besuchen Sie unsere Büros in der Türkei und Deutschland"
-    }
+      "locationsSubtitle": "Besuchen Sie unsere Büros in der Türkei und Deutschland",
+      "directions": "Wegbeschreibung",
+      "turkeyLocation": "TÜRKEI STANDORT",
+      "germanyLocation": "DEUTSCHLAND STANDORT"
+    },
+    "catalogs": "Kataloge",
+    "catalogsDescription": "Durch Anzeigen der Kataloge können Sie auf detaillierte technische Informationen zugreifen",
+    "contactUsButton": "Kontakt aufnehmen",
+    "ourProducts": "Unsere Produkte",
+    "exploreButton": "Erkunden",
+          "contactInfo": "Möchten Sie mehr über diese Lösung erfahren?",
+      "contactDescription": "Unser Expertenteam hilft Ihnen gerne weiter.",
+      "contactButton": "Kontakt aufnehmen"
   },
+    "interactive": {
+      "contactTitle": "Kontakt",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "address": "Adresse",
+      "newsletterTitle": "Bleiben Sie auf dem Laufenden",
+      "newsletterDescription": "Erhalten Sie Informationen über die neuesten Produkte und Lösungen",
+      "emailPlaceholder": "Ihre E-Mail-Adresse",
+      "subscribedMessage": "Erfolgreich abonniert!",
+      "liveChatTitle": "Live-Support",
+      "liveChatStatus": "Derzeit aktiv",
+      "startChatButton": "Chat starten",
+      "quickContactTitle": "Schneller Kontakt",
+      "namePlaceholder": "Ihr Name",
+      "phonePlaceholder": "Ihre Telefonnummer",
+      "messagePlaceholder": "Ihre Nachricht",
+      "sendMessageButton": "Nachricht senden",
+      "socialTitle": "Folgen Sie uns"
+    },
+
+    "about": {
+      "title": "Über Uns",
+      "subtitle": "Unsere Geschichte",
+      "description": "Kuzuflex ist ein führendes Unternehmen für industrielle Lösungen mit langjähriger Erfahrung.",
+      "mission": "Unsere Mission",
+      "missionText": "Innovative und zuverlässige industrielle Lösungen bereitzustellen.",
+      "vision": "Unsere Vision",
+      "visionText": "Der führende Anbieter von industriellen Lösungen weltweit zu sein.",
+      "qmDocumentsDescription": "Als Kuzuflex verbessern wir kontinuierlich unsere Qualitätsstandards und bieten unseren Kunden mit internationalen Qualitätszertifikaten den besten Service.",
+      "viewDocuments": "Dokumente anzeigen"
+    },
+
+    "productGroup": {
+      "title": "Produktgruppen",
+      "subtitle": "Entdecken Sie unsere Produktgruppen und Produkte",
+      "defaultDescription": "Unsere Produktgruppen",
+      "exploreButton": "Erkunden",
+      "viewAll": "Alle Produktgruppen Anzeigen",
+      "ourProducts": "Unsere Produkte"
+    },
+    "subProduct": {
+      "title": "Produkt",
+      "subtitle": "Entdecken Sie unsere Produkte und Dokumente",
+      "description": "Entdecken Sie unsere Produkte und Dokumente",
+      "noDocuments": "Noch keine Dokumente verfügbar",
+      "noDocumentsDesc": "Derzeit sind keine Dokumente zum Anzeigen verfügbar."
+    },
   "market": {
     "mainContents": "Hauptinhalte",
     "subContents": "Unterinhalte",

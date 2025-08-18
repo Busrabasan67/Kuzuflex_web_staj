@@ -9,7 +9,6 @@ import About from "./pages/About";
 import Products from "./pages/Products";
 import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
-import { ThemeProvider } from "./theme/ThemeContext";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
 import AdminResetPassword from "./pages/AdminResetPassword";
@@ -30,6 +29,11 @@ function AppContent() {
 
   const isAdminRoute = location.pathname.startsWith("/admin");
 
+  // Sayfa değiştiğinde en üste scroll yap
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <>
       {/* Normal Sayfalarda Navbar Göster */}
@@ -43,7 +47,8 @@ function AppContent() {
           <Routes>
             {/* Normal Kullanıcı Sayfaları */}
             <Route path="/" element={<Home />} />
-            <Route path="/hakkimizda" element={<About />} />
+            <Route path="/about-us" element={<About />} />
+            <Route path="/hakkimizda" element={<Navigate to="/about-us" replace />} />
             <Route path="/contact" element={<Contact />} />
             
             {/* Slug bazlı ürün sayfaları */}
@@ -109,9 +114,7 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <AppContent />
   );
 }
 

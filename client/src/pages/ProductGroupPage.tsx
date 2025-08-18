@@ -164,7 +164,7 @@ const ProductGroupPage = () => {
                 {/* Ürün Grubu Özellikleri - Modern */}
                 <div className="space-y-6">
                   {/* Standard Bilgisi */}
-                  {groupData.standard && (
+                  {groupData.standard && groupData.standard !== 'null' && groupData.standard.trim() !== '' && (
                     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 hover:border-blue-400 transition-all duration-300">
                       <div className="flex items-center">
                         <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
@@ -173,7 +173,7 @@ const ProductGroupPage = () => {
                         <div>
                           <h3 className="text-lg font-semibold text-gray-800 mb-1">Standard</h3>
                           <p className="text-blue-700 font-mono">
-                            EN ISO 10380 Sertifikalı
+                            {groupData.standard}
                           </p>
                         </div>
                       </div>
@@ -189,7 +189,7 @@ const ProductGroupPage = () => {
                   >
                     <div className="flex items-center justify-center">
                       <FiShield className="w-4 h-4 mr-2" />
-                      İletişime Geç
+                      {t('pages.contactUsButton')}
                     </div>
                   </button>
                 </div>
@@ -204,7 +204,7 @@ const ProductGroupPage = () => {
             {/* Section Header */}
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 font-poppins">
-                Alt Ürünlerimiz
+                {t('pages.ourProducts')}
               </h2>
             </div>
             
@@ -262,7 +262,7 @@ const ProductGroupPage = () => {
                       }}
                     >
                       <div className="flex items-center justify-center">
-                        <span>İncele</span>
+                        <span>{t('pages.exploreButton')}</span>
                         <FiArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                       </div>
                     </button>
@@ -384,18 +384,18 @@ const ProductGroupPage = () => {
               {/* Ürün Grubu Özellikleri - Modern */}
               <div className="space-y-6">
                 {/* Standard Bilgisi */}
-                {groupData.standard && (
+                {groupData.standard && groupData.standard !== 'null' && groupData.standard.trim() !== '' && (
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200 hover:border-blue-400 transition-all duration-300">
                     <div className="flex items-center">
                       <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
                         <FiAward className="w-6 h-6 text-white" />
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-1">Standard</h3>
-                        <p className="text-blue-700 font-mono">
-                          EN ISO 10380 Sertifikalı
-                        </p>
-                      </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-800 mb-1">Standard</h3>
+                          <p className="text-blue-700 font-mono">
+                            {groupData.standard}
+                          </p>
+                        </div>
                     </div>
                   </div>
                 )}
@@ -409,7 +409,7 @@ const ProductGroupPage = () => {
                 >
                   <div className="flex items-center justify-center">
                     <FiShield className="w-4 h-4 mr-2" />
-                    İletişime Geç
+                    {t('pages.contactUsButton')}
                   </div>
                 </button>
               </div>

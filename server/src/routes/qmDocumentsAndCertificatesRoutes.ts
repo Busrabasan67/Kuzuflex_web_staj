@@ -1,4 +1,6 @@
 import express from "express";
+import AppDataSource from "../data-source";
+import { QMDocumentsAndCertificates } from "../entity/QMDocumentsAndCertificates";
 import { 
   getAllQMDocumentsAndCertificates, 
   getQMDocumentAndCertificateById, 
@@ -27,6 +29,18 @@ const router = express.Router();
  *         description: QM Documents & Certificates başarıyla getirildi
  */
 router.get("/", getAllQMDocumentsAndCertificates);
+
+// Belge sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+  try {
+    const documentRepository = AppDataSource.getRepository(QMDocumentsAndCertificates);
+    const count = await documentRepository.count();
+    res.json(count);
+  } catch (error) {
+    console.error('Belge sayısı alınamadı:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 /**
  * @swagger

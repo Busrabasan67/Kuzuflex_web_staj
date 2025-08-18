@@ -1,21 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapPin, Phone, Mail, Send, Building2, Globe } from 'lucide-react';
 
 const Contact = () => {
   const { t, i18n } = useTranslation();
   
-  // Debug: i18n durumunu kontrol et
-  console.log('i18n object:', i18n);
-  console.log('i18n.language:', i18n.language);
-  console.log('i18n.languages:', i18n.languages);
-  console.log('i18n.isInitialized:', i18n.isInitialized);
-  console.log('Translation test:', t('common.languageName'));
-  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: '',
+    phone: '',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,9 +16,31 @@ const Contact = () => {
     type: 'success' | 'error' | null;
     message: string;
   }>({ type: null, message: '' });
+  
+  // Form submit sonrası scroll'u yukarı çek
+  useEffect(() => {
+    if (submitStatus.type === 'success') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [submitStatus.type]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+          // Tüm alanların dolu olup olmadığını kontrol et
+      if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.message.trim()) {
+        setSubmitStatus({
+          type: 'error',
+          message: t('pages.contact.allFieldsRequired', 'All fields are required')
+        });
+        
+        // 3 saniye sonra validasyon hata mesajını otomatik olarak kaldır
+        setTimeout(() => {
+          setSubmitStatus({ type: null, message: '' });
+        }, 3000);
+        return;
+      }
+    
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: '' });
 
@@ -47,10 +62,6 @@ const Contact = () => {
         languageName: getLanguageName(i18n.language) // Dil adını manuel olarak ekle
       };
       
-      console.log('Gönderilen Form Verisi:', formDataWithLanguage);
-      console.log('Mevcut Dil:', i18n.language);
-      console.log('Dil Adı:', getLanguageName(i18n.language));
-      
       const response = await fetch('http://localhost:5000/api/contact/submit', {
         method: 'POST',
         headers: {
@@ -66,18 +77,33 @@ const Contact = () => {
           type: 'success',
           message: result.message
         });
-        setFormData({ name: '', email: '', subject: '', message: '' });
+        setFormData({ name: '', email: '', phone: '', message: '' });
+        
+        // 5 saniye sonra başarı mesajını otomatik olarak kaldır
+        setTimeout(() => {
+          setSubmitStatus({ type: null, message: '' });
+        }, 5000);
       } else {
         setSubmitStatus({
           type: 'error',
           message: result.message
         });
+        
+        // 5 saniye sonra hata mesajını otomatik olarak kaldır
+        setTimeout(() => {
+          setSubmitStatus({ type: null, message: '' });
+        }, 5000);
       }
     } catch (error) {
       setSubmitStatus({
         type: 'error',
         message: t('pages.contact.connectionError')
       });
+      
+      // 5 saniye sonra hata mesajını otomatik olarak kaldır
+      setTimeout(() => {
+        setSubmitStatus({ type: null, message: '' });
+      }, 5000);
     } finally {
       setIsSubmitting(false);
     }
@@ -146,10 +172,10 @@ const Contact = () => {
                 <div className="flex items-center">
                   <Mail className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
                   <button
-                    onClick={() => handleEmailClick('basanbusra1767@gmail.com')}
+                    onClick={() => handleEmailClick('kuzu@kuzuflex.com')}
                     className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 underline decoration-blue-300 hover:decoration-blue-600"
                   >
-                    basanbusra1767@gmail.com
+                    kuzu@kuzuflex.com
                   </button>
                 </div>
               </div>
@@ -159,7 +185,7 @@ const Contact = () => {
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center group"
               >
                 <MapPin className="w-5 h-5 mr-2" />
-                DIRECTIONS
+                {t('pages.contact.directions', 'Directions')}
               </button>
             </div>
 
@@ -195,10 +221,10 @@ const Contact = () => {
                 <div className="flex items-center">
                   <Mail className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
                   <button
-                    onClick={() => handleEmailClick('deutschland@kuzuflex.com')}
+                    onClick={() => handleEmailClick('kuzu@kuzuflex.com')}
                     className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 underline decoration-blue-300 hover:decoration-blue-600"
                   >
-                    deutschland@kuzuflex.com
+                    kuzu@kuzuflex.com
                   </button>
                 </div>
               </div>
@@ -208,7 +234,7 @@ const Contact = () => {
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center group"
               >
                 <MapPin className="w-5 h-5 mr-2" />
-                DIRECTIONS
+                {t('pages.contact.directions', 'Directions')}
               </button>
             </div>
 
@@ -222,12 +248,21 @@ const Contact = () => {
               </div>
               
               {submitStatus.type && (
-                <div className={`mb-6 p-4 rounded-xl border-l-4 ${
+                <div className={`mb-6 p-4 rounded-xl border-l-4 relative ${
                   submitStatus.type === 'success' 
                     ? 'bg-green-50 text-green-800 border-green-400' 
                     : 'bg-red-50 text-red-800 border-red-400'
                 }`}>
-                  <div className="flex items-center">
+                  <button
+                    onClick={() => setSubmitStatus({ type: null, message: '' })}
+                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    aria-label="Close message"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  <div className="flex items-center pr-8">
                     <div className={`w-5 h-5 rounded-full mr-3 ${
                       submitStatus.type === 'success' ? 'bg-green-400' : 'bg-red-400'
                     }`}></div>
@@ -236,7 +271,7 @@ const Contact = () => {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                 <div className="group">
                   <input
                     type="text"
@@ -246,6 +281,7 @@ const Contact = () => {
                     required
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white"
                     placeholder={t('pages.contact.namePlaceholder')}
+                    minLength={2}
                   />
                 </div>
 
@@ -258,18 +294,21 @@ const Contact = () => {
                     required
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white"
                     placeholder={t('pages.contact.emailPlaceholder')}
+                    pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                   />
                 </div>
 
                 <div className="group">
                   <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
                     required
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white"
                     placeholder={t('pages.contact.phonePlaceholder')}
+                    pattern="[0-9+\-\s\(\)]{10,}"
+                    minLength={10}
                   />
                 </div>
 
@@ -282,6 +321,7 @@ const Contact = () => {
                     rows={4}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 bg-gray-50 group-hover:bg-white resize-none"
                     placeholder={t('pages.contact.messagePlaceholder')}
+                    minLength={10}
                   />
                 </div>
 
@@ -306,9 +346,13 @@ const Contact = () => {
                     </>
                   )}
                 </button>
+                
+
               </form>
             </div>
           </div>
+
+
 
           {/* Google Maps Section */}
           <div className="mb-20">
@@ -331,7 +375,7 @@ const Contact = () => {
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
                       <Building2 className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800">TURKEY LOCATION</h3>
+                    <h3 className="text-2xl font-bold text-gray-800">{t('pages.contact.turkeyLocation')}</h3>
                   </div>
                 </div>
                 <div className="h-96 relative">
@@ -356,7 +400,7 @@ const Contact = () => {
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
                       <Globe className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800">GERMANY LOCATION</h3>
+                    <h3 className="text-2xl font-bold text-gray-800">{t('pages.contact.germanyLocation')}</h3>
                   </div>
                 </div>
                 <div className="h-96 relative">

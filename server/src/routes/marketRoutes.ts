@@ -1,4 +1,6 @@
 import { Router } from "express";
+import AppDataSource from "../data-source";
+import { Market } from "../entity/Market";
 import { 
   getAllMarkets, 
   getMarketBySlug, 
@@ -138,6 +140,18 @@ const router = Router();
  *                 $ref: '#/components/schemas/Market'
  */
 router.get("/", getAllMarkets);
+
+// Market sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+  try {
+    const marketRepository = AppDataSource.getRepository(Market);
+    const count = await marketRepository.count();
+    res.json(count);
+  } catch (error) {
+    console.error('Market sayısı alınamadı:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 /**
  * @swagger

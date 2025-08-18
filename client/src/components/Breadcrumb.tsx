@@ -159,7 +159,7 @@ const Breadcrumb = () => {
 
       // Özel durumlar için label'ları çevir
       switch (segment) {
-        case "hakkimizda":
+        case "about-us":
           label = t("breadcrumb.about");
           break;
         case "contact":

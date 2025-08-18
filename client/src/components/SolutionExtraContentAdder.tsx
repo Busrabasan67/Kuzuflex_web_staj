@@ -6,15 +6,55 @@ import SimpleListBuilder from './SimpleListBuilder';
 import MixedContentEditor from './MixedContentEditor';
 import RichTextEditor from './RichTextEditor';
 import { generateMixedContentHTML } from '../utils/htmlGenerators';
+import type { ContentElement } from '../utils/htmlGenerators';
 
-// Local type definitions as backup
-interface ContentElement {
-  id: string;
-  type: 'text' | 'image' | 'table' | 'list';
-  content: any;
-  position?: 'left' | 'right' | 'full';
-  width?: '25%' | '50%' | '75%' | '100%';
-}
+// Bayrak SVG'leri
+const Flags = {
+  tr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="20" height="14">
+      <rect width="300" height="200" fill="#E30A17" />
+      <circle cx="120" cy="100" r="40" fill="#fff" />
+      <circle cx="135" cy="100" r="32" fill="#E30A17" />
+      <polygon
+        fill="#fff"
+        points="170,100 159.5,106.5 162.5,94 152,86 164.5,86 170,74 175.5,86 188,86 177.5,94 180.5,106.5"
+      />
+    </svg>
+  ),
+  en: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <clipPath id="s">
+        <path d="M0,0 v30 h60 v-30 z"/>
+      </clipPath>
+      <clipPath id="g">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
+      </clipPath>
+      <g clipPath="url(#s)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#g)" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+      </g>
+    </svg>
+  ),
+  de: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect y="0" width="60" height="10" fill="#000"/>
+      <rect y="10" width="60" height="10" fill="#D00"/>
+      <rect y="20" width="60" height="10" fill="#FFCE00"/>
+    </svg>
+  ),
+  fr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect x="0" width="20" height="30" fill="#002395"/>
+      <rect x="20" width="20" height="30" fill="#fff"/>
+      <rect x="40" width="20" height="30" fill="#ED2939"/>
+    </svg>
+  )
+};
+
+// Import ContentElement from htmlGenerators instead of local definition
 
 // ContentType'ı burada da tanımla (backup olarak)
 type ContentType = 'text' | 'table' | 'list' | 'mixed';
@@ -171,8 +211,8 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                         id: `element-${index}`,
                         type: elementType as 'text' | 'image' | 'table' | 'list',
                         content: elementContent,
-                        position: position as 'left' | 'right' | 'full',
-                        width: width as '25%' | '50%' | '75%' | '100%'
+                        position: position as 'left' | 'right' | 'full' | 'center',
+                        width: width as '25%' | '33%' | '50%' | '66%' | '75%' | '100%'
                       });
                     });
                     
@@ -268,8 +308,8 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                     id: `element-${index}`,
                     type: elementType as 'text' | 'image' | 'table' | 'list',
                     content: elementContent,
-                    position: position as 'left' | 'right' | 'full',
-                    width: width as '25%' | '50%' | '75%' | '100%'
+                                         position: position as 'left' | 'right' | 'full' | 'center',
+                                          width: width as '25%' | '33%' | '50%' | '66%' | '75%' | '100%'
                   });
                 });
                 
@@ -765,10 +805,15 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                       onClick={() => setActiveLangTab(lang)}
                       className={`${activeLangTab === lang ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'} px-6 py-3 text-sm font-medium border-r last:border-r-0 transition-all duration-200 hover:bg-blue-50`}
                     >
-                      {lang === 'tr' && '🇹🇷 Türkçe'}
-                      {lang === 'en' && '🇬🇧 İngilizce'}
-                      {lang === 'de' && '🇩🇪 Almanca'}
-                      {lang === 'fr' && '🇫🇷 Fransızca'}
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 flex justify-center">
+                          {Flags[lang]()}
+                        </div>
+                        {lang === 'tr' && 'Türkçe'}
+                        {lang === 'en' && 'İngilizce'}
+                        {lang === 'de' && 'Almanca'}
+                        {lang === 'fr' && 'Fransızca'}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -779,12 +824,9 @@ const SolutionExtraContentAdder: React.FC<SolutionExtraContentAdderProps> = ({
                 <div key={language} className={`${activeLangTab === language ? 'block' : 'hidden'}`}>
                   <div className="bg-gray-50 p-6 rounded-lg">
                 <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                  <span className="mr-2">
-                    {language === 'tr' && '🇹🇷'}
-                    {language === 'en' && '🇬🇧'}
-                    {language === 'de' && '🇩🇪'}
-                    {language === 'fr' && '🇫🇷'}
-                  </span>
+                  <div className="w-5 flex justify-center mr-2">
+                    {Flags[language]()}
+                  </div>
                   {getLanguageName(language)} İçeriği
                 </h4>
                 

@@ -1,5 +1,7 @@
 import express from "express";
 import multer from "multer";
+import AppDataSource from "../data-source";
+import { Solution } from "../entity/Solution";
 import { 
   getAllSolutions, 
   getSolutionBySlug, 
@@ -31,6 +33,18 @@ const router = express.Router();
  *         description: "Çözüm listesi döner"
  */
 router.get("/", getAllSolutions);
+
+// Çözüm sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+  try {
+    const solutionRepository = AppDataSource.getRepository(Solution);
+    const count = await solutionRepository.count();
+    res.json(count);
+  } catch (error) {
+    console.error('Çözüm sayısı alınamadı:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 /**
  * @openapi

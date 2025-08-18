@@ -19,6 +19,52 @@ interface ProductGroup {
   productCount: number; // Alt ürün sayısı
 }
 
+// Bayrak SVG'leri
+const Flags = {
+  tr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="20" height="14">
+      <rect width="300" height="200" fill="#E30A17" />
+      <circle cx="120" cy="100" r="40" fill="#fff" />
+      <circle cx="135" cy="100" r="32" fill="#E30A17" />
+      <polygon
+        fill="#fff"
+        points="170,100 159.5,106.5 162.5,94 152,86 164.5,86 170,74 175.5,86 188,86 177.5,94 180.5,106.5"
+      />
+    </svg>
+  ),
+  en: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <clipPath id="s">
+        <path d="M0,0 v30 h60 v-30 z"/>
+      </clipPath>
+      <clipPath id="g">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
+      </clipPath>
+      <g clipPath="url(#s)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#g)" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+      </g>
+    </svg>
+  ),
+  de: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect y="0" width="60" height="10" fill="#000"/>
+      <rect y="10" width="60" height="10" fill="#D00"/>
+      <rect y="20" width="60" height="10" fill="#FFCE00"/>
+    </svg>
+  ),
+  fr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect x="0" width="20" height="30" fill="#002395"/>
+      <rect x="20" width="20" height="30" fill="#fff"/>
+      <rect x="40" width="20" height="30" fill="#ED2939"/>
+    </svg>
+  )
+};
+
 // 4 desteklenen dil kodu
 const LANGUAGES = [
   { code: 'tr', label: 'Türkçe' },
@@ -296,29 +342,29 @@ const AdminProductGroups = () => {
   }
 
   return (
-    <div className="w-full px-4 py-8">
+    <div className="w-full px-2 sm:px-4 py-4 sm:py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
           Üst Kategori Yönetimi
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600">
           Ürün gruplarını görüntüleyin, düzenleyin ve yönetin
         </p>
       </div>
 
       {/* Action Buttons */}
-      <div className="mb-6 flex justify-between items-center">
-        <div className="flex gap-3">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
             onClick={() => setShowModal(true)}
           >
             + Yeni Kategori Ekle
           </button>
           <button
             onClick={fetchGroups}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-gray-600 hover:bg-gray-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
           >
             🔄 Yenile
           </button>
@@ -390,7 +436,12 @@ const AdminProductGroups = () => {
               <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {LANGUAGES.map((lang, idx) => (
                   <div key={lang.code} className="border rounded p-3">
-                    <div className="font-semibold mb-2">{lang.label} ({lang.code})</div>
+                    <div className="font-semibold mb-2 flex items-center gap-2">
+                      <div className="w-5 flex justify-center">
+                        {Flags[lang.code as keyof typeof Flags]()}
+                      </div>
+                      {lang.label} ({lang.code})
+                    </div>
                     <label className="block text-xs text-gray-600 mb-1">Başlık</label>
                     <input
                       type="text"
@@ -514,7 +565,12 @@ const AdminProductGroups = () => {
               <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {LANGUAGES.map((lang, idx) => (
                   <div key={lang.code} className="border rounded p-3">
-                    <div className="font-semibold mb-2">{lang.label} ({lang.code})</div>
+                    <div className="font-semibold mb-2 flex items-center gap-2">
+                      <div className="w-5 flex justify-center">
+                        {Flags[lang.code as keyof typeof Flags]()}
+                      </div>
+                      {lang.label} ({lang.code})
+                    </div>
                     <label className="block text-xs text-gray-600 mb-1">Başlık</label>
                     <input
                       type="text"
@@ -612,129 +668,110 @@ const AdminProductGroups = () => {
 
       {/* Groups Table */}
       <div className="bg-white rounded-lg shadow">
-        <div className="overflow-x-auto max-w-full">
+        <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
                   ID
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
                   Görsel
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32 md:w-40 lg:w-48">
                   İsim
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24 md:w-32">
                   Slug
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-0">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32 md:w-40 lg:w-48">
                   Açıklama
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20 md:w-28">
                   Standart
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20 md:w-24">
                   Alt Ürün
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                  Çeviri
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28 md:w-36">
+                  TARIH
                 </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                  Oluşturulma
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
-                  Güncellenme
-                </th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24 md:w-28">
                   İşlemler
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-white divide-y divide-gray-200">
               {groups.map((group) => (
                 <tr key={group.id} className="hover:bg-gray-50">
-                  <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     #{group.id}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap">
+                  <td className="px-2 py-4 whitespace-nowrap">
                     {group.imageUrl ? (
                       <img
                         src={`${API_BASE}/${group.imageUrl.startsWith('/') ? group.imageUrl.slice(1) : group.imageUrl}`}
                         alt={group.translations[0]?.name || 'Görsel'}
-                        className="h-10 w-10 rounded-lg object-cover"
+                        className="h-8 w-8 md:h-10 md:w-10 rounded-lg object-cover"
                       />
                     ) : (
-                      <div className="h-10 w-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <div className="h-8 w-8 md:h-10 md:w-10 bg-gray-200 rounded-lg flex items-center justify-center">
                         <span className="text-gray-400 text-xs">No</span>
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <div className="max-w-xs truncate" title={group.translations[0]?.name}>
+                  <td className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <div className="max-w-24 md:max-w-32 lg:max-w-48 truncate" title={group.translations[0]?.name}>
                       {group.translations[0]?.name}
                     </div>
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="max-w-xs truncate" title={group.slug || '-'}>
+                  <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="max-w-20 md:max-w-28 lg:max-w-32 truncate" title={group.slug || '-'}>
                       <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">
                         {group.slug || '-'}
                       </code>
                     </div>
                   </td>
-                  <td className="px-3 py-4 text-sm text-gray-500">
-                    <div className="max-w-xs truncate" title={group.translations[0]?.description || '-'}>
+                  <td className="px-2 py-4 text-sm text-gray-500">
+                    <div className="max-w-24 md:max-w-32 lg:max-w-48 truncate" title={group.translations[0]?.description || '-'}>
                       {group.translations[0]?.description || '-'}
                     </div>
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="max-w-xs truncate" title={group.standard || '-'}>
-                      {group.standard || '-'}
+                  <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="max-w-16 md:max-w-20 lg:max-w-28 truncate" title={group.standard && group.standard !== 'null' ? group.standard : '-'}>
+                      {group.standard && group.standard !== 'null' ? group.standard : '-'}
                     </div>
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       {group.productCount}
                     </span>
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {group.translations.length}
-                    </span>
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="text-xs">
-                      {group.createdAt ? new Date(group.createdAt).toLocaleDateString('tr-TR', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : '-'}
+                  <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-400">Oluşturulma:</span>
+                        <span className="text-xs">{group.createdAt ? new Date(group.createdAt).toLocaleDateString('tr-TR') : '-'}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-400">Güncelleme:</span>
+                        <span className={`text-xs ${group.updatedAt !== group.createdAt ? 'text-blue-600 font-medium' : ''}`}>
+                          {group.updatedAt ? new Date(group.updatedAt).toLocaleDateString('tr-TR') : '-'}
+                        </span>
+                      </div>
                     </div>
                   </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="text-xs">
-                      {group.updatedAt ? new Date(group.updatedAt).toLocaleDateString('tr-TR', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : '-'}
-                    </div>
-                  </td>
-                  <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex gap-2">
+                  <td className="px-2 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-2">
                       <button 
                         onClick={() => handleEditClick(group)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white transition-colors px-3 py-1.5 rounded-md text-xs font-medium shadow-sm"
+                        className="bg-blue-500 hover:bg-blue-600 text-white transition-colors px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs font-medium shadow-sm"
                       >
                         Düzenle
                       </button>
                       <button 
                         onClick={() => handleDeleteClick(group)}
-                        className="bg-red-500 hover:bg-red-600 text-white transition-colors px-3 py-1.5 rounded-md text-xs font-medium shadow-sm"
+                        className="bg-red-500 hover:bg-red-600 text-white transition-colors px-2 py-1 sm:px-3 sm:py-1.5 rounded-md text-xs font-medium shadow-sm"
                       >
                         Sil
                       </button>

@@ -7,6 +7,7 @@ exports.swaggerSpec = exports.swaggerUi = void 0;
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 exports.swaggerUi = swagger_ui_express_1.default;
+const path_1 = __importDefault(require("path"));
 const options = {
     definition: {
         openapi: "3.0.0",
@@ -20,8 +21,17 @@ const options = {
                 url: "http://localhost:5000",
             },
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
     },
-    apis: ["./src/controllers/*.ts"], // Route'ların yorumları buradan okunacak
+    apis: [path_1.default.join(__dirname, "../routes/*.ts")], // Absolute path kullan
 };
 const swaggerSpec = (0, swagger_jsdoc_1.default)(options);
 exports.swaggerSpec = swaggerSpec;

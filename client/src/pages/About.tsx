@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 interface PageData {
   id: number;
@@ -58,13 +59,27 @@ const About = () => {
           extraRes.json()
         ]);
         
+        console.log('About.tsx - API\'den gelen pageData:', pageData);
+        console.log('About.tsx - API\'den gelen extraData:', extraData);
+        
         // Dil bazında filtreleme yap
         const currentLang = i18n.language;
+        
+        // Mevcut dildeki çeviriyi bul
+        const currentTranslation = pageData.translations?.find((t: any) => t.language === currentLang);
+        
         const filteredPageData = {
           ...pageData,
+          // Hero section için gerekli alanları set et
+          title: currentTranslation?.title || '',
           translations: pageData.translations?.filter((t: any) => t.language === currentLang) || [],
           extraContents: pageData.extraContents?.filter((c: any) => c.language === currentLang) || []
         };
+        
+        console.log('About.tsx - Mevcut dil:', currentLang);
+        console.log('About.tsx - Bulunan çeviri:', currentTranslation);
+        console.log('About.tsx - Filtrelenmiş pageData:', filteredPageData);
+        console.log('About.tsx - Title:', filteredPageData.title);
         
         setData(filteredPageData);
         setExtraContents(extraData);
@@ -120,12 +135,16 @@ const About = () => {
               const jsonContent = parsedContent.json;
               
               if (jsonContent.title && jsonContent.layout && jsonContent.elements) {
-                return parsedContent.html;
+                // Başlığı kaldır, sadece içeriği göster
+                const htmlWithoutTitle = parsedContent.html.replace(/<h[1-6][^>]*>.*?<\/h[1-6]>/gi, '');
+                return htmlWithoutTitle || parsedContent.html;
               }
             }
             
             if (parsedContent.title && parsedContent.layout && parsedContent.elements) {
-              return parsedContent.html;
+              // Başlığı kaldır, sadece içeriği göster
+              const htmlWithoutTitle = parsedContent.html.replace(/<h[1-6][^>]*>.*?<\/h[1-6]>/gi, '');
+              return htmlWithoutTitle || parsedContent.html;
             }
           } catch (parseError) {
             console.error('Mixed content JSON parsing error:', parseError);
@@ -250,24 +269,12 @@ const About = () => {
           <div className="relative h-full flex items-center justify-center text-center text-white px-4">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-3">{data.title || t('pages.contact.title')}</h1>
-              {data.subtitle && (
-                <p className="text-lg md:text-xl opacity-90">{data.subtitle}</p>
-              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Body - Sadece bodyHtml içeriği varsa göster */}
-      {data.bodyHtml && data.bodyHtml.trim() !== '' && (
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-16 border border-gray-100">
-            <div className="prose prose-xl max-w-none text-center">
-              <div dangerouslySetInnerHTML={{ __html: fixImageUrls(data.bodyHtml) }} />
-            </div>
-          </div>
-        </div>
-      )}
+
 
               {/* Extra Contents Section - Yatay Kartlar */}
         {extraContents && extraContents.length > 0 && (
@@ -295,20 +302,9 @@ const About = () => {
           </div>
         )}
 
-      {/* Contact CTA */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-10 md:p-16 text-center border border-blue-100">
-          <h3 className="text-2xl md:text-3xl font-semibold mb-6 text-gray-800">
-            {t('pages.contact.subtitle')}
-          </h3>
-          <p className="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">
-            {t('pages.contact.description')}
-          </p>
-          <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-lg font-medium">
-            {t('navbar.contact')}
-          </button>
-        </div>
-      </div>
+
+
+
     </div>
   );
 };

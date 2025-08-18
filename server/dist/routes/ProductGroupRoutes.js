@@ -4,6 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const data_source_1 = __importDefault(require("../data-source"));
+const ProductGroup_1 = require("../entity/ProductGroup");
 const productGroupController_1 = require("../controllers/productGroupController");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
@@ -46,6 +48,18 @@ const router = (0, express_1.Router)();
  *         description: Gruplar başarıyla getirildi
  */
 router.get("/", productGroupController_1.getAllGroups);
+// Ürün grubu sayısını getiren route (dashboard için)
+router.get("/count", async (req, res) => {
+    try {
+        const groupRepository = data_source_1.default.getRepository(ProductGroup_1.ProductGroup);
+        const count = await groupRepository.count();
+        res.json(count);
+    }
+    catch (error) {
+        console.error('Ürün grubu sayısı alınamadı:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 /**
  * @swagger
  * /api/product-groups/slug/{groupSlug}/products:

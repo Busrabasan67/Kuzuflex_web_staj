@@ -2,6 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiPlus, FiEdit, FiTrash2, FiDownload } from 'react-icons/fi';
 
+// Bayrak SVG'leri
+const Flags = {
+  tr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="20" height="14">
+      <rect width="300" height="200" fill="#E30A17" />
+      <circle cx="120" cy="100" r="40" fill="#fff" />
+      <circle cx="135" cy="100" r="32" fill="#E30A17" />
+      <polygon
+        fill="#fff"
+        points="170,100 159.5,106.5 162.5,94 152,86 164.5,86 170,74 175.5,86 188,86 177.5,94 180.5,106.5"
+      />
+    </svg>
+  ),
+  en: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <clipPath id="s">
+        <path d="M0,0 v30 h60 v-30 z"/>
+      </clipPath>
+      <clipPath id="g">
+        <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/>
+      </clipPath>
+      <g clipPath="url(#s)">
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath="url(#g)" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6"/>
+      </g>
+    </svg>
+  ),
+  de: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect y="0" width="60" height="10" fill="#000"/>
+      <rect y="10" width="60" height="10" fill="#D00"/>
+      <rect y="20" width="60" height="10" fill="#FFCE00"/>
+    </svg>
+  ),
+  fr: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" width="20" height="10">
+      <rect x="0" width="20" height="30" fill="#002395"/>
+      <rect x="20" width="20" height="30" fill="#fff"/>
+      <rect x="40" width="20" height="30" fill="#ED2939"/>
+    </svg>
+  )
+};
+
 interface QMDocument {
   id: number;
   title: string;
@@ -736,7 +782,12 @@ const QMDocumentsManagement: React.FC = () => {
 
                {/* Turkish Translation */}
                <div className="border-t pt-6">
-                 <h3 className="text-lg font-semibold text-gray-900 mb-4">🇹🇷 Türkçe İçerik</h3>
+                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                   <div className="w-5 flex justify-center">
+                     {Flags.tr()}
+                   </div>
+                   Türkçe İçerik
+                 </h3>
                  <div className="space-y-4">
                    <div>
                      <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -769,7 +820,12 @@ const QMDocumentsManagement: React.FC = () => {
 
                {/* English Translation */}
                <div className="border-t pt-6">
-                 <h3 className="text-lg font-semibold text-gray-900 mb-4">🇬🇧 English Content</h3>
+                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                   <div className="w-5 flex justify-center">
+                     {Flags.en()}
+                   </div>
+                   English Content
+                 </h3>
                  <div className="space-y-4">
                    <div>
                      <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -877,7 +933,12 @@ const QMDocumentsManagement: React.FC = () => {
 
                       {/* Türkçe Dosyalar */}
                       <div>
-                        <h4 className="text-md font-semibold text-gray-900 mb-3">🇹🇷 Türkçe Dosyalar</h4>
+                        <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <div className="w-5 flex justify-center">
+                            {Flags.tr()}
+                          </div>
+                          Türkçe Dosyalar
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -914,7 +975,12 @@ const QMDocumentsManagement: React.FC = () => {
 
                       {/* İngilizce Dosyalar */}
                       <div>
-                        <h4 className="text-md font-semibold text-gray-900 mb-3">🇬🇧 İngilizce Dosyalar</h4>
+                        <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <div className="w-5 flex justify-center">
+                            {Flags.en()}
+                          </div>
+                          İngilizce Dosyalar
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1036,7 +1102,12 @@ const QMDocumentsManagement: React.FC = () => {
                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Çeviriler</h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    <div>
-                     <h4 className="text-md font-medium text-gray-700 mb-3">🇹🇷 Türkçe</h4>
+                     <h4 className="text-md font-medium text-gray-700 mb-3 flex items-center gap-2">
+                       <div className="w-5 flex justify-center">
+                         {Flags.tr()}
+                       </div>
+                       Türkçe
+                     </h4>
                      <div className="space-y-3">
                        <div>
                          <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1065,7 +1136,12 @@ const QMDocumentsManagement: React.FC = () => {
                      </div>
                    </div>
                    <div>
-                     <h4 className="text-md font-medium text-gray-700 mb-3">🇬🇧 İngilizce</h4>
+                     <h4 className="text-md font-medium text-gray-700 mb-3 flex items-center gap-2">
+                       <div className="w-5 flex justify-center">
+                         {Flags.en()}
+                       </div>
+                       İngilizce
+                     </h4>
                      <div className="space-y-3">
                        <div>
                          <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1190,7 +1266,12 @@ const QMDocumentsManagement: React.FC = () => {
 
                      {/* Türkçe Dosyalar */}
                      <div>
-                       <h4 className="text-md font-semibold text-gray-900 mb-3">🇹🇷 Türkçe Dosyalar</h4>
+                       <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                         <div className="w-5 flex justify-center">
+                           {Flags.tr()}
+                         </div>
+                         Türkçe Dosyalar
+                       </h4>
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <div>
                            <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1225,7 +1306,12 @@ const QMDocumentsManagement: React.FC = () => {
 
                      {/* İngilizce Dosyalar */}
                      <div>
-                       <h4 className="text-md font-semibold text-gray-900 mb-3">🇬🇧 İngilizce Dosyalar</h4>
+                       <h4 className="text-md font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                         <div className="w-5 flex justify-center">
+                           {Flags.en()}
+                         </div>
+                         İngilizce Dosyalar
+                       </h4>
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                          <div>
                            <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FiSearch, FiMoon, FiSun, FiGlobe, FiChevronDown } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import { Phone, Mail } from "lucide-react";
 import KuzuflexLogo from "../assets/kuzuflex-logo.webp";
-import { ThemeContext } from "../theme/ThemeContext";
 import LanguageSwitcher from "./LanguageSwithcer";
 
 interface MenuItem {
@@ -49,7 +49,9 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   const [language, setLanguage] = useState(i18n.language || "en");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
-  const { darkMode, setDarkMode } = useContext(ThemeContext);
+
+
+
   const location = useLocation();
   const navigate = useNavigate();
   const navbarRef = useRef<HTMLDivElement>(null);
@@ -140,15 +142,19 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
             submenu: [] // Empty submenu to ensure consistent styling
           },
           {
-            title: t('navbar.corporate'),
-            submenu: [
-              { title: t('navbar.about'), path: "/hakkimizda" },
-              { title: t('navbar.qmDocuments'), path: "/qm-documents" },
-            ],
+            title: t('navbar.about'), 
+            path: "/about-us"
+          },
+          {
+            title: t('navbar.contact'), 
+            path: "/contact"
           },
         ];
 
-        setMenuItems([...staticMenus, dynamicProductsMenu, solutionsMenu]);
+        setMenuItems([...staticMenus, dynamicProductsMenu, solutionsMenu, {
+          title: t('navbar.documents'), 
+          path: "/qm-documents"
+        }]);
       } catch (err) {
         console.error("❌ Veriler alınamadı:", err);
       }
@@ -160,16 +166,26 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
   return (
     <nav
       ref={navbarRef}
-      className={`sticky top-0 z-50 m-0 p-0 transition-all duration-300 shadow-okuma ${
-        darkMode ? "bg-okuma-gray-900 text-white" : "bg-white text-okuma-gray-900 border-b border-okuma-gray-200"
-      }`}
+      className="sticky top-0 z-50 m-0 p-0 transition-all duration-300 shadow-okuma bg-white text-okuma-gray-900 border-b border-okuma-gray-200"
     >
       {/* Üst bilgi - Okuma.com tarzı */}
       <div className="bg-okuma-950 text-white text-xs py-2 px-4 flex justify-between items-center">
-        <div className="font-medium">{t('navbar.professionalSolutions')}</div>
+        <div className="font-medium">{t('navbar.professionalSolutions', 'Professional Industrial Solutions')}</div>
         <div className="flex items-center space-x-4">
-          <span className="hover:text-okuma-300 transition-colors">{t('common.phone')}</span>
-          <span className="hover:text-okuma-300 transition-colors">{t('common.email')}</span>
+          <a 
+            href={`tel:${t('common.phone', '+90 850 800 22 22')}`}
+            className="hover:text-okuma-300 transition-colors flex items-center gap-1"
+          >
+            <Phone className="h-3 w-3" />
+            {t('common.phone', '+90 850 800 22 22')}
+          </a>
+          <a 
+            href={`mailto:${t('common.email', 'kuzu@kuzuflex.com')}`}
+            className="hover:text-okuma-300 transition-colors flex items-center gap-1"
+          >
+            <Mail className="h-3 w-3" />
+            {t('common.email', 'kuzu@kuzuflex.com')}
+          </a>
         </div>
       </div>
 
@@ -228,9 +244,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                 {/* Alt Kategoriler - Okuma.com tarzı */}
                 {item.submenu && item.submenu.length > 0 && (
                   <div 
-                    className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 min-w-[250px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 transition-all duration-300 ease-in-out ${
-                      darkMode ? "bg-okuma-gray-800 text-white" : "bg-white text-okuma-gray-900"
-                    } ${
+                    className={`absolute top-full left-1/2 -translate-x-1/2 pt-2 min-w-[250px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 transition-all duration-300 ease-in-out bg-white text-okuma-gray-900 ${
                       openDropdown === item.title 
                         ? "opacity-100 visible translate-y-0" 
                         : "opacity-0 invisible -translate-y-2 pointer-events-none"
@@ -272,12 +286,10 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                         {/* ALT ALT MENÜ - Okuma.com tarzı */}
                         {sub.submenu && sub.submenu.length > 0 && (
                           <div 
-                            className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 transition-all duration-300 ease-in-out ${
-                              darkMode ? "bg-okuma-gray-700 text-white" : "bg-white text-okuma-gray-900"
-                            } ${
+                            className={`absolute left-full top-0 mt-0 ml-2 min-w-[200px] rounded-xl shadow-okuma-lg border border-okuma-gray-100 z-50 transition-all duration-300 ease-in-out bg-white text-okuma-gray-900 ${
                               openSubDropdown === sub.title 
                                 ? "opacity-100 visible translate-x-0" 
-                                : "opacity-0 invisible -translate-x-2 pointer-events-none"
+                                : "opacity-0 invisible -translate-y-2 pointer-events-none"
                             }`}
                             onMouseEnter={() => {
                               // Alt alt menü container'ına girince açık tut
@@ -314,17 +326,12 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
                             <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">
               <FiSearch className="w-5 h-5" />
             </button>
-                            <button onClick={() => setDarkMode(!darkMode)} className="p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">
-              {darkMode ? <FiSun className="w-5 h-5" /> : <FiMoon className="w-5 h-5" />}
-            </button>
+
             
             {/* LanguageSwitcher Component'i */}
             <LanguageSwitcher />
             
-                            <Link to={isAdminLoggedIn ? "/admin" : "/admin-login"} className="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-all duration-200 font-medium shadow-lg">
-              {t('navbar.adminPanel')}
-            </Link>
-                            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">☰</button>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2 text-gray-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200">☰</button>
           </div>
         </div>
 
@@ -343,9 +350,7 @@ const Navbar = ({ isAdminLoggedIn }: { isAdminLoggedIn?: boolean }) => {
 
         {/* Mobil Menü - Okuma.com tarzı */}
         {menuOpen && (
-          <div className={`lg:hidden border-t border-okuma-gray-200 ${
-            darkMode ? "bg-okuma-gray-800 text-white" : "bg-white text-okuma-gray-900"
-          }`}>
+          <div className="lg:hidden border-t border-okuma-gray-200 bg-white text-okuma-gray-900">
             <div className="px-6 py-4 space-y-2">
               {menuItems.map((item) => (
                 <div key={item.title}>

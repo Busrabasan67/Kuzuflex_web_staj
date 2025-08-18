@@ -7,6 +7,7 @@ import AdminProducts from "../components/AdminProducts";
 import QMDocumentsManagement from "../components/QMDocumentsManagement";
 import AboutPageManager from "../components/AboutPageManager";
 import EmailSettings from "../components/EmailSettings";
+import AdminProfile from "../components/AdminProfile";
 import kuzuflexLogo from "../assets/kuzuflex-logo.webp";
 
 import { useAuth } from "../context/AuthContext";
@@ -14,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 import MarketsManagement from "../components/MarketsManagement";
 import { 
-  FiHome, 
+  FiBarChart2, 
   FiPackage, 
   FiGrid, 
   FiFileText,
@@ -31,6 +32,13 @@ const AdminPanel: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar açık/kapalı durumu 
   const [showUserMenu, setShowUserMenu] = useState(false); // Kullanıcı menüsü açık/kapalı
   const [userInfo, setUserInfo] = useState<{ username: string; email: string } | null>(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalProducts: 0,
+    totalSolutions: 0,
+    totalMarkets: 0,
+    totalDocuments: 0,
+    totalProductGroups: 0
+  });
   const { isAuthenticated, token, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -112,7 +120,41 @@ const AdminPanel: React.FC = () => {
     };
   }, [isAuthenticated, token, navigate]);
 
+  // Dashboard istatistiklerini çek
+  const fetchDashboardStats = async () => {
+    try {
+      const [productsRes, solutionsRes, marketsRes, documentsRes, groupsRes] = await Promise.all([
+        fetch('/api/products/count'),
+        fetch('/api/solutions/count'),
+        fetch('/api/markets/count'),
+        fetch('/api/qm-documents-and-certificates/count'),
+        fetch('/api/product-groups/count')
+      ]);
 
+      const stats = {
+        totalProducts: productsRes.ok ? await productsRes.json() : 0,
+        totalSolutions: solutionsRes.ok ? await solutionsRes.json() : 0,
+        totalMarkets: marketsRes.ok ? await marketsRes.json() : 0,
+        totalDocuments: documentsRes.ok ? await documentsRes.json() : 0,
+        totalProductGroups: groupsRes.ok ? await groupsRes.json() : 0
+      };
+
+      setDashboardStats(stats);
+    } catch (error) {
+      console.error('Dashboard istatistikleri alınamadı:', error);
+    }
+  };
+
+  // Profil güncelleme callback'i
+  const handleProfileUpdate = (updatedData: { username: string; email: string }) => {
+    setUserInfo(updatedData);
+    
+    // Kullanıcıya bilgi ver
+    console.log('Profil güncellendi:', updatedData);
+    
+    // Sidebar'daki kullanıcı bilgileri hemen güncellendi
+    // Bu sayede değişiklikler anında yansıyor
+  };
 
   // Kullanıcı menüsünün dışarı tıklandığında kapanması
   useEffect(() => {
@@ -132,6 +174,13 @@ const AdminPanel: React.FC = () => {
     };
   }, [showUserMenu]);
 
+  // Dashboard istatistiklerini çek
+  useEffect(() => {
+    if (activeTab === "dashboard" && isAuthenticated) {
+      fetchDashboardStats();
+    }
+  }, [activeTab, isAuthenticated]);
+
   // Eğer authenticate değilse loading göster
   if (!isAuthenticated || !token) {
     return (
@@ -145,7 +194,7 @@ const AdminPanel: React.FC = () => {
   }
 
   const tabs = [
-    { id: "dashboard", name: "Ana Sayfa", icon: FiHome },
+    { id: "dashboard", name: "Dashboard", icon: FiBarChart2 },
     { id: "markets", name: "Pazar Yönetimi", icon: FiGlobe },
     { id: "product-groups", name: "Ürün Kategorileri", icon: FiPackage },
     { id: "products", name: "Ürün Yönetimi", icon: FiGrid },
@@ -158,13 +207,171 @@ const AdminPanel: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "dashboard":
-        return (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Admin Ana Sayfa</h2>
-            <p className="mb-6">Hoş geldiniz! Buradan sitenizi yönetebilirsiniz.</p>
-          </div>
-        );
+              case "dashboard":
+          return (
+            <div className="p-6">
+              {/* Header Section */}
+              <div className="mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h2>
+                  <p className="text-gray-600">Hoş geldiniz! Sitenizin genel durumunu buradan takip edebilirsiniz.</p>
+                </div>
+              </div>
+
+              {/* Ana İstatistik Kartları - Gradient ve Modern */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-blue-100 text-sm font-medium">Toplam Ürün</p>
+                      <p className="text-3xl font-bold">{dashboardStats.totalProducts}</p>
+                    </div>
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <FiPackage className="w-8 h-8" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-100 text-sm font-medium">Toplam Çözüm</p>
+                      <p className="text-3xl font-bold">{dashboardStats.totalSolutions}</p>
+                    </div>
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <FiTool className="w-8 h-8" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-purple-100 text-sm font-medium">Toplam Pazar</p>
+                      <p className="text-3xl font-bold">{dashboardStats.totalMarkets}</p>
+                    </div>
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <FiGlobe className="w-8 h-8" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-yellow-100 text-sm font-medium">Toplam Belge</p>
+                      <p className="text-3xl font-bold">{dashboardStats.totalDocuments}</p>
+                    </div>
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <FiAward className="w-8 h-8" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-2xl shadow-lg text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-indigo-100 text-sm font-medium">Ürün Grupları</p>
+                      <p className="text-3xl font-bold">{dashboardStats.totalProductGroups}</p>
+                    </div>
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <FiGrid className="w-8 h-8" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hızlı Erişim */}
+              <div className="mb-8">
+                <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                    <svg className="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Hızlı Erişim
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <button 
+                      onClick={() => setActiveTab("products")}
+                      className="group p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-xl border border-blue-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    >
+                      <div className="text-center">
+                        <div className="bg-blue-500 p-3 rounded-lg w-12 h-12 mx-auto mb-3 group-hover:bg-blue-600 transition-colors">
+                          <FiPackage className="w-6 h-6 text-white mx-auto" />
+                        </div>
+                        <span className="text-blue-700 font-semibold text-sm">Ürün Ekle</span>
+                      </div>
+                    </button>
+
+                    <button 
+                      onClick={() => setActiveTab("solutions")}
+                      className="group p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl border border-green-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    >
+                      <div className="text-center">
+                        <div className="bg-green-500 p-3 rounded-lg w-12 h-12 mx-auto mb-3 group-hover:bg-green-600 transition-colors">
+                          <FiTool className="w-6 h-6 text-white mx-auto" />
+                        </div>
+                        <span className="text-green-700 font-semibold text-sm">Çözüm Ekle</span>
+                      </div>
+                    </button>
+
+                    <button 
+                      onClick={() => setActiveTab("markets")}
+                      className="group p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl border border-purple-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    >
+                      <div className="text-center">
+                        <div className="bg-purple-500 p-3 rounded-lg w-12 h-12 mx-auto mb-3 group-hover:bg-purple-600 transition-colors">
+                          <FiGlobe className="w-6 h-6 text-white mx-auto" />
+                        </div>
+                        <span className="text-purple-700 font-semibold text-sm">Pazar Ekle</span>
+                      </div>
+                    </button>
+
+                    <button 
+                      onClick={() => setActiveTab("product-groups")}
+                      className="group p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200 rounded-xl border border-indigo-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    >
+                      <div className="text-center">
+                        <div className="bg-indigo-500 p-3 rounded-lg w-12 h-12 mx-auto mb-3 group-hover:bg-indigo-600 transition-colors">
+                          <FiGrid className="w-6 h-6 text-white mx-auto" />
+                        </div>
+                        <span className="text-indigo-700 font-semibold text-sm">Grup Ekle</span>
+                      </div>
+                    </button>
+
+                    <button 
+                      onClick={() => setActiveTab("qm-documents")}
+                      className="group p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 rounded-xl border border-yellow-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    >
+                      <div className="text-center">
+                        <div className="bg-yellow-500 p-3 rounded-lg w-12 h-12 mx-auto mb-3 group-hover:bg-yellow-600 transition-colors">
+                          <FiAward className="w-6 h-6 text-white mx-auto" />
+                        </div>
+                        <span className="text-yellow-700 font-semibold text-sm">Belge Yükle</span>
+                      </div>
+                    </button>
+
+                    <button 
+                      onClick={() => setActiveTab("about")}
+                      className="group p-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-xl border border-gray-200 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                    >
+                      <div className="text-center">
+                        <div className="bg-gray-500 p-3 rounded-lg w-12 h-12 mx-auto mb-3 group-hover:bg-gray-600 transition-colors">
+                          <FiFileText className="w-6 h-6 text-white mx-auto" />
+                        </div>
+                        <span className="text-gray-700 font-semibold text-sm">Hakkımızda</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          );
+
+      case "profile":
+        return <AdminProfile onProfileUpdate={handleProfileUpdate} />;
 
       case "markets":
         return <MarketsManagement />;
