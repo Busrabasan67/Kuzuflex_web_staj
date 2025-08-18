@@ -204,7 +204,7 @@ API documentation access:
 ### **🔗 API Endpoints**
 
 #### **Product Group Management**
-<img width="1354" height="258" alt="image" src="https://github.com/user-attachments/assets/485eda50-c8dd-4452-aedd-2672771795de" />
+<img width="1369" height="383" alt="image" src="https://github.com/user-attachments/assets/08b2a82d-dbeb-419a-b256-011591183da1" />
 
 #### **Product Management**
 <img width="1376" height="371" alt="image" src="https://github.com/user-attachments/assets/ac2cb751-06f6-4749-984e-99b155095677" />
@@ -233,16 +233,16 @@ API documentation access:
 #### **Home**
 <img width="1397" height="115" alt="image" src="https://github.com/user-attachments/assets/0c8b2c6a-de58-46ac-a110-62af7c040f67" />
 
-#### **Catalogs**
+#### **Catalogs Managements**
 <img width="1384" height="267" alt="image" src="https://github.com/user-attachments/assets/bce6ebc7-ee41-4280-9a60-40e028228e64" />
 
-#### **About Page**
+#### **About Page Managements**
+<img width="1368" height="359" alt="image" src="https://github.com/user-attachments/assets/4ce35ee8-840b-41bc-ae62-ba9a445dff04" />
 
-
-#### **About Page Extra Content**
+#### **About Page Extra Content Managements**
 <img width="1391" height="478" alt="image" src="https://github.com/user-attachments/assets/467f7979-bea1-4029-8b77-de5559489b00" />
 
-#### **Documents and Certificates**
+#### **Documents and Certificates Managements**
 <img width="1371" height="319" alt="image" src="https://github.com/user-attachments/assets/32cf3dc0-1fc1-4939-bf9d-fbae1e67ffea" />
 <img width="1371" height="110" alt="image" src="https://github.com/user-attachments/assets/75074250-e495-4c30-9df6-5b2c0a1efb51" />
 
