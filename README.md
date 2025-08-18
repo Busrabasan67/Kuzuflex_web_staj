@@ -147,7 +147,9 @@ Kuzuflex_web_staj/
 
 ## 🗄️ Database Relationship Schema
 
-![Database Relationship Schema](docs/database-schema.png)
+![Database Relationship Schema]
+<img width="1237" height="777" alt="image" src="https://github.com/user-attachments/assets/61775018-849f-4a06-922e-f1c4bb09d728" />
+
 
 *ERD (Entity Relationship Diagram) showing database tables and their relationships*
 
@@ -197,21 +199,54 @@ Kuzuflex_web_staj/
 
 ### **Swagger UI**
 API documentation access:
-- **Development**: `http://localhost:3000/api-docs`
+- **Development**: `http://localhost:5000/api-docs`
 
 ### **🔗 API Endpoints**
 
+#### **Product Group Management**
+<img width="1354" height="258" alt="image" src="https://github.com/user-attachments/assets/485eda50-c8dd-4452-aedd-2672771795de" />
+
 #### **Product Management**
-![Product API Endpoints](docs/api/product-endpoints.png)
+<img width="1376" height="371" alt="image" src="https://github.com/user-attachments/assets/ac2cb751-06f6-4749-984e-99b155095677" />
 
 #### **Solutions Management**
-![Solutions API Endpoints](docs/api/solutions-endpoints.png)
+<img width="1363" height="422" alt="image" src="https://github.com/user-attachments/assets/5775d354-c8f6-46ad-85e0-6c8702d886f7" />
+
+#### **Solution's Extra Content Management**
+<img width="1350" height="461" alt="image" src="https://github.com/user-attachments/assets/f8df1eb2-ad5d-4fbe-aa01-6b9316820e5f" />
 
 #### **Market Management**
-![Market API Endpoints](docs/api/markets-endpoints.png)
+<img width="1362" height="456" alt="image" src="https://github.com/user-attachments/assets/1035d84b-0c70-43ee-b75d-b872bebdc1a2" />
 
-#### **Admin Operations**
-![Admin API Endpoints](docs/api/admin-endpoints.png)
+#### **Market's Content Management**
+<img width="1379" height="265" alt="image" src="https://github.com/user-attachments/assets/1b6d028c-2a44-4933-a6d2-cd9fce14a946" />
+
+#### **Authentication**
+<img width="1381" height="574" alt="image" src="https://github.com/user-attachments/assets/89956aba-6bd2-4d07-8457-7e146a0260dd" />
+
+#### **Email Settings**
+<img width="1370" height="217" alt="image" src="https://github.com/user-attachments/assets/8d38e49b-a240-4048-b32c-0882a864746a" />
+
+#### **Contact**
+<img width="1363" height="211" alt="image" src="https://github.com/user-attachments/assets/c7ed1f3c-38b5-4642-b840-8c4e892f24ec" />
+
+#### **Home**
+<img width="1397" height="115" alt="image" src="https://github.com/user-attachments/assets/0c8b2c6a-de58-46ac-a110-62af7c040f67" />
+
+#### **Catalogs**
+<img width="1384" height="267" alt="image" src="https://github.com/user-attachments/assets/bce6ebc7-ee41-4280-9a60-40e028228e64" />
+
+#### **About Page**
+
+
+#### **About Page Extra Content**
+<img width="1391" height="478" alt="image" src="https://github.com/user-attachments/assets/467f7979-bea1-4029-8b77-de5559489b00" />
+
+#### **Documents and Certificates**
+<img width="1371" height="319" alt="image" src="https://github.com/user-attachments/assets/32cf3dc0-1fc1-4939-bf9d-fbae1e67ffea" />
+<img width="1371" height="110" alt="image" src="https://github.com/user-attachments/assets/75074250-e495-4c30-9df6-5b2c0a1efb51" />
+
+
 
 ### **API Features**
 - **RESTful Design** - REST principles compliant
